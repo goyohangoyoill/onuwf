@@ -18,20 +18,18 @@ go get github.com/bwmarrin/discordgo
 go get github.com/clinet/discordgo-embed
 ```
 
-# 개발 진행 상황
+# 디렉터리 구조
 
-branch `file-seperate` : 강제 종료 구현을 용이하게 하기 위해 게임별로 다른 프로세스를 실행하고, 해당 게임이 종료되었을 때 (강제종료, 정상종료) 해당 프로세스를 끝마친다. 이를 위한 외부 프로세스와 내부 프로세스를 각각 `ONUWF`, `GameHandler` 가 맡는다.
+`asset` : 게임을 위한 에셋
+`util` : 데이터베이스 연동, 파일 입출력 등의 유틸리티 코드
+`game` : 게임 내부 데이터를 위한 스트럭처 모음
 
-# 빌드 방법
+# 추가해야하는 파일들
 
-```
-git clone https://github.com/splkm97/ONUWF.git
-cd ONUWF/GameHandler
-/* add env.json and Log dir */
-go build
-cd ..
-go build
-```
+`log/error.log`
+`log/debug.log`
+`log/user.log`
+`config/env.json` -> 슬랙 참고
 
 # 설계 진행 상황
 
