@@ -6,6 +6,7 @@ One Night Ultimate Werewolf ver 2
 - mongoDB
 ```
 go get go.mongodb.org/mongo-driver/mongo
+// 아직 사용하지 않았다.
 ```
 
 - discordgo
