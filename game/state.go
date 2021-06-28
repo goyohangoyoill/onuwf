@@ -1,11 +1,11 @@
-// +build linux,amd64,go1.15,!cgo
-
-package state
+package game
 
 import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// State 는 리액션 입력이 발생했을 때 현재 상태에 따라 다른 함수를 호출하는 작업을 수행하는
+// 인터페이스로, 숫자 버튼, 쓰레기통 버튼, 예/아니오 버튼, 방향 버튼을 인식할 수 있게 구현한다.
 type State interface {
 	// 사용자 인원수 3 ~ 26
 	// num: 0 ~ 23

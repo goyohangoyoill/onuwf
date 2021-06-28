@@ -1,6 +1,4 @@
-// +build linux,amd64,go1.15,!cgo
-
-package state
+package game
 
 import (
 	"github.com/bwmarrin/discordgo"
@@ -9,11 +7,11 @@ import (
 
 type StatePlayable struct {
 	// state 에서 가지고 있는 game
-	g *gamedata.Game
+	g *Game
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 StatePlayable에서 하는 동작
-func (sPrepare *StatePlayable) pressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+func (sPrepare *StatePlayable) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
 
 }
 

@@ -1,6 +1,4 @@
-// +build linux,amd64,go1.15,!cgo
-
-package internal
+package game
 
 // User : 각 사용자들의 정보를 담고 있는 스트럭처
 type User struct {

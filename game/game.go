@@ -1,10 +1,6 @@
-// +build linux,amd64,go1.15,!cgo
-
-package internal
+package game
 
 import (
-	"os"
-
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
 )
@@ -23,16 +19,16 @@ type Game struct {
 	masterID string
 
 	// 현재 게임의 참가자들
-	userList []user
+	userList []*User
 
 	// 현재 게임에서 순서대로 추가, 중복제거 된 직업들의 목록
-	roleSeq []role
+	roleSeq []*Role
 
 	// 현재 게임에서 사용중인 사용자에게 보여줄 중복 정렬된 직업들의 목록
-	roleView []role
+	roleView []*Role
 
 	// 현재 게임의 진행시점
-	curState state
+	curState State
 
 	// Role을 User별로 매핑시킨 인덱스 테이블
 	// <usage : roleIdxTable[userIdx][roleIdx]>
@@ -40,28 +36,27 @@ type Game struct {
 	oriRoleIdxTable [][]bool
 
 	// 게임에서 버려진 직업 목록
-	disRole []role
+	disRole []*Role
 
 	// 게임 진행 상황을 기록하는 로그 메시지 배열
 	logMsg []string
-
-	killChan chan os.Signal
 }
 
+// NewGame : Game 스트럭처를 생성하는 생성자,
 func NewGame(gid, cid, muid string) (g *Game) {
 	g = &Game{}
 	g.guildID = gid
 	g.chanID = cid
 	g.masterID = muid
-	g.userList = make([]user, 0)
-	g.roleSeq = make([]role, 0)
-	g.disRole = make([]role, 0)
-	g.curState = &StatePrepare{g, 1, nil, nil}
+	g.userList = make([]*User, 0)
+	g.roleSeq = make([]*Role, 0)
+	g.disRole = make([]*Role, 0)
+	g.curState = StatePrepare{g, 1, nil, nil}
 	g.logMsg = make([]string, 0)
 	return
 }
 
-// SendVoteMsg() 는 현재 참가자 모두에게 DM으로 투표 용지를 전송하고,
+// SendVoteMsg 는 현재 참가자 모두에게 DM으로 투표 용지를 전송하고,
 // 각각의 투표 용지별로 userList index 순서에 맞춰 MsgID 배열을 반환해주는 함수이다.
 func (g *Game) SendVoteMsg(s *discordgo.Session) (messageIDs []string) {
 	messageIDs = make([]string, len(g.userList))
@@ -80,8 +75,9 @@ func (g *Game) SendVoteMsg(s *discordgo.Session) (messageIDs []string) {
 	return messageIDs
 }
 
+// SetUserByID 는 입장한 유저의 정보를 게임 데이터에 추가하는 함수입니다.
 func (g *Game) SetUserByID(s *discordgo.Session, uid string) {
-	var newOne user
+	var newOne *User
 	newOne.userID = uid
 	dgUser, _ := s.User(uid)
 	newOne.nick = dgUser.Username
@@ -91,17 +87,17 @@ func (g *Game) SetUserByID(s *discordgo.Session, uid string) {
 	g.userList = append(g.userList, newOne)
 }
 
-// UID 로 user 인스턴스를 구하는 함수
-func (g *Game) FindUserByUID(uid string) (target *user) {
+// FindUserByUID UID 로 user 인스턴스를 구하는 함수
+func (g *Game) FindUserByUID(uid string) (target *User) {
 	for i, item := range g.userList {
 		if item.userID == uid {
-			return &g.userList[i]
+			return g.userList[i]
 		}
 	}
 	return nil
 }
 
-// 게임 로그에 메시지를 쌓는 함수.
+// AppendLog 게임 로그에 메시지를 쌓는 함수.
 func (g *Game) AppendLog(msg string) {
 	if g.logMsg == nil {
 		g.logMsg = make([]string, 0)
@@ -109,8 +105,8 @@ func (g *Game) AppendLog(msg string) {
 	g.logMsg = append(g.logMsg, msg)
 }
 
-// 유저의 직업을 반환
-func (g *Game) GetRole(uid string) role {
+// GetRole 유저의 직업을 반환
+func (g *Game) GetRole(uid string) *Role {
 	loop := len(g.roleSeq)
 	idx := FindUserIdx(uid, g.userList)
 
@@ -123,7 +119,7 @@ func (g *Game) GetRole(uid string) role {
 }
 
 // 유저의 직업을 업데이트
-func (g *Game) setRole(uid string, item role) {
+func (g *Game) setRole(uid string, item *Role) {
 	userIdx := FindUserIdx(uid, g.userList)
 	roleIdx := FindRoleIdx(item, g.roleSeq)
 	loop := len(g.roleSeq)
@@ -134,35 +130,35 @@ func (g *Game) setRole(uid string, item role) {
 	g.roleIdxTable[userIdx][roleIdx] = true
 }
 
-// 버려진 직업을 업데이트
-func (g *Game) setDisRole(disRoleIdx int, item role) {
+// SetDisRole 버려진 직업을 업데이트
+func (g *Game) SetDisRole(disRoleIdx int, item *Role) {
 	g.disRole[disRoleIdx] = item
 }
 
-// 두 유저의 직업을 서로 교환
+// SwapRoleFromUser 두 유저의 직업을 서로 교환
 func (g *Game) SwapRoleFromUser(uid1, uid2 string) {
-	role1 := g.getRole(uid1)
-	role2 := g.getRole(uid2)
+	role1 := g.GetRole(uid1)
+	role2 := g.GetRole(uid2)
 	g.setRole(uid1, role2)
 	g.setRole(uid2, role1)
 }
 
-// 버려진 직업 중 하나 확인.
-func (g *Game) GetDisRole(disRoleIdx int) role {
+// GetDisRole 버려진 직업 중 하나 확인.
+func (g *Game) GetDisRole(disRoleIdx int) *Role {
 	return g.disRole[disRoleIdx]
 }
 
-// 유저 직업과 버려진 직업을 교환.
+// SwapRoleFromDiscard 유저 직업과 버려진 직업을 교환.
 func (g *Game) SwapRoleFromDiscard(uid string, disRoleIdx int) {
-	role1 := g.getDisRole(disRoleIdx)
-	role2 := g.getRole(uid)
+	role1 := g.GetDisRole(disRoleIdx)
+	role2 := g.GetRole(uid)
 	g.setRole(uid, role1)
-	g.setDisRole(disRoleIdx, role2)
+	g.SetDisRole(disRoleIdx, role2)
 }
 
-// 특정 직업의 유저 목록 반환.
-func (g *Game) GetRoleUsers(find role) (users []user) {
-	result := make([]user, 0)
+// GetRoleUsers 특정 직업의 유저 목록 반환.
+func (g *Game) GetRoleUsers(find *Role) (users []*User) {
+	result := make([]*User, 0)
 	loop := len(g.userList)
 
 	idx := FindRoleIdx(find, g.roleSeq)
@@ -176,31 +172,31 @@ func (g *Game) GetRoleUsers(find role) (users []user) {
 	return result
 }
 
-// 모든 사람들의 직업을 입장순서별로 한칸 회전.
+// RotateAllUserRole  모든 사람들의 직업을 입장순서별로 한칸 회전.
 func (g *Game) RotateAllUserRole() {
 	loop := len(g.userList)
 
-	tmpRole := g.getRole(g.userList[loop-1].userID)
+	tmpRole := g.GetRole(g.userList[loop-1].userID)
 	for i := loop - 1; i > 0; i++ {
-		item := g.getRole(g.userList[i-1].userID)
+		item := g.GetRole(g.userList[i-1].userID)
 		g.setRole(g.userList[i].userID, item)
 	}
 	g.setRole(g.userList[0].userID, tmpRole)
 }
 
-// 유저에게 특수권한 부여
+// SetPower 유저에게 특수권한 부여
 func (g *Game) SetPower(power int) {
 	// TODO 내부 구현.
 }
 
-// 특정 유저의 직업을 복사.
+// CopyRole 특정 유저의 직업을 복사.
 func (g *Game) CopyRole(destUID, srcUID string) {
-	srcRole := g.getRole(srcUID)
+	srcRole := g.GetRole(srcUID)
 	g.setRole(destUID, srcRole)
 }
 
-// 유저의 인덱스 찾기를 위한 함수
-func FindUserIdx(uid string, target []user) int {
+// FindUserIdx 유저의 인덱스 찾기를 위한 함수
+func FindUserIdx(uid string, target []*User) int {
 	for i, item := range target {
 		if uid == item.userID {
 			return i
@@ -209,8 +205,8 @@ func FindUserIdx(uid string, target []user) int {
 	return -1
 }
 
-// 직업의 인덱스 찾기를 위한 함수
-func FindRoleIdx(r role, target []role) int {
+// FindRoleIdx 직업의 인덱스 찾기를 위한 함수
+func FindRoleIdx(r *Role, target []*Role) int {
 	for i, item := range target {
 		if r.String() == item.String() {
 			return i

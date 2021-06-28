@@ -1,6 +1,4 @@
-// +build linux,amd64,go1.15,!cgo
-
-package state
+package game
 
 import (
 	"fmt"
@@ -14,7 +12,7 @@ import (
 
 type StatePrepare struct {
 	// state에서 가지고 있는 game
-	g *game
+	g *Game
 
 	// factory 에서 쓰이게 될 role index
 	roleIndex int
