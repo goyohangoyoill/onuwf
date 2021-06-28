@@ -29,7 +29,7 @@ go get github.com/clinet/discordgo-embed
 `log/error.log`
 `log/debug.log`
 `log/user.log`
-`config/env.json` -> 슬랙 참고
+`config/env.json` -> 슬랙 고요일 채널 참고
 
 # 설계 진행 상황
 
