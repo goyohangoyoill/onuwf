@@ -91,14 +91,15 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		go startgame(s, m)
 	}
 	if m.Content == "ㅁ투표" {
-		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, rg, nil)
-		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "aaa", m.ChannelID, m.ChannelID}
-		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "bbb", m.ChannelID, m.ChannelID}
-		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "ccc", m.ChannelID, m.ChannelID}
-		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "ddd", m.ChannelID, m.ChannelID}
-		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "eee", m.ChannelID, m.ChannelID}
-		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "fff", m.ChannelID, m.ChannelID}
-		thisGame.CurState = wfGame.StateVote
+		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, &rg, nil)
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "aaa", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "bbb", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "ccc", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "ddd", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "eee", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "fff", m.ChannelID, m.ChannelID))
+		thisGame.CurState = wfGame.StateVote{}
+		thisGame.CurState.g = thisGame
 
 		wfGame.VoteProcess()
 	}
