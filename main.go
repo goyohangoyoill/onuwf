@@ -23,7 +23,7 @@ var (
 
 	env map[string]string
 	emj map[string]string
-	rg  wfGame.RoleGuide
+	rg  []wfGame.RoleGuide
 )
 
 func init() {
@@ -168,7 +168,7 @@ func EnvInit() map[string]string {
 }
 
 // RoleGuideInit 직업 가이드 에셋 불러오기.
-func RoleGuideInit(rg *wfGame.RoleGuide) {
+func RoleGuideInit(rg []*wfGame.RoleGuide) {
 	rgFile, err := os.Open("Asset/role_guide.json")
 	if err != nil {
 		log.Fatal(err)

@@ -13,8 +13,6 @@ type Game struct {
 	// 현재 게임이 진행중인 채널의 CID
 	ChanID string
 
-	EnterGameMsgID string
-	RoleAddMsgID   string
 	// 게임을 생성한 방장의 UID
 	MasterID string
 
@@ -25,7 +23,7 @@ type Game struct {
 	roleSeq []Role
 
 	// 현재 게임에서 사용중인 사용자에게 보여줄 중복 정렬된 직업들의 목록
-	roleView []Role
+	RoleView []Role
 
 	// 현재 게임의 진행시점
 	CurState State
@@ -62,8 +60,11 @@ func NewGame(gid, cid, muid string, rg *RoleGuide, uidChan chan string) (g *Game
 	g.UserList = make([]*User, 0)
 	g.roleSeq = make([]Role, 0)
 	g.disRole = make([]Role, 0)
-	g.CurState = Prepare{g, 1, nil, nil}
 	g.LogMsg = make([]string, 0)
+	g.RG = rg
+	p := &Prepare{g, 1, nil, nil}
+	p.InitEmbed()
+	g.CurState = p
 	return
 }
 
@@ -86,14 +87,14 @@ func (g *Game) SendVoteMsg(s *discordgo.Session) (messageIDs []string) {
 	return messageIDs
 }
 
-// SetUserByID 는 입장한 유저의 정보를 게임 데이터에 추가하는 함수입니다.
-func (g *Game) SetUserByID(s *discordgo.Session, uid string) {
+// SetUserByID 는 게임에 입장한 유저의 정보를 게임 데이터에 추가하는 함수입니다.
+func (g *Game) SetUserByID(uid string) {
 	var newOne *User
 	newOne.userID = uid
-	dgUser, _ := s.User(uid)
+	dgUser, _ := g.Session.User(uid)
 	newOne.nick = dgUser.Username
 	newOne.chanID = g.ChanID
-	uChan, _ := s.UserChannelCreate(uid)
+	uChan, _ := g.Session.UserChannelCreate(uid)
 	newOne.dmChanID = uChan.ID
 	g.userList = append(g.userList, newOne)
 	g.UserIDChan <- uid
@@ -102,6 +103,11 @@ func (g *Game) SetUserByID(s *discordgo.Session, uid string) {
 // DelUserByID 는 입장되어 있는 유저의 정보를 모두 삭제해주는 함수입니다.
 func (g *Game) DelUserByID(uid string) {
 
+}
+
+// DelUserByIndex 는 게임에 입장한 유저를 인덱스 번호로 지우는 함수입니다.
+func (g *Game) DelUserByIndex(index int) {
+	g.userList = append(g.userList[:index], g.userList[index+1:]...)
 }
 
 // FindUserByUID UID 로 user 인스턴스를 구하는 함수
@@ -177,15 +183,12 @@ func (g *Game) SwapRoleFromDiscard(uid string, disRoleIdx int) {
 func (g *Game) GetRoleUsers(find Role) (users []*User) {
 	result := make([]*User, 0)
 	loop := len(g.userList)
-
 	idx := FindRoleIdx(find, g.roleSeq)
-
 	for i := 0; i < loop; i++ {
 		if g.roleIdxTable[i][idx] {
 			result = append(result, g.userList[i])
 		}
 	}
-
 	return result
 }
 
