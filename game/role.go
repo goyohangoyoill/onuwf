@@ -7,6 +7,14 @@ type Role interface {
 	String() string
 }
 
+// RoleGuide has info of each role
+type RoleGuide struct {
+	RoleName  string   `json:"roleName"`
+	RoleGuide []string `json:"roleGuide"`
+	Max       int      `json:"max"`
+	Faction   string   `json:"faction"`
+}
+
 // RoleFactory generate roles
 type RoleFactory struct {
 }

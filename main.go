@@ -23,16 +23,8 @@ var (
 
 	env map[string]string
 	emj map[string]string
-	rg RoleGuide
+	rg  wfGame.RoleGuide
 )
-
-// RoleGuide has info of each role
-type RoleGuide struct {
-	RoleName  string   `json:"roleName"`
-	RoleGuide []string `json:"roleGuide"`
-	Max       int      `json:"max"`
-	Faction   string   `json:"faction"`
-}
 
 func init() {
 	env = EnvInit()
@@ -65,11 +57,11 @@ func main() {
 }
 
 func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if (!isGuildChanIn[m.ChannelID]) {
-		uidToGameData[m.Author.ID] = NewGame(m.GuildID, m.ChannelID, m.Author.ID, rg *RoleGuide)
+	if !isGuildChanIn[m.ChannelID] {
+		uidToGameData[m.Author.ID] = wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, &rg)
 		isGuildChanIn[m.ChannelID] = true
 	}
-	// isUserIn[] = true // 어떻게 업데이트할거냐? -> 멘토님 말대로 타이머가 각 게임 상태 확인?	
+	// isUserIn[] = true // 어떻게 업데이트할거냐? -> 멘토님 말대로 타이머가 각 게임 상태 확인?
 }
 
 // messageCreate() 입력한 메시지를 처리하는 함수
@@ -157,7 +149,7 @@ func EnvInit() map[string]string {
 }
 
 // RoleGuideInit 직업 가이드 에셋 불러오기.
-func RoleGuideInit(rg *RoleGuide) {
+func RoleGuideInit(rg *wfGame.RoleGuide) {
 	rgFile, err := os.Open("Asset/role_guide.json")
 	if err != nil {
 		log.Fatal(err)
