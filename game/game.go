@@ -42,16 +42,22 @@ type Game struct {
 	// 게임 진행 상황을 기록하는 로그 메시지 배열
 	LogMsg []string
 
-	Emj map[string]string
+	// state prepare에서 사용되는 입장, 직업추가 메세지의 아이디
+	EnterGameMsgID string
+	RoleAddMsgID string
+
+	// 이모지 정보
+	Emj *map[string]string
+
 	// 직업의 대한 소개 및 정보
-	RG *RoleGuide
+	RG *[]RoleGuide
 
 	// 유저 입장시  ID가 전달되는 채널
 	UserIDChan chan string
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
-func NewGame(gid, cid, muid string, rg *RoleGuide, emj map[string]string, uidChan chan string) (g *Game) {
+func NewGame(gid, cid, muid string, rg *[]RoleGuide, emj *map[string]string, uidChan chan string) (g *Game) {
 	g = &Game{}
 	g.GuildID = gid
 	g.ChanID = cid
