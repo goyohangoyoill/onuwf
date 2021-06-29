@@ -22,10 +22,10 @@ type Game struct {
 	userList []*User
 
 	// 현재 게임에서 순서대로 추가, 중복제거 된 직업들의 목록
-	roleSeq []*Role
+	roleSeq []Role
 
 	// 현재 게임에서 사용중인 사용자에게 보여줄 중복 정렬된 직업들의 목록
-	roleView []*Role
+	roleView []Role
 
 	// 현재 게임의 진행시점
 	curState State
@@ -36,7 +36,7 @@ type Game struct {
 	oriRoleIdxTable [][]bool
 
 	// 게임에서 버려진 직업 목록
-	disRole []*Role
+	disRole []Role
 
 	// 게임 진행 상황을 기록하는 로그 메시지 배열
 	logMsg []string
@@ -49,8 +49,8 @@ func NewGame(gid, cid, muid string) (g *Game) {
 	g.chanID = cid
 	g.masterID = muid
 	g.userList = make([]*User, 0)
-	g.roleSeq = make([]*Role, 0)
-	g.disRole = make([]*Role, 0)
+	g.roleSeq = make([]Role, 0)
+	g.disRole = make([]Role, 0)
 	g.curState = StatePrepare{g, 1, nil, nil}
 	g.logMsg = make([]string, 0)
 	return
@@ -106,7 +106,7 @@ func (g *Game) AppendLog(msg string) {
 }
 
 // GetRole 유저의 직업을 반환
-func (g *Game) GetRole(uid string) *Role {
+func (g *Game) GetRole(uid string) Role {
 	loop := len(g.roleSeq)
 	idx := FindUserIdx(uid, g.userList)
 
@@ -119,7 +119,7 @@ func (g *Game) GetRole(uid string) *Role {
 }
 
 // 유저의 직업을 업데이트
-func (g *Game) setRole(uid string, item *Role) {
+func (g *Game) setRole(uid string, item Role) {
 	userIdx := FindUserIdx(uid, g.userList)
 	roleIdx := FindRoleIdx(item, g.roleSeq)
 	loop := len(g.roleSeq)
@@ -131,7 +131,7 @@ func (g *Game) setRole(uid string, item *Role) {
 }
 
 // SetDisRole 버려진 직업을 업데이트
-func (g *Game) SetDisRole(disRoleIdx int, item *Role) {
+func (g *Game) SetDisRole(disRoleIdx int, item Role) {
 	g.disRole[disRoleIdx] = item
 }
 
@@ -144,7 +144,7 @@ func (g *Game) SwapRoleFromUser(uid1, uid2 string) {
 }
 
 // GetDisRole 버려진 직업 중 하나 확인.
-func (g *Game) GetDisRole(disRoleIdx int) *Role {
+func (g *Game) GetDisRole(disRoleIdx int) Role {
 	return g.disRole[disRoleIdx]
 }
 
@@ -157,7 +157,7 @@ func (g *Game) SwapRoleFromDiscard(uid string, disRoleIdx int) {
 }
 
 // GetRoleUsers 특정 직업의 유저 목록 반환.
-func (g *Game) GetRoleUsers(find *Role) (users []*User) {
+func (g *Game) GetRoleUsers(find Role) (users []*User) {
 	result := make([]*User, 0)
 	loop := len(g.userList)
 
@@ -206,7 +206,7 @@ func FindUserIdx(uid string, target []*User) int {
 }
 
 // FindRoleIdx 직업의 인덱스 찾기를 위한 함수
-func FindRoleIdx(r *Role, target []*Role) int {
+func FindRoleIdx(r Role, target []Role) int {
 	for i, item := range target {
 		if r.String() == item.String() {
 			return i

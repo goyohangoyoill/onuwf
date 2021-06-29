@@ -10,10 +10,10 @@ type Role interface {
 type RoleFactory struct {
 }
 
-func (rf *RoleFactory) generateRole(num int) (r *Role) {
+func (rf *RoleFactory) generateRole(num int) (r Role) {
 	switch num {
 	case 1:
-		r = &RoleSentinel{}
+		r = RoleSentinel{}
 		/*
 			case 2:
 				r = roleDoppelganger{}

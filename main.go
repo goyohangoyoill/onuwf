@@ -92,32 +92,32 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		return
 	}
 
-	g := uidToGameID[r.UserID]
+	g := uidToGameData[r.UserID]
 	// 숫자 이모지 선택.
 	for i := 1; i < 10; i++ {
 		var ch rune
 		ch = '0' + rune(i)
 		emjID := "n" + string(ch)
 		if r.Emoji.Name == emj[emjID] {
-			g.curState.pressNumBtn(s, r, i)
+			g.curState.PressNumBtn(s, r, i)
 		}
 	}
 	switch r.Emoji.Name {
 	case emj["DISCARD"]:
 		// 쓰레기통 이모지 선택.
-		go g.curState.pressDisBtn(s, r)
+		go g.curState.PressDisBtn(s, r)
 	case emj["YES"]:
 		// O 이모지 선택.
-		go g.curState.pressYesBtn(s, r)
+		go g.curState.PressYesBtn(s, r)
 	case emj["NO"]:
 		// X 이모지 선택.
-		go g.curState.pressNoBtn(s, r)
+		go g.curState.PressNoBtn(s, r)
 	case emj["LEFT"]:
 		// 왼쪽 화살표 선택.
-		go g.curState.pressDirBtn(s, r, -1)
+		go g.curState.PressDirBtn(s, r, -1)
 	case emj["RIGHT"]:
 		// 오른쪽 화살표 선택.
-		go g.curState.pressDirBtn(s, r, 1)
+		go g.curState.PressDirBtn(s, r, 1)
 	}
 	if r.GuildID == curGame.guildID && r.ChannelID == curGame.chanID && (r.MessageID == curGame.enterGameMsgID || r.MessageID == curGame.roleAddMsgID) {
 		s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)

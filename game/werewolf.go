@@ -5,7 +5,7 @@ import (
 )
 
 type RoleWerewolf struct {
-	*Role
+	Role
 }
 
 func (wf *RoleWerewolf) Action(tar TargetObject, player *User, g *Game) {

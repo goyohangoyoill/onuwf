@@ -1,14 +1,15 @@
 package game
 
+// RoleSentinel is one of role in wfgame
 type RoleSentinel struct {
-	*Role
+	Role
 }
 
-func (r *RoleSentinel) Action(tar TargetObject, player *User, g *Game) {
+func (r RoleSentinel) Action(tar TargetObject, player *User, g *Game) {
 	//session 메세지는 state에서 보낼거임
 	//action에서는 game 상태 바꾸는 action만
 }
 
-func (r *RoleSentinel) String() string {
+func (r RoleSentinel) String() string {
 	return "수호자"
 }

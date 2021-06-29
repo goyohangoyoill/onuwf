@@ -25,25 +25,25 @@ type StatePrepare struct {
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 StatePrepare에서 하는 동작
-func (sPrepare *StatePrepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+func (sPrepare StatePrepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
 	// do nothing
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 StatePrepare에서 하는 동작
-func (sPrepare *StatePrepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare StatePrepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// do nothing
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 StatePrepare에서 하는 동작
-func (sPrepare *StatePrepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare StatePrepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// 입장 메세지에서 리액션한거라면
 	if r.MessageID == sPrepare.g.enterGameMsgID {
 		// userList에 없으면 user append()
-		if findUserIdx(r.UserID, sPrepare.g.userList) == -1 {
+		if FindUserIdx(r.UserID, sPrepare.g.userList) == -1 {
 			//user 생성해서 append()
 			userNick, _ := s.User(r.UserID)
 			userDM, _ := s.UserChannelCreate(r.UserID)
-			u := user{userID: r.UserID, nick: userNick.Username, chanID: r.ChannelID, dmChanID: userDM.ID}
+			u := &User{userID: r.UserID, nick: userNick.Username, chanID: r.ChannelID, dmChanID: userDM.ID}
 			sPrepare.g.userList = append(sPrepare.g.userList, u)
 			// 입장 확인 메세지 반영
 			s.ChannelMessageEditEmbed(sPrepare.g.chanID, sPrepare.enterGameMsg.ID, newEnterEmbed(sPrepare.g).MessageEmbed)
@@ -63,7 +63,7 @@ func (sPrepare *StatePrepare) PressYesBtn(s *discordgo.Session, r *discordgo.Mes
 				}
 			}
 			// roleSeq는 unique unsorted니까 roleSeq에 없으면 append
-			if findRoleIdx(roleToAdd, sPrepare.g.roleSeq) == -1 {
+			if FindRoleIdx(roleToAdd, sPrepare.g.roleSeq) == -1 {
 				sPrepare.g.roleSeq = append(sPrepare.g.roleSeq, roleToAdd)
 			}
 			// 직업 추가 메세지 반영
@@ -73,11 +73,11 @@ func (sPrepare *StatePrepare) PressYesBtn(s *discordgo.Session, r *discordgo.Mes
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 StatePrepare에서 하는 동작
-func (sPrepare *StatePrepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare StatePrepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// 입장 메세지에서 리액션한거라면
 	if r.MessageID == sPrepare.g.enterGameMsgID {
 		// userList에 있으면 지우기
-		if i := findUserIdx(r.UserID, sPrepare.g.userList); i != -1 {
+		if i := FindUserIdx(r.UserID, sPrepare.g.userList); i != -1 {
 			// userList에서 지우고
 			sPrepare.g.userList = append(sPrepare.g.userList[:i], sPrepare.g.userList[i+1:]...)
 			// 입장 확인 메세지에서 지우기
@@ -92,10 +92,10 @@ func (sPrepare *StatePrepare) PressNoBtn(s *discordgo.Session, r *discordgo.Mess
 		// roleFactory에서 현재 roleindex 위치 값을 받아 role 생성
 		roleToRemove := rf.generateRole(sPrepare.roleIndex)
 		// roleView는 ununique sorted니까 첫번째로 나오는거 찾아서 지우기
-		if i := findRoleIdx(roleToRemove, sPrepare.g.roleView); i != -1 {
+		if i := FindRoleIdx(roleToRemove, sPrepare.g.roleView); i != -1 {
 			sPrepare.g.roleView = append(sPrepare.g.roleView[:i], sPrepare.g.roleView[i+1:]...)
 			// roleSeq는 unique unsorted니까 방금 지운 roleView에 없으면 지우기
-		} else if i := findRoleIdx(roleToRemove, sPrepare.g.roleSeq); i != -1 {
+		} else if i := FindRoleIdx(roleToRemove, sPrepare.g.roleSeq); i != -1 {
 			sPrepare.g.roleSeq = append(sPrepare.g.roleSeq[:i], sPrepare.g.roleSeq[i+1:]...)
 		}
 		// 직업 확인 메세지 보낸 적 있으면 수정하거나 지우기
@@ -131,7 +131,7 @@ func (sPrepare *StatePrepare) PressNoBtn(s *discordgo.Session, r *discordgo.Mess
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 StatePrepare에서 하는 동작
-func (sPrepare *StatePrepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+func (sPrepare StatePrepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
 	if r.MessageID == sPrepare.g.enterGameMsgID {
 		// 게임 시작
 		if dir == 1 {
