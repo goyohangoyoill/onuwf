@@ -7,11 +7,15 @@ type Role interface {
 	String() string
 }
 
-// RoleFactory generate roles
-type RoleFactory struct {
+// RoleGuide has info of each role
+type RoleGuide struct {
+	RoleName  string   `json:"roleName"`
+	RoleGuide []string `json:"roleGuide"`
+	Max       int      `json:"max"`
+	Faction   string   `json:"faction"`
 }
 
-func (rf *RoleFactory) generateRole(num int) (r Role) {
+func GenerateRole(num int) (r Role) {
 	switch num {
 	case 1:
 		r = RoleSentinel{}
