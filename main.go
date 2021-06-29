@@ -59,7 +59,7 @@ func main() {
 func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if !isGuildChanIn[m.ChannelID] {
 		userIDChan := make(chan string)
-		curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, &rg, userIDChan)
+		curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, &rg, &emj, userIDChan)
 		uidToGameData[m.Author.ID] = curGame
 		isGuildChanIn[m.ChannelID] = true
 		for {
