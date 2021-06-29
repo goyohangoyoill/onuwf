@@ -1,6 +1,4 @@
-// +build linux,amd64,go1.15,!cgo
-
-package role
+package game
 
 // Role : 각 직업들의 정보를 담고 있는 스트럭처
 type Role interface {
@@ -9,13 +7,14 @@ type Role interface {
 	String() string
 }
 
+// RoleFactory generate roles
 type RoleFactory struct {
 }
 
 func (rf *RoleFactory) generateRole(num int) (r Role) {
 	switch num {
 	case 1:
-		r = &roleSentinel{}
+		r = RoleSentinel{}
 		/*
 			case 2:
 				r = roleDoppelganger{}

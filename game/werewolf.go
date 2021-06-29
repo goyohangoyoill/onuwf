@@ -1,19 +1,21 @@
-// +build linux,amd64,go1.15,!cgo
+package game
 
-package role
+import (
+	embed "github.com/clinet/discordgo-embed"
+)
 
-import embed "github.com/clinet/discordgo-embed"
-
+// RoleWerewolf is one of role in wfgame
 type RoleWerewolf struct {
-	role
+	Role
 }
 
-func (wf RoleWerewolf) Action(tar targetObject, player *user, g *game) {
+// Action is action
+func (wf *RoleWerewolf) Action(tar TargetObject, player *User, g *Game) {
 	switch tar.actionType {
 	case 1:
 		//recvRole := g.getDisRole(tar.disRoleIdx)
 	case 0:
-		wolves := g.getRoleUsers(wf)
+		wolves := g.GetRoleUsers(wf)
 		//wolves = append(wolves, g.getRoleUsers(roleMisticwolf{})...)
 		//wolves = append(wolves, g.getRoleUsers(roleAlphawolf{})...)
 		//dreams := g.getRoleUsers(roleDreamwolf{})
@@ -34,11 +36,12 @@ func (wf RoleWerewolf) Action(tar targetObject, player *user, g *game) {
 		//	msg += dreamlist + "는 잠에 빠져 서로를 확인하지 못하였지만,"
 		//	msg += "당신의 동료 늑대인간입니다."
 		//}
-		curSession.ChannelMessageSendEmbed(player.dmChanID, embed.NewGenericEmbed("동료 늑대인간 확인", msg))
+		g.Session.ChannelMessageSendEmbed(player.dmChanID, embed.NewGenericEmbed("동료 늑대인간 확인", msg))
 	default:
 	}
 }
 
-func (wf RoleWerewolf) String() string {
+// String return role name in korean
+func (wf *RoleWerewolf) String() string {
 	return "늑대인간"
 }
