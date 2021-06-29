@@ -23,13 +23,7 @@ var (
 
 	env map[string]string
 	emj map[string]string
-
-	rg *RoleGuide
-
-	loggerLog   *log.Logger
-	loggerError *log.Logger
-	loggerUser  *log.Logger
-	loggerDebug *log.Logger
+	rg RoleGuide
 )
 
 // RoleGuide has info of each role
@@ -43,8 +37,7 @@ type RoleGuide struct {
 func init() {
 	env = EnvInit()
 	emj = EmojiInit()
-	RoleGuideInit()
-	LoggerInit()
+	RoleGuideInit(&rg)
 
 	isUserIn = make(map[string]bool)
 	isGuildChanIn = make(map[string]bool)
@@ -72,7 +65,11 @@ func main() {
 }
 
 func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
-
+	if (!isGuildChanIn[m.ChannelID]) {
+		uidToGameData[m.Author.ID] = NewGame(m.GuildID, m.ChannelID, m.Author.ID, rg *RoleGuide)
+		isGuildChanIn[m.ChannelID] = true
+	}
+	// isUserIn[] = true // 어떻게 업데이트할거냐? -> 멘토님 말대로 타이머가 각 게임 상태 확인?	
 }
 
 // messageCreate() 입력한 메시지를 처리하는 함수
@@ -160,7 +157,7 @@ func EnvInit() map[string]string {
 }
 
 // RoleGuideInit 직업 가이드 에셋 불러오기.
-func RoleGuideInit() {
+func RoleGuideInit(rg *RoleGuide) {
 	rgFile, err := os.Open("Asset/role_guide.json")
 	if err != nil {
 		log.Fatal(err)
@@ -172,7 +169,7 @@ func RoleGuideInit() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	json.Unmarshal([]byte(byteValue), &rg)
+	json.Unmarshal([]byte(byteValue), rg)
 }
 
 // EmojiInit 이모지 맵에 불러오기.
@@ -191,31 +188,4 @@ func EmojiInit() map[string]string {
 	emj := make(map[string]string)
 	json.Unmarshal([]byte(byteValue), &emj)
 	return emj
-}
-
-// LoggerInit 로거 변수 초기화.
-func LoggerInit() (loggerLog *log.Logger, loggerError *log.Logger, loggerUser *log.Logger, loggerDebug *log.Logger) {
-	logErrorFile, err := os.OpenFile(env["logErrorPath"], os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
-	loggerLog = log.New(logErrorFile, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile)
-	loggerError = log.New(logErrorFile, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-
-	var logUserFile *os.File
-	logUserFile, err = os.OpenFile(env["logUserPath"], os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		loggerError.Println("Can not open env['logUserPath']:", env["logUserPath"])
-		log.Fatal(err)
-	}
-	loggerUser = log.New(logUserFile, "USER: ", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
-
-	var logDebugFile *os.File
-	logDebugFile, err = os.OpenFile(env["logDebugPath"], os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		loggerError.Println("Can not open env['logUserPath']:", env["logUserPath"])
-		log.Fatal(err)
-	}
-	loggerDebug = log.New(logDebugFile, "DEBUG: ", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
-	return
 }

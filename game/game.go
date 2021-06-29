@@ -43,14 +43,18 @@ type Game struct {
 
 	// 게임 진행 상황을 기록하는 로그 메시지 배열
 	LogMsg []string
+
+	// 직업의 대한 소개 및 정보
+	RG     *RoleGuide
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
-func NewGame(gid, cid, muid string) (g *Game) {
+func NewGame(gid, cid, muid string, rg *RoleGuide) (g *Game) {
 	g = &Game{}
 	g.GuildID = gid
 	g.ChanID = cid
 	g.MasterID = muid
+	g.RG = rg
 	g.userList = make([]*User, 0)
 	g.roleSeq = make([]Role, 0)
 	g.disRole = make([]Role, 0)
