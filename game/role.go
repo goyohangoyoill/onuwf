@@ -15,11 +15,7 @@ type RoleGuide struct {
 	Faction   string   `json:"faction"`
 }
 
-// RoleFactory generate roles
-type RoleFactory struct {
-}
-
-func (rf *RoleFactory) generateRole(num int) (r Role) {
+func GenerateRole(num int) (r Role) {
 	switch num {
 	case 1:
 		r = RoleSentinel{}
