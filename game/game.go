@@ -19,7 +19,7 @@ type Game struct {
 	MasterID string
 
 	// 현재 게임의 참가자들
-	userList []*User
+	UserList []*User
 
 	// 현재 게임에서 순서대로 추가, 중복제거 된 직업들의 목록
 	roleSeq []Role
@@ -45,17 +45,21 @@ type Game struct {
 	LogMsg []string
 
 	// 직업의 대한 소개 및 정보
-	RG     *RoleGuide
+	RG *RoleGuide
+
+	// 유저 입장시  ID가 전달되는 채널
+	UserIDChan chan string
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
-func NewGame(gid, cid, muid string, rg *RoleGuide) (g *Game) {
+func NewGame(gid, cid, muid string, rg *RoleGuide, uidChan chan string) (g *Game) {
 	g = &Game{}
 	g.GuildID = gid
 	g.ChanID = cid
 	g.MasterID = muid
 	g.RG = rg
-	g.userList = make([]*User, 0)
+	g.UserIDChan = uidChan
+	g.UserList = make([]*User, 0)
 	g.roleSeq = make([]Role, 0)
 	g.disRole = make([]Role, 0)
 	g.CurState = Prepare{g, 1, nil, nil}
@@ -92,6 +96,12 @@ func (g *Game) SetUserByID(s *discordgo.Session, uid string) {
 	uChan, _ := s.UserChannelCreate(uid)
 	newOne.dmChanID = uChan.ID
 	g.userList = append(g.userList, newOne)
+	g.UserIDChan <- uid
+}
+
+// DelUserByID 는 입장되어 있는 유저의 정보를 모두 삭제해주는 함수입니다.
+func (g *Game) DelUserByID(uid string) {
+
 }
 
 // FindUserByUID UID 로 user 인스턴스를 구하는 함수

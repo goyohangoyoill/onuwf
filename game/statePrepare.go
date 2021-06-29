@@ -11,7 +11,7 @@ type Prepare struct {
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 state에서 하는 동작
-func (p Prepare) PressNumBtn(ys *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+func (p Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 state에서 하는 동작

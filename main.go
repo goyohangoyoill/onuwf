@@ -58,10 +58,17 @@ func main() {
 
 func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if !isGuildChanIn[m.ChannelID] {
-		uidToGameData[m.Author.ID] = wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, &rg)
+		userIDChan := make(chan string)
+		curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, &rg, userIDChan)
+		uidToGameData[m.Author.ID] = curGame
 		isGuildChanIn[m.ChannelID] = true
+		for {
+			// Mutex 필요할 것으로 예상됨.
+			curUID := <-userIDChan
+			isUserIn[curUID] = true
+			uidToGameData[curUID] = curGame
+		}
 	}
-	// isUserIn[] = true // 어떻게 업데이트할거냐? -> 멘토님 말대로 타이머가 각 게임 상태 확인?
 }
 
 // messageCreate() 입력한 메시지를 처리하는 함수
@@ -82,6 +89,18 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		isGuildChanIn[m.ChannelID+m.GuildID] = true
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
+	}
+	if m.Content == "ㅁ투표" {
+		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, rg, nil)
+		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "aaa", m.ChannelID, m.ChannelID}
+		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "bbb", m.ChannelID, m.ChannelID}
+		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "ccc", m.ChannelID, m.ChannelID}
+		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "ddd", m.ChannelID, m.ChannelID}
+		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "eee", m.ChannelID, m.ChannelID}
+		thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "fff", m.ChannelID, m.ChannelID}
+		thisGame.CurState = wfGame.StateVote
+
+		wfGame.VoteProcess()
 	}
 }
 
