@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func MongoConn() (client *mongo.Client, ctx context.Context) {
+func MongoConn(env map[string]string) (client *mongo.Client, ctx context.Context) {
 	// timeout 기반의 Context 생성
 	ctx, _ = context.WithTimeout(context.Background(), time.Second*4)
 

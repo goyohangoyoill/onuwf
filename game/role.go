@@ -7,6 +7,7 @@ type Role interface {
 	String() string
 }
 
+// RoleFactory generate roles
 type RoleFactory struct {
 }
 

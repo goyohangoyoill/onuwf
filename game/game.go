@@ -8,15 +8,15 @@ import (
 // Game 구조체는 게임 진행을 위한 정보를 담고 있는 스트럭처
 type Game struct {
 	// 현재 게임이 진행중인 서버의 GID
-	guildID string
+	GuildID string
 
 	// 현재 게임이 진행중인 채널의 CID
-	chanID string
+	ChanID string
 
-	enterGameMsgID string
-	roleAddMsgID   string
+	EnterGameMsgID string
+	RoleAddMsgID   string
 	// 게임을 생성한 방장의 UID
-	masterID string
+	MasterID string
 
 	// 현재 게임의 참가자들
 	userList []*User
@@ -28,7 +28,7 @@ type Game struct {
 	roleView []Role
 
 	// 현재 게임의 진행시점
-	curState State
+	CurState State
 
 	// Role을 User별로 매핑시킨 인덱스 테이블
 	// <usage : roleIdxTable[userIdx][roleIdx]>
@@ -38,21 +38,24 @@ type Game struct {
 	// 게임에서 버려진 직업 목록
 	disRole []Role
 
+	// 게임에서 사용하는 세션
+	Session *discordgo.Session
+
 	// 게임 진행 상황을 기록하는 로그 메시지 배열
-	logMsg []string
+	LogMsg []string
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
 func NewGame(gid, cid, muid string) (g *Game) {
 	g = &Game{}
-	g.guildID = gid
-	g.chanID = cid
-	g.masterID = muid
+	g.GuildID = gid
+	g.ChanID = cid
+	g.MasterID = muid
 	g.userList = make([]*User, 0)
 	g.roleSeq = make([]Role, 0)
 	g.disRole = make([]Role, 0)
-	g.curState = StatePrepare{g, 1, nil, nil}
-	g.logMsg = make([]string, 0)
+	g.CurState = Prepare{g, 1, nil, nil}
+	g.LogMsg = make([]string, 0)
 	return
 }
 
@@ -81,7 +84,7 @@ func (g *Game) SetUserByID(s *discordgo.Session, uid string) {
 	newOne.userID = uid
 	dgUser, _ := s.User(uid)
 	newOne.nick = dgUser.Username
-	newOne.chanID = g.chanID
+	newOne.chanID = g.ChanID
 	uChan, _ := s.UserChannelCreate(uid)
 	newOne.dmChanID = uChan.ID
 	g.userList = append(g.userList, newOne)
@@ -99,10 +102,10 @@ func (g *Game) FindUserByUID(uid string) (target *User) {
 
 // AppendLog 게임 로그에 메시지를 쌓는 함수.
 func (g *Game) AppendLog(msg string) {
-	if g.logMsg == nil {
-		g.logMsg = make([]string, 0)
+	if g.LogMsg == nil {
+		g.LogMsg = make([]string, 0)
 	}
-	g.logMsg = append(g.logMsg, msg)
+	g.LogMsg = append(g.LogMsg, msg)
 }
 
 // GetRole 유저의 직업을 반환

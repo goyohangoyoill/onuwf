@@ -3,13 +3,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
 	wfGame "onuwf.com/game"
-	wfUtil "onuwf.com/util"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -18,12 +20,31 @@ var (
 	isUserIn      map[string]bool
 	isGuildChanIn map[string]bool
 	uidToGameData map[string]*wfGame.Game
+
+	env map[string]string
+	emj map[string]string
+
+	rg *RoleGuide
+
+	loggerLog   *log.Logger
+	loggerError *log.Logger
+	loggerUser  *log.Logger
+	loggerDebug *log.Logger
 )
 
+// RoleGuide has info of each role
+type RoleGuide struct {
+	RoleName  string   `json:"roleName"`
+	RoleGuide []string `json:"roleGuide"`
+	Max       int      `json:"max"`
+	Faction   string   `json:"faction"`
+}
+
 func init() {
-	wfUtil.EnvInit()
-	wfUtil.RoleGuideInit()
-	wfUtil.LoggerInit()
+	env = EnvInit()
+	emj = EmojiInit()
+	RoleGuideInit()
+	LoggerInit()
 
 	isUserIn = make(map[string]bool)
 	isGuildChanIn = make(map[string]bool)
@@ -73,11 +94,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
 	}
-	if m.Content == "ㅁ강제종료" {
-		if isInGame[m.GuildID+m.ChannelID] {
-			isInGame[m.GuildID+m.ChannelID] = false
-		}
-	}
 }
 
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.
@@ -99,28 +115,107 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		ch = '0' + rune(i)
 		emjID := "n" + string(ch)
 		if r.Emoji.Name == emj[emjID] {
-			g.curState.PressNumBtn(s, r, i)
+			g.CurState.PressNumBtn(s, r, i)
 		}
 	}
 	switch r.Emoji.Name {
 	case emj["DISCARD"]:
 		// 쓰레기통 이모지 선택.
-		go g.curState.PressDisBtn(s, r)
+		go g.CurState.PressDisBtn(s, r)
 	case emj["YES"]:
 		// O 이모지 선택.
-		go g.curState.PressYesBtn(s, r)
+		go g.CurState.PressYesBtn(s, r)
 	case emj["NO"]:
 		// X 이모지 선택.
-		go g.curState.PressNoBtn(s, r)
+		go g.CurState.PressNoBtn(s, r)
 	case emj["LEFT"]:
 		// 왼쪽 화살표 선택.
-		go g.curState.PressDirBtn(s, r, -1)
+		go g.CurState.PressDirBtn(s, r, -1)
 	case emj["RIGHT"]:
 		// 오른쪽 화살표 선택.
-		go g.curState.PressDirBtn(s, r, 1)
+		go g.CurState.PressDirBtn(s, r, 1)
 	}
-	if r.GuildID == curGame.guildID && r.ChannelID == curGame.chanID && (r.MessageID == curGame.enterGameMsgID || r.MessageID == curGame.roleAddMsgID) {
+	if r.GuildID == g.GuildID && r.ChannelID == g.ChanID && (r.MessageID == g.EnterGameMsgID || r.MessageID == g.RoleAddMsgID) {
 		s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	}
 
+}
+
+// EnvInit 설치 환경 불러오기.
+func EnvInit() map[string]string {
+	envFile, err := os.Open("env.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer envFile.Close()
+
+	var byteValue []byte
+	byteValue, err = ioutil.ReadAll(envFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	env := make(map[string]string)
+	json.Unmarshal([]byte(byteValue), &env)
+	return env
+}
+
+// RoleGuideInit 직업 가이드 에셋 불러오기.
+func RoleGuideInit() {
+	rgFile, err := os.Open("Asset/role_guide.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rgFile.Close()
+
+	var byteValue []byte
+	byteValue, err = ioutil.ReadAll(rgFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.Unmarshal([]byte(byteValue), &rg)
+}
+
+// EmojiInit 이모지 맵에 불러오기.
+func EmojiInit() map[string]string {
+	emjFile, err := os.Open("Asset/emoji.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer emjFile.Close()
+
+	var byteValue []byte
+	byteValue, err = ioutil.ReadAll(emjFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	emj := make(map[string]string)
+	json.Unmarshal([]byte(byteValue), &emj)
+	return emj
+}
+
+// LoggerInit 로거 변수 초기화.
+func LoggerInit() (loggerLog *log.Logger, loggerError *log.Logger, loggerUser *log.Logger, loggerDebug *log.Logger) {
+	logErrorFile, err := os.OpenFile(env["logErrorPath"], os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	loggerLog = log.New(logErrorFile, "LOG: ", log.Ldate|log.Ltime|log.Lshortfile)
+	loggerError = log.New(logErrorFile, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+
+	var logUserFile *os.File
+	logUserFile, err = os.OpenFile(env["logUserPath"], os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		loggerError.Println("Can not open env['logUserPath']:", env["logUserPath"])
+		log.Fatal(err)
+	}
+	loggerUser = log.New(logUserFile, "USER: ", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
+
+	var logDebugFile *os.File
+	logDebugFile, err = os.OpenFile(env["logDebugPath"], os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		loggerError.Println("Can not open env['logUserPath']:", env["logUserPath"])
+		log.Fatal(err)
+	}
+	loggerDebug = log.New(logDebugFile, "DEBUG: ", log.Ldate|log.Ltime|log.Lmicroseconds|log.Lshortfile)
+	return
 }
