@@ -50,7 +50,7 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 		// roleFactory에서 현재 roleindex 위치 값을 받아 role 생성
 		roleToAdd := GenerateRole(sPrepare.roleIndex)
 		// 추가된 role 개수가 max보다 작을 때만 추가
-		if len(sPrepare.g.GetRoleUsers(roleToAdd)) < (*(sPrepare.g.RG))[sPrepare.roleIndex].Max {
+		if len(sPrepare.g.GetRoleUsers(roleToAdd)) < sPrepare.g.RG[sPrepare.roleIndex].Max {
 			// RoleView는 ununique sorted니까 RoleView에 중복된 상태로 sort index 찾아서 삽입
 			for i, item := range sPrepare.g.RoleView {
 				if item.String() <= roleToAdd.String() {
@@ -109,7 +109,7 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 				// line에서 숫자만 뽑아냄
 				num, _ := strconv.Atoi(rgxnum.FindString(line))
 				// role guide에 있는 직업의 max랑 같으면
-				if num == (*(sPrepare.g.RG))[sPrepare.roleIndex].Max {
+				if num == sPrepare.g.RG[sPrepare.roleIndex].Max {
 					// 최대 지우기
 					msg = strings.Replace(msg, line, strings.Replace(line, "최대", "", 1), 1)
 					// 1이면
@@ -142,40 +142,38 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	} else if r.MessageID == sPrepare.roleAddMsg.ID {
 		// roleindex 증감
 		sPrepare.roleIndex += dir
-		if dir > len(*(sPrepare.g.RG)) {
+		if dir > len(sPrepare.g.RG) {
 			dir = 0
 		} else if dir <= 0 {
-			dir = len(*(sPrepare.g.RG))
+			dir = len(sPrepare.g.RG)
 		}
 		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.roleAddMsg.ID,
-			embed.NewGenericEmbed((*(sPrepare.g.RG))[sPrepare.roleIndex].RoleName, strings.Join((*(sPrepare.g.RG))[sPrepare.roleIndex].RoleGuide, "\n")))
+			embed.NewGenericEmbed(sPrepare.g.RG[sPrepare.roleIndex].RoleName, strings.Join(sPrepare.g.RG[sPrepare.roleIndex].RoleGuide, "\n")))
 	}
 }
 
 // InitEmbed 함수는 게임이 시작할 때 입장, 직업추가 메세지를 보냅니다.
 func (sPrepare *Prepare) InitEmbed() {
 	roleEmbed := sPrepare.NewRoleEmbed()
+	enterEmbed := sPrepare.NewEnterEmbed()
 	s := sPrepare.g.Session
 	sPrepare.roleAddMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, roleEmbed.MessageEmbed)
-	sPrepare.g.RoleAddMsgID = sPrepare.roleAddMsg.ID
-	// 직업 추가 메시지에 안내 버튼을 연결
-	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, (*(sPrepare.g.Emj))["YES"])
-	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, (*(sPrepare.g.Emj))["NO"])
-	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, (*(sPrepare.g.Emj))["LEFT"])
-	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, (*(sPrepare.g.Emj))["RIGHT"])
-	enterEmbed := sPrepare.NewEnterEmbed()
 	sPrepare.enterGameMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, enterEmbed.MessageEmbed)
-	sPrepare.g.EnterGameMsgID = sPrepare.enterGameMsg.ID
+	// 직업 추가 메시지에 안내 버튼을 연결
+	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["YES"])
+	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["NO"])
+	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["LEFT"])
+	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
 	// 게임 입장 메시지에 안내 버튼을 연결
-	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, (*(sPrepare.g.Emj))["YES"])
-	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, (*(sPrepare.g.Emj))["NO"])
+	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, sPrepare.g.Emj["YES"])
+	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, sPrepare.g.Emj["NO"])
 }
 
 // newRoleEmbed 함수는 role guide와 현재 게임에 추가된 직업 / 게임의 참여중인 인원수 + 3 임베드를 만든다
 func (sPrepare *Prepare) NewRoleEmbed() *embed.Embed {
 	roleEmbed := embed.NewEmbed()
 	roleEmbed.SetTitle("직업 추가")
-	roleEmbed.AddField((*(sPrepare.g.RG))[sPrepare.roleIndex].RoleName, strings.Join((*(sPrepare.g.RG))[sPrepare.roleIndex].RoleGuide, "\n"))
+	roleEmbed.AddField(sPrepare.g.RG[sPrepare.roleIndex].RoleName, strings.Join(sPrepare.g.RG[sPrepare.roleIndex].RoleGuide, "\n"))
 	roleStr := ""
 	if len(sPrepare.g.RoleView) == 0 {
 		roleStr += "*추가된 직업이 없습니다.*"
@@ -183,12 +181,12 @@ func (sPrepare *Prepare) NewRoleEmbed() *embed.Embed {
 	for _, item := range sPrepare.g.RoleView {
 		cnt := len(sPrepare.g.GetRoleUsers(item))
 		roleStr += item.String() + " " + strconv.Itoa(cnt) + "개"
-		if cnt == (*(sPrepare.g.RG))[sPrepare.roleIndex].Max {
+		if cnt == sPrepare.g.RG[sPrepare.roleIndex].Max {
 			roleStr += " 최대"
 		}
 		roleStr += "\n"
 	}
-	roleEmbed.AddField("추가된 직엄", roleStr)
+	roleEmbed.AddField("추가된 직업", roleStr)
 	roleEmbed.SetFooter("현재 인원에 맞는 직업 수: " + strconv.Itoa(len(sPrepare.g.RoleView)) + " / " + strconv.Itoa(len(sPrepare.g.UserList)+3))
 	return roleEmbed
 }
@@ -197,7 +195,7 @@ func (sPrepare *Prepare) NewRoleEmbed() *embed.Embed {
 func (sPrepare *Prepare) NewEnterEmbed() *embed.Embed {
 	enterEmbed := embed.NewEmbed()
 	enterEmbed.SetTitle("게임 참가")
-	enterEmbed.AddField("", "현재 참가 인원: "+strconv.Itoa(len(sPrepare.g.UserList))+"명\n")
+	enterEmbed.AddField("참가자 목록", "현재 참가 인원: "+strconv.Itoa(len(sPrepare.g.UserList))+"명\n")
 	enterStr := ""
 	if len(sPrepare.g.UserList) == 0 {
 		enterStr += "*참가자가 없습니다.*"
@@ -206,6 +204,6 @@ func (sPrepare *Prepare) NewEnterEmbed() *embed.Embed {
 		enterStr += "`" + item.nick + "`\n"
 	}
 	enterEmbed.AddField("참가자 목록", enterStr)
-	enterEmbed.SetFooter("⭕: 입장\n❌: 퇴장")
+	enterEmbed.SetFooter("⭕: 입장 ❌: 퇴장")
 	return enterEmbed
 }

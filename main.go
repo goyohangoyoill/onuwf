@@ -59,7 +59,7 @@ func main() {
 func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if !isGuildChanIn[m.ChannelID] {
 		userIDChan := make(chan string)
-		curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, &rg, &emj, userIDChan)
+		curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, userIDChan)
 		uidToGameData[m.Author.ID] = curGame
 		isGuildChanIn[m.ChannelID] = true
 		for {
@@ -90,6 +90,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
 	}
+	if m.Content == "!test" {
+		str := rg[3].RoleGuide[0]
+		s.ChannelMessageSend(m.ChannelID, str)
+	}
 	// if m.Content == "ㅁ투표" {
 	// 	thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, rg, nil)
 	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "aaa", m.ChannelID, m.ChannelID}
@@ -112,7 +116,7 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	}
 
 	// 게임 참가중이 아닌 사용자의 리액션 무시.
-	if isUserIn[r.UserID] {
+	if !isUserIn[r.UserID] {
 		return
 	}
 
@@ -143,7 +147,7 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		// 오른쪽 화살표 선택.
 		go g.CurState.PressDirBtn(s, r, 1)
 	}
-	if r.GuildID == g.GuildID && r.ChannelID == g.ChanID && (r.MessageID == g.EnterGameMsgID || r.MessageID == g.RoleAddMsgID) {
+	if r.GuildID == g.GuildID && r.ChannelID == g.ChanID {
 		s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	}
 
@@ -151,7 +155,7 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 
 // EnvInit 설치 환경 불러오기.
 func EnvInit() map[string]string {
-	envFile, err := os.Open("env.json")
+	envFile, err := os.Open("asset/env.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -169,7 +173,7 @@ func EnvInit() map[string]string {
 
 // RoleGuideInit 직업 가이드 에셋 불러오기.
 func RoleGuideInit(rg *[]wfGame.RoleGuide) {
-	rgFile, err := os.Open("Asset/role_guide.json")
+	rgFile, err := os.Open("asset/role_guide.json")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -185,7 +189,7 @@ func RoleGuideInit(rg *[]wfGame.RoleGuide) {
 
 // EmojiInit 이모지 맵에 불러오기.
 func EmojiInit() map[string]string {
-	emjFile, err := os.Open("Asset/emoji.json")
+	emjFile, err := os.Open("asset/emoji.json")
 	if err != nil {
 		log.Fatal(err)
 	}
