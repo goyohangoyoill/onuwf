@@ -59,9 +59,9 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 					break
 				}
 			}
-			// roleSeq는 unique unsorted니까 roleSeq에 없으면 append
-			if FindRoleIdx(roleToAdd, sPrepare.g.roleSeq) == -1 {
-				sPrepare.g.roleSeq = append(sPrepare.g.roleSeq, roleToAdd)
+			// RoleSeq는 unique unsorted니까 RoleSeq에 없으면 append
+			if FindRoleIdx(roleToAdd, sPrepare.g.RoleSeq) == -1 {
+				sPrepare.g.RoleSeq = append(sPrepare.g.RoleSeq, roleToAdd)
 			}
 			// 직업 추가 메세지 반영
 			s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.roleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
@@ -91,9 +91,9 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 		// RoleView는 ununique sorted니까 첫번째로 나오는거 찾아서 지우기
 		if i := FindRoleIdx(roleToRemove, sPrepare.g.RoleView); i != -1 {
 			sPrepare.g.RoleView = append(sPrepare.g.RoleView[:i], sPrepare.g.RoleView[i+1:]...)
-			// roleSeq는 unique unsorted니까 방금 지운 RoleView에 없으면 지우기
-		} else if i := FindRoleIdx(roleToRemove, sPrepare.g.roleSeq); i != -1 {
-			sPrepare.g.roleSeq = append(sPrepare.g.roleSeq[:i], sPrepare.g.roleSeq[i+1:]...)
+			// RoleSeq는 unique unsorted니까 방금 지운 RoleView에 없으면 지우기
+		} else if i := FindRoleIdx(roleToRemove, sPrepare.g.RoleSeq); i != -1 {
+			sPrepare.g.RoleSeq = append(sPrepare.g.RoleSeq[:i], sPrepare.g.RoleSeq[i+1:]...)
 		}
 		// 직업 확인 메세지 보낸 적 있으면 수정하거나 지우기
 		if sPrepare.roleAddMsg != nil {
@@ -132,7 +132,7 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	if r.MessageID == sPrepare.enterGameMsg.ID {
 		// 게임 시작
 		if dir == 1 {
-			if len(sPrepare.g.roleSeq) == len(sPrepare.g.UserList)+3 {
+			if len(sPrepare.g.RoleSeq) == len(sPrepare.g.UserList)+3 {
 				sPrepare.g.CurState = &Playable{sPrepare.g, sPrepare.roleIndex, sPrepare.roleAddMsg, sPrepare.enterGameMsg}
 				s.ChannelMessageSendEmbed(sPrepare.g.ChanID, embed.NewGenericEmbed("게임시작", ""))
 			} else {
@@ -154,19 +154,19 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 
 // InitEmbed 함수는 게임이 시작할 때 입장, 직업추가 메세지를 보냅니다.
 func (sPrepare *Prepare) InitEmbed() {
-	roleEmbed := sPrepare.NewRoleEmbed()
 	enterEmbed := sPrepare.NewEnterEmbed()
+	roleEmbed := sPrepare.NewRoleEmbed()
 	s := sPrepare.g.Session
+	sPrepare.enterGameMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, enterEmbed.MessageEmbed)
+	// 게임 입장 메시지에 안내 버튼을 연결
+	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, sPrepare.g.Emj["YES"])
+	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, sPrepare.g.Emj["NO"])
 	sPrepare.roleAddMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, roleEmbed.MessageEmbed)
 	// 직업 추가 메시지에 안내 버튼을 연결
 	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["YES"])
 	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["NO"])
 	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["LEFT"])
 	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
-	sPrepare.enterGameMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, enterEmbed.MessageEmbed)
-	// 게임 입장 메시지에 안내 버튼을 연결
-	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, sPrepare.g.Emj["YES"])
-	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, sPrepare.g.Emj["NO"])
 }
 
 // newRoleEmbed 함수는 role guide와 현재 게임에 추가된 직업 / 게임의 참여중인 인원수 + 3 임베드를 만든다

@@ -57,16 +57,23 @@ func main() {
 }
 
 func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if !isGuildChanIn[m.ChannelID] {
-		userIDChan := make(chan string)
-		curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, userIDChan)
-		uidToGameData[m.Author.ID] = curGame
-		isGuildChanIn[m.ChannelID] = true
-		for {
-			// Mutex 필요할 것으로 예상됨.
-			curUID := <-userIDChan
+	enterUserIDChan := make(chan string)
+	quitUserIDChan := make(chan string)
+	gameStartedChan := make(chan bool)
+	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, enterUserIDChan, quitUserIDChan, gameStartedChan)
+	// Mutex 필요할 것으로 예상됨.
+	uidToGameData[m.Author.ID] = curGame
+	isGuildChanIn[m.ChannelID] = true
+	for {
+		select {
+		case curUID := <-enterUserIDChan:
 			isUserIn[curUID] = true
 			uidToGameData[curUID] = curGame
+		case curUID := <-quitUserIDChan:
+			isUserIn[curUID] = false
+			delete(uidToGameData, curUID)
+		case <-gameStartedChan:
+			return
 		}
 	}
 }
@@ -78,12 +85,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "ㅁ시작" {
-		if isUserIn[m.Author.ID] {
-			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 사용자입니다.")
-			return
-		}
 		if isGuildChanIn[m.ChannelID+m.GuildID] {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
+			return
+		}
+		if isUserIn[m.Author.ID] {
+			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 사용자입니다.")
 			return
 		}
 		isGuildChanIn[m.ChannelID+m.GuildID] = true
@@ -127,6 +134,7 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		ch = '0' + rune(i)
 		emjID := "n" + string(ch)
 		if r.Emoji.Name == emj[emjID] {
+			//# switch에서 다른 애들은 고루틴 쓰는데 얘는 사용안하는 이유?
 			g.CurState.PressNumBtn(s, r, i)
 		}
 	}

@@ -13,7 +13,7 @@ type RoleWerewolf struct {
 func (wf *RoleWerewolf) Action(tar TargetObject, player *User, g *Game) {
 	switch tar.actionType {
 	case 1:
-		//recvRole := g.getDisRole(tar.disRoleIdx)
+		//recvRole := g.DisRole[tar.disRoleIdx]
 	case 0:
 		wolves := g.GetRoleUsers(wf)
 		//wolves = append(wolves, g.getRoleUsers(roleMisticwolf{})...)

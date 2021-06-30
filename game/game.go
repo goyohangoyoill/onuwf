@@ -20,7 +20,7 @@ type Game struct {
 	UserList []*User
 
 	// 현재 게임에서 순서대로 추가, 중복제거 된 직업들의 목록
-	roleSeq []Role
+	RoleSeq []Role
 
 	// 현재 게임에서 사용중인 사용자에게 보여줄 중복 정렬된 직업들의 목록
 	RoleView []Role
@@ -34,7 +34,7 @@ type Game struct {
 	oriRoleIdxTable [][]bool
 
 	// 게임에서 버려진 직업 목록
-	disRole []Role
+	DisRole []Role
 
 	// 게임에서 사용하는 세션
 	Session *discordgo.Session
@@ -48,12 +48,15 @@ type Game struct {
 	// 직업의 대한 소개 및 정보
 	RG []RoleGuide
 
-	// 유저 입장시  ID가 전달되는 채널
-	UserIDChan chan string
+	// 유저 입장, 퇴장 시 ID가 전달되는 채널
+	EnterUserIDChan, QuitUserIDChan chan string
+
+	// 게임이 시작되면 신호가 전달되는 채널
+	GameStartedChan chan bool
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
-func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj map[string]string, uidChan chan string) (g *Game) {
+func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj map[string]string, enterUserIDChan, quitUserIDChan chan string, gameStartedChan chan bool) (g *Game) {
 	g = &Game{}
 	g.GuildID = gid
 	g.ChanID = cid
@@ -61,10 +64,12 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.Session = s
 	g.RG = rg
 	g.Emj = emj
-	g.UserIDChan = uidChan
+	g.EnterUserIDChan = enterUserIDChan
+	g.QuitUserIDChan = quitUserIDChan
+	g.GameStartedChan = gameStartedChan
 	g.UserList = make([]*User, 0)
-	g.roleSeq = make([]Role, 0)
-	g.disRole = make([]Role, 0)
+	g.RoleSeq = make([]Role, 0)
+	g.DisRole = make([]Role, 0)
 	g.LogMsg = make([]string, 0)
 	g.RG = rg
 	p := &Prepare{g, 1, nil, nil}
@@ -94,7 +99,7 @@ func (g *Game) SendVoteMsg(s *discordgo.Session) (messageIDs []string) {
 
 // SetUserByID 는 게임에 입장한 유저의 정보를 게임 데이터에 추가하는 함수입니다.
 func (g *Game) SetUserByID(uid string) {
-	var newOne *User
+	newOne := &User{}
 	newOne.userID = uid
 	dgUser, _ := g.Session.User(uid)
 	newOne.nick = dgUser.Username
@@ -102,7 +107,7 @@ func (g *Game) SetUserByID(uid string) {
 	uChan, _ := g.Session.UserChannelCreate(uid)
 	newOne.dmChanID = uChan.ID
 	g.UserList = append(g.UserList, newOne)
-	g.UserIDChan <- uid
+	g.EnterUserIDChan <- uid
 }
 
 // DelUserByID 는 입장되어 있는 유저의 정보를 모두 삭제해주는 함수입니다.
@@ -135,12 +140,12 @@ func (g *Game) AppendLog(msg string) {
 
 // GetRole 유저의 직업을 반환
 func (g *Game) GetRole(uid string) Role {
-	loop := len(g.roleSeq)
+	loop := len(g.RoleSeq)
 	idx := FindUserIdx(uid, g.UserList)
 
 	for i := 0; i < loop; i++ {
 		if g.roleIdxTable[idx][i] {
-			return g.roleSeq[i]
+			return g.RoleSeq[i]
 		}
 	}
 	return nil
@@ -149,8 +154,8 @@ func (g *Game) GetRole(uid string) Role {
 // 유저의 직업을 업데이트
 func (g *Game) setRole(uid string, item Role) {
 	userIdx := FindUserIdx(uid, g.UserList)
-	roleIdx := FindRoleIdx(item, g.roleSeq)
-	loop := len(g.roleSeq)
+	roleIdx := FindRoleIdx(item, g.RoleSeq)
+	loop := len(g.RoleSeq)
 
 	for i := 0; i < loop; i++ {
 		g.roleIdxTable[userIdx][i] = false
@@ -160,7 +165,7 @@ func (g *Game) setRole(uid string, item Role) {
 
 // SetDisRole 버려진 직업을 업데이트
 func (g *Game) SetDisRole(disRoleIdx int, item Role) {
-	g.disRole[disRoleIdx] = item
+	g.DisRole[disRoleIdx] = item
 }
 
 // SwapRoleFromUser 두 유저의 직업을 서로 교환
@@ -171,14 +176,9 @@ func (g *Game) SwapRoleFromUser(uid1, uid2 string) {
 	g.setRole(uid2, role1)
 }
 
-// GetDisRole 버려진 직업 중 하나 확인.
-func (g *Game) GetDisRole(disRoleIdx int) Role {
-	return g.disRole[disRoleIdx]
-}
-
 // SwapRoleFromDiscard 유저 직업과 버려진 직업을 교환.
 func (g *Game) SwapRoleFromDiscard(uid string, disRoleIdx int) {
-	role1 := g.GetDisRole(disRoleIdx)
+	role1 := g.DisRole[disRoleIdx]
 	role2 := g.GetRole(uid)
 	g.setRole(uid, role1)
 	g.SetDisRole(disRoleIdx, role2)
@@ -188,7 +188,7 @@ func (g *Game) SwapRoleFromDiscard(uid string, disRoleIdx int) {
 func (g *Game) GetRoleUsers(find Role) (users []*User) {
 	result := make([]*User, 0)
 	loop := len(g.UserList)
-	idx := FindRoleIdx(find, g.roleSeq)
+	idx := FindRoleIdx(find, g.RoleSeq)
 	for i := 0; i < loop; i++ {
 		if g.roleIdxTable[i][idx] {
 			result = append(result, g.UserList[i])
