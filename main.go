@@ -17,9 +17,8 @@ import (
 )
 
 var (
-	isUserIn      map[string]bool
-	isGuildChanIn map[string]bool
-	uidToGameData map[string]*wfGame.Game
+	isUserIn            map[string]bool
+	guildChanToGameData map[string]*wfGame.Game
 
 	env map[string]string
 	emj map[string]string
@@ -32,8 +31,7 @@ func init() {
 	RoleGuideInit(&rg)
 
 	isUserIn = make(map[string]bool)
-	isGuildChanIn = make(map[string]bool)
-	uidToGameData = make(map[string]*wfGame.Game)
+	guildChanToGameData = make(map[string]*wfGame.Game)
 }
 
 func main() {
@@ -57,21 +55,19 @@ func main() {
 }
 
 func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
-	enterUserIDChan := make(chan string)
+	enterUserIDChan := make(chan string, 1)
 	quitUserIDChan := make(chan string)
 	gameStartedChan := make(chan bool)
 	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, enterUserIDChan, quitUserIDChan, gameStartedChan)
 	// Mutex 필요할 것으로 예상됨.
-	uidToGameData[m.Author.ID] = curGame
+	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
 	for {
 		select {
-		case curUID := <-enterUserIDChan:
+		case curUID := <-curGame.EnterUserIDChan:
 			isUserIn[curUID] = true
-			uidToGameData[curUID] = curGame
-		case curUID := <-quitUserIDChan:
+		case curUID := <-curGame.QuitUserIDChan:
 			isUserIn[curUID] = false
-			delete(uidToGameData, curUID)
-		case <-gameStartedChan:
+		case <-curGame.GameStartedChan:
 			return
 		}
 	}
@@ -84,7 +80,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "ㅁ시작" {
-		if isGuildChanIn[m.ChannelID+m.GuildID] {
+		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
 			return
 		}
@@ -92,7 +88,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 사용자입니다.")
 			return
 		}
-		isGuildChanIn[m.ChannelID+m.GuildID] = true
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
 	}
@@ -120,49 +115,44 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	if r.UserID == s.State.User.ID {
 		return
 	}
-
-	// 게임 진행중인 채널이 아니면 리액션 무시.
-	if !isGuildChanIn[r.ChannelID+r.GuildID] {
-		return
-	}
-
+	fmt.Println("유저 무시 전")
 	// 게임 참가중이 아닌 사용자의 리액션 무시.
 	// 단, 참가자가 아니면 참가 가능해야 함. 무시해버리면 참가 못 함.
-	if !(isUserIn[r.UserID] || (!isUserIn[r.UserID] && r.Emoji.Name != emj["YES"])) {
+	if !(isUserIn[r.UserID] || (!isUserIn[r.UserID] && r.Emoji.Name == emj["YES"])) {
 		return
 	}
-
-	g := uidToGameData[r.UserID]
+	fmt.Println("유저 무시 후")
+	g := guildChanToGameData[r.GuildID+r.ChannelID]
+	if g == nil {
+		return
+	}
+	isUserIn[r.UserID] = true
+	fmt.Println("길드 체크 후")
 	// 숫자 이모지 선택.
 	for i := 1; i < 10; i++ {
 		var ch rune
 		ch = '0' + rune(i)
 		emjID := "n" + string(ch)
 		if r.Emoji.Name == emj[emjID] {
-			//# switch에서 다른 애들은 고루틴 쓰는데 얘는 사용안하는 이유?
 			g.CurState.PressNumBtn(s, r, i)
 		}
 	}
 	switch r.Emoji.Name {
 	case emj["DISCARD"]:
 		// 쓰레기통 이모지 선택.
-		go g.CurState.PressDisBtn(s, r)
+		g.CurState.PressDisBtn(s, r)
 	case emj["YES"]:
 		// O 이모지 선택.
-		go g.CurState.PressYesBtn(s, r)
+		g.CurState.PressYesBtn(s, r)
 	case emj["NO"]:
 		// X 이모지 선택.
-		go g.CurState.PressNoBtn(s, r)
+		g.CurState.PressNoBtn(s, r)
 	case emj["LEFT"]:
 		// 왼쪽 화살표 선택.
-		go g.CurState.PressDirBtn(s, r, -1)
+		g.CurState.PressDirBtn(s, r, -1)
 	case emj["RIGHT"]:
 		// 오른쪽 화살표 선택.
-		go g.CurState.PressDirBtn(s, r, 1)
-	}
-
-	if r.GuildID == g.GuildID && r.ChannelID == g.ChanID {
-		s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
+		g.CurState.PressDirBtn(s, r, 1)
 	}
 }
 

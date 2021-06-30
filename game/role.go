@@ -17,51 +17,51 @@ type RoleGuide struct {
 
 func GenerateRole(num int) (r Role) {
 	switch num {
-	case 1:
-		r = RoleSentinel{}
+	case 0:
+		r = Sentinel{}
 		/*
+			case 1:
+				r = Doppelganger{}
 			case 2:
-				r = roleDoppelganger{}
+				r = Werewolf{}
 			case 3:
-				r = roleWerewolf{}
+				r = Alphawolf{}
 			case 4:
-				r = roleAlphawolf{}
+				r = Misticwolf{}
 			case 5:
-				r = roleMisticwolf{}
+				r = Minion{}
 			case 6:
-				r = roleMinion{}
+				r = Freemasonry{}
 			case 7:
-				r = roleFreemasonry{}
+				r = Seer{}
 			case 8:
-				r = roleSeer{}
+				r = Apprenticeseer{}
 			case 9:
-				r = roleApprenticeseer{}
+				r = Paranormalinvestigator{}
 			case 10:
-				r = roleParanormalinvestigator{}
+				r = Rober{}
 			case 11:
-				r = roleRober{}
+				r = Witch{}
 			case 12:
-				r = roleWitch{}
+				r = Troublemaker{}
 			case 13:
-				r = roleTroublemaker{}
+				r = Villageidiot{}
 			case 14:
-				r = roleVillageidiot{}
+				r = Drunk{}
 			case 15:
-				r = roleDrunk{}
+				r = Insomniac{}
 			case 16:
-				r = roleInsomniac{}
+				r = Revealer{}
 			case 17:
-				r = roleRevealer{}
+				r = Tanner{}
 			case 18:
-				r = roleTanner{}
+				r = Hunter{}
 			case 19:
-				r = roleHunter{}
+				r = Bodygaurd{}
 			case 20:
-				r = roleBodygaurd{}
+				r = Villager{}
 			case 21:
-				r = roleVillager{}
-			case 22:
-				r = roleDreamwolf{}
+				r = Dreamwolf{}
 		*/
 
 	}

@@ -69,11 +69,12 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.GameStartedChan = gameStartedChan
 	g.UserList = make([]*User, 0)
 	g.RoleSeq = make([]Role, 0)
+	g.RoleView = make([]Role, 0)
 	g.DisRole = make([]Role, 0)
 	g.LogMsg = make([]string, 0)
 	g.SetUserByID(muid)
 	g.RG = rg
-	p := &Prepare{g, 1, nil, nil}
+	p := &Prepare{g, 0, nil, nil}
 	p.InitEmbed()
 	g.CurState = p
 	return
@@ -100,6 +101,9 @@ func (g *Game) SendVoteMsg(s *discordgo.Session) (messageIDs []string) {
 
 // SetUserByID 는 게임에 입장한 유저의 정보를 게임 데이터에 추가하는 함수입니다.
 func (g *Game) SetUserByID(uid string) {
+	if i := FindUserIdx(uid, g.UserList); i != -1 {
+		return
+	}
 	newOne := &User{}
 	newOne.userID = uid
 	dgUser, _ := g.Session.User(uid)
@@ -107,14 +111,70 @@ func (g *Game) SetUserByID(uid string) {
 	newOne.chanID = g.ChanID
 	uChan, _ := g.Session.UserChannelCreate(uid)
 	newOne.dmChanID = uChan.ID
-	g.UserList = append(g.UserList, newOne)
 	g.EnterUserIDChan <- uid
+	g.UserList = append(g.UserList, newOne)
 }
 
 // DelUserByID 는 입장되어 있는 유저의 정보를 모두 삭제해주는 함수입니다.
 func (g *Game) DelUserByID(uid string) {
-	index := FindUserIdx(uid, g.UserList)
-	g.UserList = append(g.UserList[:index], g.UserList[index+1:]...)
+	if uid == g.MasterID {
+		return
+	}
+	i := FindUserIdx(uid, g.UserList)
+	if i == -1 {
+		return
+	}
+	g.QuitUserIDChan <- uid
+	g.UserList = append(g.UserList[:i], g.UserList[i+1:]...)
+}
+
+// RoleCount 함수는 직업을 가진 유저가 아닌 직업 자체의 갯수를 셈
+func (g *Game) RoleCount(roleToFind Role, roleList []Role) int {
+	cnt := 0
+	for _, tmpRole := range roleList {
+		if roleToFind.String() == tmpRole.String() {
+			cnt++
+		}
+	}
+	return cnt
+}
+
+// AddRole 함수는 RG에 사용할 roleindex 위치 값을 받아 RoleView와 RoleSeq에 role을 추가
+func (g *Game) AddRole(roleIndex int) {
+	// roleFactory에서 현재 roleindex 위치 값을 받아 role 생성
+	roleToAdd := GenerateRole(roleIndex)
+	// RoleView에 추가된 role 개수가 max보다 작을 때만 추가
+	if g.RoleCount(roleToAdd, g.RoleView) < g.RG[roleIndex].Max {
+		// RoleView는 ununique sorted니까 RoleView에 중복된 상태로 sort index 찾아서 삽입
+		i := 0
+		for j, item := range g.RoleView {
+			if roleToAdd.String() >= item.String() {
+				i = j
+				break
+			}
+		}
+		tmp := append(g.RoleView[:i], roleToAdd)
+		g.RoleView = append(tmp, g.RoleView[i:]...)
+		// RoleSeq는 unique unsorted니까 RoleSeq에 없으면 append
+		if FindRoleIdx(roleToAdd, g.RoleSeq) == -1 {
+			g.RoleSeq = append(g.RoleSeq, roleToAdd)
+		}
+	}
+}
+
+// DelRole 함수는 RG에 사용할 roleindex 위치 값을 받아 RoleView와 RoleSeq에서 role을 삭제
+func (g *Game) DelRole(roleIndex int) {
+	// roleFactory에서 현재 roleindex 위치 값을 받아 role 생성
+	roleToRemove := GenerateRole(roleIndex)
+	// RoleView는 ununique sorted니까 첫번째로 나오는거 찾아서 지우기
+	if i := FindRoleIdx(roleToRemove, g.RoleView); i != -1 {
+		g.RoleView = append(g.RoleView[:i], g.RoleView[i+1:]...)
+	}
+	// RoleSeq는 unique unsorted니까 방금 지운 Rol eView에 없으면 지우기
+	if g.RoleCount(roleToRemove, g.RoleView) == 0 {
+		i := FindRoleIdx(roleToRemove, g.RoleSeq)
+		g.RoleSeq = append(g.RoleSeq[:i], g.RoleSeq[i+1:]...)
+	}
 }
 
 // FindUserByUID UID 로 user 인스턴스를 구하는 함수
