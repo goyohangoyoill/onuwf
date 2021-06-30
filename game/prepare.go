@@ -38,13 +38,10 @@ func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageR
 func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// 입장 메세지에서 리액션한거라면
 	if r.MessageID == sPrepare.enterGameMsg.ID {
-		// userList에 없으면 user append()
-		if FindUserIdx(r.UserID, sPrepare.g.UserList) == -1 {
-			//user 생성해서 append()
-			sPrepare.g.SetUserByID(r.UserID)
-			// 입장 확인 메세지 반영
-			s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.enterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
-		}
+		//user 생성해서 append()
+		sPrepare.g.SetUserByID(r.UserID)
+		// 입장 확인 메세지 반영
+		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.enterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.roleAddMsg.ID {
 		// roleFactory에서 현재 roleindex 위치 값을 받아 role 생성
@@ -73,17 +70,13 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// 입장 메세지에서 리액션한거라면
 	if r.MessageID == sPrepare.enterGameMsg.ID {
-		// userList에 있으면 지우기
-		if i := FindUserIdx(r.UserID, sPrepare.g.UserList); i != -1 {
-			// userList에서 지우고
-			sPrepare.g.DelUserByIndex(i)
-			// 입장 확인 메세지에서 지우기
-			var msg string
-			msg = sPrepare.enterGameMsg.Embeds[0].Description
-			strings.Replace(msg, r.UserID+" 입장\n", "", 1)
-			sPrepare.enterGameMsg.Embeds[0].Description = msg
-			s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.enterGameMsg.ID, sPrepare.enterGameMsg.Embeds[0])
-		}
+		// userList에서 지우고
+		sPrepare.g.DelUserByID(r.UserID)
+		// 입장 확인 메세지에서 지우기
+		msg := sPrepare.enterGameMsg.Embeds[0].Description
+		strings.Replace(msg, r.UserID+" 입장\n", "", 1)
+		sPrepare.enterGameMsg.Embeds[0].Description = msg
+		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.enterGameMsg.ID, sPrepare.enterGameMsg.Embeds[0])
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.roleAddMsg.ID {
 		// roleFactory에서 현재 roleindex 위치 값을 받아 role 생성

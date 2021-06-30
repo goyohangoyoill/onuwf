@@ -63,7 +63,6 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, enterUserIDChan, quitUserIDChan, gameStartedChan)
 	// Mutex 필요할 것으로 예상됨.
 	uidToGameData[m.Author.ID] = curGame
-	isGuildChanIn[m.ChannelID] = true
 	for {
 		select {
 		case curUID := <-enterUserIDChan:
@@ -122,8 +121,14 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		return
 	}
 
+	// 게임 진행중인 채널이 아니면 리액션 무시.
+	if !isGuildChanIn[r.ChannelID+r.GuildID] {
+		return
+	}
+
 	// 게임 참가중이 아닌 사용자의 리액션 무시.
-	if !isUserIn[r.UserID] {
+	// 단, 참가자가 아니면 참가 가능해야 함. 무시해버리면 참가 못 함.
+	if !(isUserIn[r.UserID] || (!isUserIn[r.UserID] && r.Emoji.Name != emj["YES"])) {
 		return
 	}
 
@@ -155,10 +160,10 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		// 오른쪽 화살표 선택.
 		go g.CurState.PressDirBtn(s, r, 1)
 	}
+
 	if r.GuildID == g.GuildID && r.ChannelID == g.ChanID {
 		s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	}
-
 }
 
 // EnvInit 설치 환경 불러오기.

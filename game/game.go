@@ -71,6 +71,7 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.RoleSeq = make([]Role, 0)
 	g.DisRole = make([]Role, 0)
 	g.LogMsg = make([]string, 0)
+	g.SetUserByID(muid)
 	g.RG = rg
 	p := &Prepare{g, 1, nil, nil}
 	p.InitEmbed()
@@ -112,11 +113,7 @@ func (g *Game) SetUserByID(uid string) {
 
 // DelUserByID 는 입장되어 있는 유저의 정보를 모두 삭제해주는 함수입니다.
 func (g *Game) DelUserByID(uid string) {
-
-}
-
-// DelUserByIndex 는 게임에 입장한 유저를 인덱스 번호로 지우는 함수입니다.
-func (g *Game) DelUserByIndex(index int) {
+	index := FindUserIdx(uid, g.UserList)
 	g.UserList = append(g.UserList[:index], g.UserList[index+1:]...)
 }
 
