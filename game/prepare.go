@@ -158,12 +158,12 @@ func (sPrepare *Prepare) InitEmbed() {
 	enterEmbed := sPrepare.NewEnterEmbed()
 	s := sPrepare.g.Session
 	sPrepare.roleAddMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, roleEmbed.MessageEmbed)
-	sPrepare.enterGameMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, enterEmbed.MessageEmbed)
 	// 직업 추가 메시지에 안내 버튼을 연결
 	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["YES"])
 	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["NO"])
 	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["LEFT"])
 	s.MessageReactionAdd(sPrepare.roleAddMsg.ChannelID, sPrepare.roleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
+	sPrepare.enterGameMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, enterEmbed.MessageEmbed)
 	// 게임 입장 메시지에 안내 버튼을 연결
 	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, sPrepare.g.Emj["YES"])
 	s.MessageReactionAdd(sPrepare.enterGameMsg.ChannelID, sPrepare.enterGameMsg.ID, sPrepare.g.Emj["NO"])
