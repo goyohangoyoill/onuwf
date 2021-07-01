@@ -90,23 +90,28 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
+		return
+	}
+	if m.Content == "ㅁ강제종료" {
+		if isUserIn[m.Author.ID] {
+			g := uidToGameData[m.Author.ID]
+			if m.Author.ID != g.MasterID {
+				return
+			}
+			for _, user := range g.UserList {
+				uidToGameData[user.UserID] = nil
+				isUserIn[user.UserID] = false
+			}
+			isGuildChanIn[m.GuildID+m.ChannelID] = false
+			g.CanFunc()
+			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
+			return
+		}
 	}
 	if m.Content == "!test" {
 		str := rg[3].RoleGuide[0]
 		s.ChannelMessageSend(m.ChannelID, str)
 	}
-	// if m.Content == "ㅁ투표" {
-	// 	thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, rg, nil)
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "aaa", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "bbb", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "ccc", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "ddd", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "eee", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "fff", m.ChannelID, m.ChannelID}
-	// 	thisGame.CurState = wfGame.StateVote
-
-	// 	wfGame.VoteProcess()
-	// }
 }
 
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.
@@ -131,7 +136,8 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		ch = '0' + rune(i)
 		emjID := "n" + string(ch)
 		if r.Emoji.Name == emj[emjID] {
-			g.CurState.PressNumBtn(s, r, i)
+			go g.CurState.PressNumBtn(s, r, i)
+			break
 		}
 	}
 	switch r.Emoji.Name {
