@@ -17,6 +17,7 @@ type User struct {
 
 // NewUser make new user object
 func NewUser(uid, nick, chanID, dmChanID string) (u *User) {
+	u = &User{}
 	u.userID = uid
 	u.nick = nick
 	u.chanID = chanID

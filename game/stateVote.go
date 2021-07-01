@@ -3,7 +3,8 @@ package game
 import (
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
-	//"fmt"
+	"fmt"
+	"strconv"
 )
 
 // Prepare is test
@@ -17,8 +18,8 @@ type StateVote struct {
 func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
 	//num를 받음
 	//해당 index list count +1
-	v.Voted_list[num]++
-//	fmt.Println(v.Voted_list[num])
+	v.Voted_list[num - 1]++
+	fmt.Println(v.Voted_list[num - 1])
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 state에서 하는 동작
@@ -40,6 +41,7 @@ func (v StateVote) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 state에서 하는 동작
 func (v StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+		fmt.Println(dir, "test")
 		//do nothing
 }
 
@@ -59,8 +61,11 @@ func VoteProcess(s *discordgo.Session, g *Game) {
 }
 
 func addNumAddEmoji(s *discordgo.Session, msg *discordgo.Message, g *Game) {
-	s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n1"])
-	s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n2"])
-	s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n3"])
-	s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n4"])
+	num := len(g.UserList)
+	for i := 0; i < num; i++ {
+	s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n"+ strconv.Itoa(i)])
+	}
+	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n2"])
+	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n3"])
+	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n4"])
 }

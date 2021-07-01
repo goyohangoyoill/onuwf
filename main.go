@@ -102,7 +102,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		voted_list := make([]int, len(thisGame.UserList))
 		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList)}
 		temp.G = thisGame
+		uidToGameData[m.Author.ID] = thisGame
 		thisGame.CurState = temp
+		//uidToGameData[m.Author.ID] = thisGame
 		wfGame.VoteProcess(s, thisGame)
 	}
 	if m.Content == "!test" {
@@ -125,26 +127,29 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.
 func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-	fmt.Println(r.UserID, r.MessageID, r.ChannelID, r.GuildID)
+	//fmt.Println(r.UserID, r.MessageID, r.ChannelID, r.GuildID)
 
 	// 봇 자기자신의 리액션 무시.
 	if r.UserID == s.State.User.ID {
 		return
 	}
-
 	// 게임 참가중이 아닌 사용자의 리액션 무시.
-	if !isUserIn[r.UserID] {
-		return
-	}
+	//if !isUserIn[r.UserID] {
+	//	return
+	//}
 
 	g := uidToGameData[r.UserID]
 	// 숫자 이모지 선택.
+	fmt.Println(g.CurState)
 	for i := 1; i < 10; i++ {
 		var ch rune
 		ch = '0' + rune(i)
 		emjID := "n" + string(ch)
 		if r.Emoji.Name == emj[emjID] {
 			g.CurState.PressNumBtn(s, r, i)
+
+			//temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList)}
+			//temp.PreeNumBtn(s, r, i)
 		}
 	}
 	switch r.Emoji.Name {
