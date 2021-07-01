@@ -1,12 +1,19 @@
 package game
 
 import (
+	"context"
+
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
 )
 
 // Game 구조체는 게임 진행을 위한 정보를 담고 있는 스트럭처
 type Game struct {
+	// 게임을 강제 종료하기 위한 컨텍스트.
+	Ctx context.Context
+	// 게임을 강제 종료하기 위한 캔슬함수.
+	CanFunc context.CancelFunc
+
 	// 현재 게임이 진행중인 서버의 GID
 	GuildID string
 
@@ -59,6 +66,10 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.ChanID = cid
 	g.MasterID = muid
 	g.Session = s
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	g.Ctx = ctx
+	g.CanFunc = cancel
 	g.RG = rg
 	g.Emj = emj
 	g.UserIDChan = uidChan
@@ -94,8 +105,8 @@ func (g *Game) SendVoteMsg(s *discordgo.Session) (messageIDs []string) {
 
 // SetUserByID 는 게임에 입장한 유저의 정보를 게임 데이터에 추가하는 함수입니다.
 func (g *Game) SetUserByID(uid string) {
-	var newOne *User
-	newOne.userID = uid
+	newOne := &User{}
+	newOne.UserID = uid
 	dgUser, _ := g.Session.User(uid)
 	newOne.nick = dgUser.Username
 	newOne.chanID = g.ChanID
@@ -118,7 +129,7 @@ func (g *Game) DelUserByIndex(index int) {
 // FindUserByUID UID 로 user 인스턴스를 구하는 함수
 func (g *Game) FindUserByUID(uid string) (target *User) {
 	for i, item := range g.UserList {
-		if item.userID == uid {
+		if item.UserID == uid {
 			return g.UserList[i]
 		}
 	}
@@ -201,12 +212,12 @@ func (g *Game) GetRoleUsers(find Role) (users []*User) {
 func (g *Game) RotateAllUserRole() {
 	loop := len(g.UserList)
 
-	tmpRole := g.GetRole(g.UserList[loop-1].userID)
+	tmpRole := g.GetRole(g.UserList[loop-1].UserID)
 	for i := loop - 1; i > 0; i++ {
-		item := g.GetRole(g.UserList[i-1].userID)
-		g.setRole(g.UserList[i].userID, item)
+		item := g.GetRole(g.UserList[i-1].UserID)
+		g.setRole(g.UserList[i].UserID, item)
 	}
-	g.setRole(g.UserList[0].userID, tmpRole)
+	g.setRole(g.UserList[0].UserID, tmpRole)
 }
 
 // SetPower 유저에게 특수권한 부여
@@ -223,7 +234,7 @@ func (g *Game) CopyRole(destUID, srcUID string) {
 // FindUserIdx 유저의 인덱스 찾기를 위한 함수
 func FindUserIdx(uid string, target []*User) int {
 	for i, item := range target {
-		if uid == item.userID {
+		if uid == item.UserID {
 			return i
 		}
 	}

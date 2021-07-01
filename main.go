@@ -57,17 +57,15 @@ func main() {
 }
 
 func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if !isGuildChanIn[m.ChannelID] {
-		userIDChan := make(chan string)
-		curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, userIDChan)
-		uidToGameData[m.Author.ID] = curGame
-		isGuildChanIn[m.ChannelID] = true
-		for {
-			// Mutex 필요할 것으로 예상됨.
-			curUID := <-userIDChan
-			isUserIn[curUID] = true
-			uidToGameData[curUID] = curGame
-		}
+	userIDChan := make(chan string)
+	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, userIDChan)
+	uidToGameData[m.Author.ID] = curGame
+	curGame.SetUserByID(m.Author.ID)
+	for {
+		// Mutex 필요할 것으로 예상됨.
+		curUID := <-userIDChan
+		isUserIn[curUID] = true
+		uidToGameData[curUID] = curGame
 	}
 }
 
@@ -82,13 +80,30 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 사용자입니다.")
 			return
 		}
-		if isGuildChanIn[m.ChannelID+m.GuildID] {
+		if isGuildChanIn[m.GuildID+m.ChannelID] {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
 			return
 		}
-		isGuildChanIn[m.ChannelID+m.GuildID] = true
+		isGuildChanIn[m.GuildID+m.ChannelID] = true
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
+		return
+	}
+	if m.Content == "ㅁ강제종료" {
+		if isUserIn[m.Author.ID] {
+			g := uidToGameData[m.Author.ID]
+			if m.Author.ID != g.MasterID {
+				return
+			}
+			for _, user := range g.UserList {
+				uidToGameData[user.UserID] = nil
+				isUserIn[user.UserID] = false
+			}
+			isGuildChanIn[m.GuildID+m.ChannelID] = false
+			g.CanFunc()
+			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
+			return
+		}
 	}
 	if m.Content == "!test" {
 		str := rg[3].RoleGuide[0]
@@ -102,7 +117,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "ddd", m.ChannelID, m.ChannelID}
 	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "eee", m.ChannelID, m.ChannelID}
 	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "fff", m.ChannelID, m.ChannelID}
-	// 	thisGame.CurState = wfGame.StateVote
+	// 	thisGame.CurState = wfGame.StateVote{}
 
 	// 	wfGame.VoteProcess()
 	// }
@@ -127,7 +142,8 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		ch = '0' + rune(i)
 		emjID := "n" + string(ch)
 		if r.Emoji.Name == emj[emjID] {
-			g.CurState.PressNumBtn(s, r, i)
+			go g.CurState.PressNumBtn(s, r, i)
+			break
 		}
 	}
 	switch r.Emoji.Name {
