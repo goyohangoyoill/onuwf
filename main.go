@@ -90,21 +90,21 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
 	}
-<<<<<<< HEAD
+
 	if m.Content == "ㅁ투표" {
-		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, &rg, nil)
+		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, nil)
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "aaa", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "bbb", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "ccc", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "ddd", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "eee", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "fff", m.ChannelID, m.ChannelID))
-		voted_list = make([]int, len(thisGame.UserList))
-		thisGame.CurState = wfGame.StateVote{thisGame, &voted_list, len(thisGame.UserList)}
-		thisGame.CurState.g = thisGame
+		voted_list := make([]int, len(thisGame.UserList))
+		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList)}
+		temp.G = thisGame
+		thisGame.CurState = temp
 		wfGame.VoteProcess(s, thisGame)
 	}
-=======
 	if m.Content == "!test" {
 		str := rg[3].RoleGuide[0]
 		s.ChannelMessageSend(m.ChannelID, str)
@@ -121,7 +121,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// 	wfGame.VoteProcess()
 	// }
->>>>>>> 45afbddef94d748c2e4aea07e962e528e711304c
 }
 
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.

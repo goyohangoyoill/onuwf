@@ -188,10 +188,6 @@ func (g *Game) SwapRoleFromDiscard(uid string, disRoleIdx int) {
 func (g *Game) GetRoleUsers(find Role) (users []*User) {
 	result := make([]*User, 0)
 	loop := len(g.UserList)
-<<<<<<< HEAD
-
-=======
->>>>>>> 45afbddef94d748c2e4aea07e962e528e711304c
 	idx := FindRoleIdx(find, g.roleSeq)
 	for i := 0; i < loop; i++ {
 		if g.roleIdxTable[i][idx] {
