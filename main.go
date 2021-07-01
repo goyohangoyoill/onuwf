@@ -115,19 +115,16 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	if r.UserID == s.State.User.ID {
 		return
 	}
-	fmt.Println("유저 무시 전")
 	// 게임 참가중이 아닌 사용자의 리액션 무시.
 	// 단, 참가자가 아니면 참가 가능해야 함. 무시해버리면 참가 못 함.
 	if !(isUserIn[r.UserID] || (!isUserIn[r.UserID] && r.Emoji.Name == emj["YES"])) {
 		return
 	}
-	fmt.Println("유저 무시 후")
 	g := guildChanToGameData[r.GuildID+r.ChannelID]
 	if g == nil {
 		return
 	}
 	isUserIn[r.UserID] = true
-	fmt.Println("길드 체크 후")
 	// 숫자 이모지 선택.
 	for i := 1; i < 10; i++ {
 		var ch rune
