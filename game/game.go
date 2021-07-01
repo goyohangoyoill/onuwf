@@ -244,6 +244,11 @@ func (g *Game) SwapRoleFromUser(uid1, uid2 string) {
 	g.setRole(uid2, role1)
 }
 
+// 버려진 직업 중 하나 확인.
+func (g *Game) GetDisRole(disRoleIdx int) Role {
+	return g.DisRole[disRoleIdx]
+}
+
 // SwapRoleFromDiscard 유저 직업과 버려진 직업을 교환.
 func (g *Game) SwapRoleFromDiscard(uid string, disRoleIdx int) {
 	role1 := g.DisRole[disRoleIdx]

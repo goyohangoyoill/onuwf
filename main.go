@@ -66,7 +66,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case curUID := <-curGame.EnterUserIDChan:
 			isUserIn[curUID] = true
 		case curUID := <-curGame.QuitUserIDChan:
-			isUserIn[curUID] = false
+			delete(isUserIn, curUID)
 		case <-curGame.GameStartedChan:
 			return
 		}
@@ -94,15 +94,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	if m.Content == "ㅁ강제종료" {
 		if isUserIn[m.Author.ID] {
-			g := uidToGameData[m.Author.ID]
+			g := guildChanToGameData[m.GuildID+m.ChannelID]
 			if m.Author.ID != g.MasterID {
 				return
 			}
 			for _, user := range g.UserList {
-				uidToGameData[user.UserID] = nil
-				isUserIn[user.UserID] = false
+				delete(isUserIn, user.UserID)
 			}
-			isGuildChanIn[m.GuildID+m.ChannelID] = false
+			delete(guildChanToGameData, m.GuildID+m.ChannelID)
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
 			return
