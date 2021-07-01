@@ -109,18 +109,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		str := rg[3].RoleGuide[0]
 		s.ChannelMessageSend(m.ChannelID, str)
 	}
-	// if m.Content == "ㅁ투표" {
-	// 	thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, rg, nil)
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "aaa", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "bbb", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "ccc", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "ddd", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "eee", m.ChannelID, m.ChannelID}
-	// 	thisGame.UserList = append(thisGame.UserList, &wfGame.User{m.Author.ID, "fff", m.ChannelID, m.ChannelID}
-	// 	thisGame.CurState = wfGame.StateVote{}
-
-	// 	wfGame.VoteProcess()
-	// }
 }
 
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.
