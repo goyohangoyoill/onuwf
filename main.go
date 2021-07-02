@@ -93,14 +93,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if m.Content == "ㅁ투표" {
 		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, nil)
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "aaa", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "bbb", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "ccc", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "ddd", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "eee", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "fff", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "jae-kim", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser("ju-hur", "ju-hur", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser("min-jo", "min-jo", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser("kalee", "kalee", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser("apple", "apple", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser("banana", "banana", m.ChannelID, m.ChannelID))
 		voted_list := make([]int, len(thisGame.UserList))
-		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList)}
+		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList), 0}
 		temp.G = thisGame
 		uidToGameData[m.Author.ID] = thisGame
 		thisGame.CurState = temp
@@ -140,14 +140,13 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 
 	g := uidToGameData[r.UserID]
 	// 숫자 이모지 선택.
-	fmt.Println(g.CurState)
 	for i := 1; i < 10; i++ {
 		var ch rune
 		ch = '0' + rune(i)
 		emjID := "n" + string(ch)
 		if r.Emoji.Name == emj[emjID] {
 			g.CurState.PressNumBtn(s, r, i)
-
+			fmt.Println(g.CurState)
 			//temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList)}
 			//temp.PreeNumBtn(s, r, i)
 		}
