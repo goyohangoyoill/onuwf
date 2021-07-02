@@ -4,7 +4,12 @@ package game
 type Role interface {
 	// Action 각 직업별 행동 함수를 다르게 정의하기 위한 함수 선언
 	Action(tar *TargetObject, player *User, g *Game)
+	// GenLog 함수는 각 직업의 행동 로그를 쌓는 함수이다.
+	GenLog(tar *TargetObject, player *User, g *Game)
+	// Stirng 함수는 각 직업명을 리턴하는 함수이다.
 	String() string
+	// ID 함수는 각 직업의 고유값을 리턴하는 함수이다.
+	ID() int
 }
 
 // RoleGuide has info of each role
