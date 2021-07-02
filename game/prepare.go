@@ -145,7 +145,7 @@ func (sPrepare *Prepare) NewRoleEmbed() *embed.Embed {
 		for _, item := range sPrepare.g.RoleSeq {
 			cnt := sPrepare.g.RoleCount(item, sPrepare.g.RoleView)
 			roleStr += item.String() + " " + strconv.Itoa(cnt) + "개"
-			if cnt == sPrepare.g.RG[sPrepare.roleIndex].Max {
+			if cnt == sPrepare.g.RG[item.ID()].Max {
 				roleStr += " 최대"
 			}
 			roleStr += "\n"
