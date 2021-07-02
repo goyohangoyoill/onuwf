@@ -90,9 +90,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
-		return
-	}
-	if m.Content == "ㅁ강제종료" {
+	} else if m.Content == "ㅁ강제종료" {
 		if isUserIn[m.Author.ID] {
 			g := guildChanToGameData[m.GuildID+m.ChannelID]
 			if m.Author.ID != g.MasterID {
@@ -104,10 +102,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			delete(guildChanToGameData, m.GuildID+m.ChannelID)
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
-			return
 		}
-	}
-	if m.Content == "!test" {
+	} else if m.Content == "!test" {
 		str := rg[3].RoleGuide[0]
 		s.ChannelMessageSend(m.ChannelID, str)
 	}

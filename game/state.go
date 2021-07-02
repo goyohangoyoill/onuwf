@@ -23,4 +23,13 @@ type State interface {
 
 	// PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 state에서 하는 동작
 	PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int)
+
+	// InitState 함수는 스테이트가 시작할 때 필요한 메세지를 생성하고 채널이나 개인DM으로 메세지를 보낸 후
+	// 메세지 객체를 스테이트의 멤버로 저장합니다.
+	InitState()
+
+	// filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
+	// 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
+	// 메세지에 리액션 한 것을 지워주어야 한다.
+	filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd)
 }
