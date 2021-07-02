@@ -4,13 +4,13 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-// RoleWerewolf is one of role in wfgame
-type RoleWerewolf struct {
-	Role
+// Werewolf is one of role in wfgame
+type Werewolf struct {
+	ID int
 }
 
 // Action is action
-func (wf *RoleWerewolf) Action(tar TargetObject, player *User, g *Game) {
+func (wf *Werewolf) Action(tar *TargetObject, player *User, g *Game) {
 	switch tar.actionType {
 	case 1:
 		//recvRole := g.DisRole[tar.disRoleIdx]
@@ -42,6 +42,6 @@ func (wf *RoleWerewolf) Action(tar TargetObject, player *User, g *Game) {
 }
 
 // String return role name in korean
-func (wf *RoleWerewolf) String() string {
+func (wf *Werewolf) String() string {
 	return "늑대인간"
 }

@@ -4,11 +4,11 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-type RoleSeer struct {
-	Role
+type Seer struct {
+	ID int
 }
 
-func (sr *RoleSeer) Action(tar TargetObject, player *User, g *Game) {
+func (sr *Seer) Action(tar *TargetObject, player *User, g *Game) {
 	switch tar.actionType {
 	case 2:
 		role := g.GetRole(tar.uid1)
@@ -27,6 +27,6 @@ func (sr *RoleSeer) Action(tar TargetObject, player *User, g *Game) {
 	}
 }
 
-func (sr *RoleSeer) String() string {
+func (sr *Seer) String() string {
 	return "예언자"
 }

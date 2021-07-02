@@ -4,11 +4,11 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-type RoleTroubleMaker struct {
-	Role
+type TroubleMaker struct {
+	ID int
 }
 
-func (tm *RoleTroubleMaker) Action(tar TargetObject, player *User, g *Game) {
+func (tm *TroubleMaker) Action(tar *TargetObject, player *User, g *Game) {
 	//			<action Type>
 	//
 	//      uid1  uid2  disRoleIdx
@@ -27,6 +27,6 @@ func (tm *RoleTroubleMaker) Action(tar TargetObject, player *User, g *Game) {
 	}
 }
 
-func (tm *RoleTroubleMaker) String() string {
+func (tm *TroubleMaker) String() string {
 	return "말썽쟁이"
 }

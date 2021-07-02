@@ -4,11 +4,11 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-type RoleTemp struct {
-	Role
+type Temp struct {
+	ID int
 }
 
-func (tmp *RoleTemp) Action(tar TargetObject, player *User, g *Game) {
+func (tmp *Temp) Action(tar *TargetObject, player *User, g *Game) {
 	//			<action Type>
 	//
 	//      uid1  uid2  disRoleIdx
@@ -27,6 +27,6 @@ func (tmp *RoleTemp) Action(tar TargetObject, player *User, g *Game) {
 	g.Session.ChannelMessageSendEmbed("temp", tmpEmbed)
 }
 
-func (tmp *RoleTemp) String() string {
+func (tmp *Temp) String() string {
 	return "말썽쟁이"
 }
