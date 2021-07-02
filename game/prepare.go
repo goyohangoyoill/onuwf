@@ -165,6 +165,6 @@ func (sPrepare *Prepare) NewEnterEmbed() *embed.Embed {
 		enterStr += "`" + item.nick + "`\n"
 	}
 	enterEmbed.AddField("참가자 목록", "현재 참가 인원: "+strconv.Itoa(len(sPrepare.g.UserList))+"명\n"+enterStr)
-	enterEmbed.SetFooter("⭕: 입장 ❌: 퇴장")
+	enterEmbed.SetFooter("⭕: 입장 ❌: 퇴장 ▶️: 시작")
 	return enterEmbed
 }
