@@ -26,10 +26,10 @@ type Game struct {
 	// 현재 게임의 참가자들
 	UserList []*User
 
-	// 현재 게임에서 순서대로 추가, 중복제거 된 직업들의 목록
+	// 현재 게임에서 role_guide.json 순서대로(role ID 순서대로) 추가, 중복제거 된 직업들의 목록
 	RoleSeq []Role
 
-	// 현재 게임에서 사용중인 사용자에게 보여줄 중복 정렬된 직업들의 목록
+	// 현재 게임에서 사용중인 사용자에게 보여줄 중복 직업들의 목록, 정렬 안됨
 	RoleView []Role
 
 	// 현재 게임의 진행시점
@@ -149,25 +149,28 @@ func (g *Game) RoleCount(roleToFind Role, roleList []Role) int {
 	return cnt
 }
 
+// sortRole 함수는 AddRole 함수에서 SeqRole을 소팅할 목적으로 만듬
+func (g *Game) sortRole(list []Role) {
+	for i := 0; i < len(list)-1; i++ {
+		if list[i].String() > list[i+1].String() {
+			list[i], list[i+1] = list[i+1], list[i]
+		}
+	}
+}
+
 // AddRole 함수는 RG에 사용할 roleindex 위치 값을 받아 RoleView와 RoleSeq에 role을 추가
 func (g *Game) AddRole(roleIndex int) {
 	// roleFactory에서 현재 roleindex 위치 값을 받아 role 생성
 	roleToAdd := GenerateRole(roleIndex)
 	// RoleView에 추가된 role 개수가 max보다 작을 때만 추가
 	if g.RoleCount(roleToAdd, g.RoleView) < g.RG[roleIndex].Max {
-		// RoleView는 ununique sorted니까 RoleView에 중복된 상태로 sort index 찾아서 삽입
-		i := 0
-		for j, item := range g.RoleView {
-			if roleToAdd.String() >= item.String() {
-				i = j
-				break
-			}
-		}
-		tmp := append(g.RoleView[:i], roleToAdd)
-		g.RoleView = append(tmp, g.RoleView[i:]...)
-		// RoleSeq는 unique unsorted니까 RoleSeq에 없으면 append
+		// RoleView는 ununique unsorted니까 append
+		g.RoleView = append(g.RoleView, roleToAdd)
+		// RoleSeq는 unique sorted니까 RoleSeq에 없으면 추가
 		if FindRoleIdx(roleToAdd, g.RoleSeq) == -1 {
+			// append 후 sort
 			g.RoleSeq = append(g.RoleSeq, roleToAdd)
+			g.sortRole(g.RoleSeq)
 		}
 	}
 }
