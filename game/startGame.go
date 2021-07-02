@@ -61,6 +61,7 @@ func (sStartGame *StartGame) InitState() {
 	for i := 0; i < lenuser; i++ {
 		idxTable[i][randTable[i]] = 1
 	}
+	g.roleIdxTable = idxTable
 	g.oriRoleIdxTable = idxTable
 	g.DisRole[0] = g.RoleView[randTable[lenuser]]
 	g.DisRole[1] = g.RoleView[randTable[lenuser+1]]
