@@ -37,8 +37,8 @@ type Game struct {
 
 	// Role을 User별로 매핑시킨 인덱스 테이블
 	// <usage : roleIdxTable[userIdx][roleIdx]>
-	roleIdxTable    [][]bool
-	oriRoleIdxTable [][]bool
+	roleIdxTable    [][]int
+	oriRoleIdxTable [][]int
 
 	// 게임에서 버려진 직업 목록
 	DisRole []Role
@@ -78,6 +78,8 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.EnterUserIDChan = enterUserIDChan
 	g.QuitUserIDChan = quitUserIDChan
 	g.GameStartedChan = gameStartedChan
+	g.roleIdxTable = make([][]int, 0)
+	g.oriRoleIdxTable = make([][]int, 0)
 	g.UserList = make([]*User, 0)
 	g.RoleSeq = make([]Role, 0)
 	g.RoleView = make([]Role, 0)
@@ -212,7 +214,7 @@ func (g *Game) GetRole(uid string) Role {
 	idx := FindUserIdx(uid, g.UserList)
 
 	for i := 0; i < loop; i++ {
-		if g.roleIdxTable[idx][i] {
+		if g.roleIdxTable[idx][i] > 0 {
 			return g.RoleSeq[i]
 		}
 	}
@@ -226,9 +228,9 @@ func (g *Game) setRole(uid string, item Role) {
 	loop := len(g.RoleSeq)
 
 	for i := 0; i < loop; i++ {
-		g.roleIdxTable[userIdx][i] = false
+		g.roleIdxTable[userIdx][i] = 0
 	}
-	g.roleIdxTable[userIdx][roleIdx] = true
+	g.roleIdxTable[userIdx][roleIdx] = 1
 }
 
 // SetDisRole 버려진 직업을 업데이트
@@ -263,7 +265,7 @@ func (g *Game) GetRoleUsers(find Role) (users []*User) {
 	loop := len(g.UserList)
 	idx := FindRoleIdx(find, g.RoleSeq)
 	for i := 0; i < loop; i++ {
-		if g.roleIdxTable[i][idx] {
+		if g.roleIdxTable[i][idx] > 0 {
 			result = append(result, g.UserList[i])
 		}
 	}

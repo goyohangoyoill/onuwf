@@ -4,6 +4,9 @@ package game
 type Role interface {
 	// Action 각 직업별 행동 함수를 다르게 정의하기 위한 함수 선언
 	Action(tar TargetObject, player *User, g *Game)
+	// GenLog 함수는 각 직업의 행동 로그를 쌓는 함수이다.
+	GenLog(tar TargetObject, player *User, g *Game)
+	// Stirng 함수는 각 직업명을 리턴하는 함수이다.
 	String() string
 }
 
@@ -18,12 +21,14 @@ type RoleGuide struct {
 func GenerateRole(num int) (r Role) {
 	switch num {
 	case 0:
-		r = Sentinel{}
+		r = RoleSentinel{}
 		/*
 			case 1:
 				r = Doppelganger{}
-			case 2:
-				r = Werewolf{}
+		*/
+	case 2:
+		r = RoleWerewolf{}
+		/*
 			case 3:
 				r = Alphawolf{}
 			case 4:
@@ -32,8 +37,10 @@ func GenerateRole(num int) (r Role) {
 				r = Minion{}
 			case 6:
 				r = Freemasonry{}
-			case 7:
-				r = Seer{}
+		*/
+	case 7:
+		r = RoleSeer{}
+		/*
 			case 8:
 				r = Apprenticeseer{}
 			case 9:
@@ -42,8 +49,10 @@ func GenerateRole(num int) (r Role) {
 				r = Rober{}
 			case 11:
 				r = Witch{}
-			case 12:
-				r = Troublemaker{}
+		*/
+	case 12:
+		r = RoleTroubleMaker{}
+		/*
 			case 13:
 				r = Villageidiot{}
 			case 14:
