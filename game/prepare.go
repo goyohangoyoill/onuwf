@@ -44,15 +44,15 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 	if r.MessageID == sPrepare.EnterGameMsg.ID {
 		//user 생성해서 append()
 		sPrepare.g.SetUserByID(r.UserID)
-		// 입장 확인 메세지 반영
-		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
 		// role 생성해서 game의 RoleView와 RoleSeq에 추가
 		sPrepare.g.AddRole(sPrepare.roleIndex)
-		// 직업 추가 메세지 반영
-		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
 	}
+	// 입장 확인 메세지 반영
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
+	// 직업 추가 메세지 반영
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 Prepare에서 하는 동작
@@ -63,15 +63,15 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 	if r.MessageID == sPrepare.EnterGameMsg.ID {
 		// userList에서 지우고
 		sPrepare.g.DelUserByID(r.UserID)
-		// 입장 확인 메세지 반영
-		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
 		// role 생성해서 game의 RoleView와 RoleSeq에서 찾아 제거
 		sPrepare.g.DelRole(sPrepare.roleIndex)
-		// 직업 추가 메세지 반영
-		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
 	}
+	// 입장 확인 메세지 반영
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
+	// 직업 추가 메세지 반영
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 Prepare에서 하는 동작
