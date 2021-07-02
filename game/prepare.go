@@ -82,10 +82,7 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	if r.MessageID == sPrepare.EnterGameMsg.ID {
 		// 게임 시작
 		if dir == 1 && len(sPrepare.g.RoleView) == len(sPrepare.g.UserList)+3 {
-			sPrepare.g.CurState = &ActionSentinel{sPrepare.g, nil}
-			s.ChannelMessageSendEmbed(sPrepare.g.ChanID, embed.NewGenericEmbed("게임시작", ""))
-			sPrepare.g.GameStartedChan <- true
-			sPrepare.g.CurState.InitState()
+			sPrepare.stateFinish(s, r)
 		}
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
@@ -117,6 +114,13 @@ func (sPrepare *Prepare) InitState() {
 	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["NO"])
 	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["LEFT"])
 	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
+}
+
+func (sPrepare *Prepare) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+	sPrepare.g.CurState = &ActionSentinel{sPrepare.g, nil}
+	s.ChannelMessageSendEmbed(sPrepare.g.ChanID, embed.NewGenericEmbed("게임시작", ""))
+	sPrepare.g.GameStartedChan <- true
+	sPrepare.g.CurState.InitState()
 }
 
 // filterReaction 함수는 입장 메세지랑 직업추가 메세지에 리액션한게 아니면 걸러준다.

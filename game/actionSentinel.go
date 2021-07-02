@@ -37,13 +37,6 @@ func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *disc
 
 }
 
-// filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
-// 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
-// 메세지에 리액션 한 것을 지워주어야 한다.
-func (sActionSentinel *ActionSentinel) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-
-}
-
 // InitState 함수는 ActionSentinel state가 시작할 때 진짜로 게임이 시작되므로
 // game에 UserList에 직업을 랜덤 할당해주고 각 유저에게 직업소개 개인 DM을 보낸 후
 // 센티넬 직업을 가진 유저에게 센티넬 동작 DM을 보내고 이를 ActionSentinel 멤버 변수로 저장합니다.
@@ -51,7 +44,16 @@ func (sActionSentinel *ActionSentinel) InitState() {
 
 }
 
-// SendFinish 사용자가 종료 메세지를 보냈을 때 ActionSentinel에서 하는 동작
-func (sActionSentinel *ActionSentinel) SendFinish(s *discordgo.Session, m *discordgo.MessageCreate) {
+// stateFinish 함수는 sentinel role을 가진 user가 능력사용을 끝내고
+// ActionSentinel에서 state가 종료되는 시점에서 호출 됩니다.
+// 다음 state인 ActionDoppelganger의 InitState() 함수를 호출합니다.
+func (sActionSentinel *ActionSentinel) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+
+}
+
+// filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
+// 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
+// 메세지에 리액션 한 것을 지워주어야 한다.
+func (sActionSentinel *ActionSentinel) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 
 }
