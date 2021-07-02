@@ -19,22 +19,22 @@ func (sActionSentinel *ActionSentinel) PressNumBtn(s *discordgo.Session, r *disc
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
 func (sActionSentinel *ActionSentinel) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-
+	// do nothing
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
 func (sActionSentinel *ActionSentinel) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-
+	// do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
 func (sActionSentinel *ActionSentinel) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-
+	// do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
 func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
-
+	// do nothing
 }
 
 // InitState 함수는 ActionSentinel state가 시작할 때 진짜로 게임이 시작되므로

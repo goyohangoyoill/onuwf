@@ -6,13 +6,13 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-// RoleTemp 는 한밤의 늑대인간 중 <늑대인간> 에 대한 객체이다.
-type RoleWerewolf struct {
-	Role
+// Werewolf 는 한밤의 늑대인간 중 <늑대인간> 에 대한 객체이다.
+type Werewolf struct {
+	id int
 }
 
 // Action 함수는 <늑대인간> 의 특수능력 사용에 대한 함수이다.
-func (wf RoleWerewolf) Action(tar TargetObject, player *User, g *Game) {
+func (wf *Werewolf) Action(tar *TargetObject, player *User, g *Game) {
 	switch tar.actionType {
 	case 1:
 		recvRole := g.DisRole[tar.disRoleIdx]
@@ -46,7 +46,7 @@ func (wf RoleWerewolf) Action(tar TargetObject, player *User, g *Game) {
 }
 
 // GenLog 함수는 <늑대인간> 의 특수능력 사용에 대한 함수이다.
-func (wf RoleWerewolf) GenLog(tar TargetObject, player *User, g *Game) {
+func (wf *Werewolf) GenLog(tar *TargetObject, player *User, g *Game) {
 	g.AppendLog("여기에 로그 메시지를 입력하세요")
 	switch tar.actionType {
 	case 1:
@@ -81,6 +81,11 @@ func (wf RoleWerewolf) GenLog(tar TargetObject, player *User, g *Game) {
 }
 
 // String 함수는 <늑대인간> 문자열을 반환하는 함수이다.
-func (wf RoleWerewolf) String() string {
+func (wf *Werewolf) String() string {
 	return "늑대인간"
+}
+
+// ID 함수는 <늑대인간> 의 고유값을 반환하는 함수이다.
+func (wf *Werewolf) ID() int {
+	return wf.id
 }

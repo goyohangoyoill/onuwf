@@ -4,13 +4,13 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-// RoleSeer 는 한밤의 늑대인간 중 <예언자> 에 대한 객체이다.
-type RoleSeer struct {
-	Role
+// Seer 는 한밤의 늑대인간 중 <예언자> 에 대한 객체이다.
+type Seer struct {
+	id int
 }
 
 // Action 함수는 <예언자> 의 특수능력 사용에 대한 함수이다.
-func (sr RoleSeer) Action(tar TargetObject, player *User, g *Game) {
+func (sr *Seer) Action(tar *TargetObject, player *User, g *Game) {
 	switch tar.actionType {
 	case 2:
 		role := g.GetRole(tar.uid1)
@@ -31,7 +31,7 @@ func (sr RoleSeer) Action(tar TargetObject, player *User, g *Game) {
 }
 
 // GenLog 함수는 <예언자> 의 특수능력 사용에 대한 함수이다.
-func (sr RoleSeer) GenLog(tar TargetObject, player *User, g *Game) {
+func (sr *Seer) GenLog(tar *TargetObject, player *User, g *Game) {
 	msg := ""
 	switch tar.actionType {
 	case 2:
@@ -52,6 +52,11 @@ func (sr RoleSeer) GenLog(tar TargetObject, player *User, g *Game) {
 }
 
 // String 함수는 <예언자> 문자열을 반환하는 함수이다.
-func (sr RoleSeer) String() string {
+func (sr *Seer) String() string {
 	return "예언자"
+}
+
+// ID 함수는 <예언자> 의 고유값을 반환하는 함수이다.
+func (sr *Seer) ID() int {
+	return sr.id
 }

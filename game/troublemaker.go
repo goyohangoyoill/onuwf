@@ -4,13 +4,13 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-// RoleTroubleMaker 는 한밤의 늑대인간 중 <말썽쟁이> 에 대한 객체이다.
-type RoleTroubleMaker struct {
-	Role
+// TroubleMaker 는 한밤의 늑대인간 중 <말썽쟁이> 에 대한 객체이다.
+type TroubleMaker struct {
+	id int
 }
 
 // Action 함수는 <말썽쟁이> 의 특수능력 사용에 대한 함수이다.
-func (tm RoleTroubleMaker) Action(tar TargetObject, player *User, g *Game) {
+func (tm *TroubleMaker) Action(tar *TargetObject, player *User, g *Game) {
 	//			<action Type>
 	//
 	//      uid1  uid2  disRoleIdx
@@ -31,7 +31,7 @@ func (tm RoleTroubleMaker) Action(tar TargetObject, player *User, g *Game) {
 }
 
 // GenLog 함수는 <말썽쟁이> 의 특수능력 사용에 대한 함수이다.
-func (tm RoleTroubleMaker) GenLog(tar TargetObject, player *User, g *Game) {
+func (tm *TroubleMaker) GenLog(tar *TargetObject, player *User, g *Game) {
 	switch tar.actionType {
 	case 0:
 		user1 := g.FindUserByUID(tar.uid1)
@@ -47,6 +47,11 @@ func (tm RoleTroubleMaker) GenLog(tar TargetObject, player *User, g *Game) {
 }
 
 // String 함수는 <말썽쟁이> 문자열을 반환하는 함수이다.
-func (tm RoleTroubleMaker) String() string {
+func (tm *TroubleMaker) String() string {
 	return "말썽쟁이"
+}
+
+// ID 함수는 <말썽쟁이> 의 고유값을 반환하는 함수이다.
+func (tm *TroubleMaker) ID() int {
+	return tm.id
 }

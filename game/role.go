@@ -3,11 +3,13 @@ package game
 // Role : 각 직업들의 정보를 담고 있는 스트럭처
 type Role interface {
 	// Action 각 직업별 행동 함수를 다르게 정의하기 위한 함수 선언
-	Action(tar TargetObject, player *User, g *Game)
+	Action(tar *TargetObject, player *User, g *Game)
 	// GenLog 함수는 각 직업의 행동 로그를 쌓는 함수이다.
-	GenLog(tar TargetObject, player *User, g *Game)
+	GenLog(tar *TargetObject, player *User, g *Game)
 	// Stirng 함수는 각 직업명을 리턴하는 함수이다.
 	String() string
+	// ID 함수는 각 직업의 고유값을 리턴하는 함수이다.
+	ID() int
 }
 
 // RoleGuide has info of each role
@@ -21,56 +23,56 @@ type RoleGuide struct {
 func GenerateRole(num int) (r Role) {
 	switch num {
 	case 0:
-		r = RoleSentinel{}
+		r = &Sentinel{num}
 		/*
 			case 1:
-				r = Doppelganger{}
+				r = &Doppelganger{num}
 		*/
 	case 2:
-		r = RoleWerewolf{}
+		r = &Werewolf{num}
 		/*
 			case 3:
-				r = Alphawolf{}
+				r = &Alphawolf{num}
 			case 4:
-				r = Misticwolf{}
+				r = &Misticwolf{num}
 			case 5:
-				r = Minion{}
+				r = &Minion{num}
 			case 6:
-				r = Freemasonry{}
+				r = &Freemasonry{num}
 		*/
 	case 7:
-		r = RoleSeer{}
+		r = &Seer{num}
 		/*
 			case 8:
-				r = Apprenticeseer{}
+				r = &Apprenticeseer{num}
 			case 9:
-				r = Paranormalinvestigator{}
+				r = &Paranormalinvestigator{num}
 			case 10:
-				r = Rober{}
+				r = &Rober{num}
 			case 11:
-				r = Witch{}
+				r = &Witch{num}
 		*/
 	case 12:
-		r = RoleTroubleMaker{}
+		r = &TroubleMaker{num}
 		/*
 			case 13:
-				r = Villageidiot{}
+				r = &Villageidiot{num}
 			case 14:
-				r = Drunk{}
+				r = &Drunk{num}
 			case 15:
-				r = Insomniac{}
+				r = &Insomniac{num}
 			case 16:
-				r = Revealer{}
+				r = &Revealer{num}
 			case 17:
-				r = Tanner{}
+				r = &Tanner{num}
 			case 18:
-				r = Hunter{}
+				r = &Hunter{num}
 			case 19:
-				r = Bodygaurd{}
+				r = &Bodygaurd{num}
 			case 20:
-				r = Villager{}
+				r = &Villager{num}
 			case 21:
-				r = Dreamwolf{}
+				r = &Dreamwolf{num}
 		*/
 
 	}
