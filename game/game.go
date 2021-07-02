@@ -36,6 +36,7 @@ type Game struct {
 	CurState State
 
 	// Role을 User별로 매핑시킨 인덱스 테이블
+	// RoleSeq 사용
 	// <usage : roleIdxTable[userIdx][roleIdx]>
 	roleIdxTable    [][]int
 	oriRoleIdxTable [][]int
@@ -210,10 +211,8 @@ func (g *Game) AppendLog(msg string) {
 
 // GetRole 유저의 직업을 반환
 func (g *Game) GetRole(uid string) Role {
-	loop := len(g.RoleSeq)
 	idx := FindUserIdx(uid, g.UserList)
-
-	for i := 0; i < loop; i++ {
+	for i := 0; i < len(g.RoleSeq); i++ {
 		if g.roleIdxTable[idx][i] > 0 {
 			return g.RoleSeq[i]
 		}

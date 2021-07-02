@@ -43,29 +43,23 @@ func (sStartGame *StartGame) PressDirBtn(s *discordgo.Session, r *discordgo.Mess
 // 센티넬 직업을 가진 유저에게 센티넬 동작 DM을 보내고 이를 StartGame 멤버 변수로 저장합니다.
 func (sStartGame *StartGame) InitState() {
 	g := sStartGame.g
-	lenrole := len(g.RoleView)
 	lenuser := len(g.UserList)
-	randTable := make([]int, lenrole)
-	for i := 0; i < lenrole; i++ {
-		randTable[i] = i
-	}
 	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(randTable), func(i, j int) {
-		randTable[i], randTable[j] = randTable[j], randTable[i]
+	rand.Shuffle(len(g.RoleView), func(i, j int) {
+		g.RoleView[i], g.RoleView[j] = g.RoleView[j], g.RoleView[i]
 	})
-	idxTable := make([][]int, lenuser)
+	g.roleIdxTable = make([][]int, lenuser)
+	g.oriRoleIdxTable = make([][]int, lenuser)
+	lenrole := len(g.RoleSeq)
 	for i := 0; i < lenuser; i++ {
-		idxTable[i] = make([]int, lenrole)
+		g.roleIdxTable[i] = make([]int, lenrole)
+		g.roleIdxTable[i][FindRoleIdx(g.RoleView[i], g.RoleSeq)] = 1
+		g.oriRoleIdxTable[i] = make([]int, lenrole)
+		g.oriRoleIdxTable[i][FindRoleIdx(g.RoleView[i], g.RoleSeq)] = 1
 	}
-
-	for i := 0; i < lenuser; i++ {
-		idxTable[i][randTable[i]] = 1
+	for i := 0; i < 3; i++ {
+		g.DisRole[i] = g.RoleView[lenuser+i]
 	}
-	g.roleIdxTable = idxTable
-	g.oriRoleIdxTable = idxTable
-	g.DisRole[0] = g.RoleView[randTable[lenuser]]
-	g.DisRole[1] = g.RoleView[randTable[lenuser+1]]
-	g.DisRole[2] = g.RoleView[randTable[lenuser+2]]
 	for _, item := range g.UserList {
 		go func(item *User, g *Game) {
 			userrole := g.GetRole(item.UserID)
