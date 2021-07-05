@@ -10,10 +10,16 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	wfGame "onuwf.com/game"
+	util "onuwf.com/util"
 
 	"github.com/bwmarrin/discordgo"
+)
+
+const (
+	prefix = "ㅁ"
 )
 
 var (
@@ -29,6 +35,7 @@ func init() {
 	env = EnvInit()
 	emj = EmojiInit()
 	RoleGuideInit(&rg)
+	util.ReadJSON(rg)
 
 	isUserIn = make(map[string]bool)
 	guildChanToGameData = make(map[string]*wfGame.Game)
@@ -78,8 +85,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-
-	if m.Content == "ㅁ시작" {
+	// 명령어모음
+	if util.PrintHelpList(s, m, rg) {
+		return
+	}
+	switch m.Content {
+	case "ㅁ시작":
 		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
 			return
@@ -90,8 +101,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
-	} else if m.Content == "ㅁ강제종료" {
+	case "ㅁ강제종료":
 		if isUserIn[m.Author.ID] {
+			s.ChannelMessageSend(m.ChannelID, "3초 후 게임을 강제종료합니다.")
+			time.Sleep(3 * time.Second)
 			g := guildChanToGameData[m.GuildID+m.ChannelID]
 			if m.Author.ID != g.MasterID {
 				return
@@ -103,7 +116,22 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
 		}
-	} else if m.Content == "!test" {
+	case "ㅁ투표":
+		uidChan := make(chan string, 7)
+		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, uidChan, nil, nil)
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "jae-kim", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "juhur", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "min-jo", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "kalee", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "apple", m.ChannelID, m.ChannelID))
+		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "banana", m.ChannelID, m.ChannelID))
+		voted_list := make([]int, len(thisGame.UserList))
+		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList), 0}
+		guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
+		isUserIn[m.Author.ID] = true
+		thisGame.CurState = temp
+		wfGame.VoteProcess(s, thisGame)
+	case "!test":
 		str := rg[3].RoleGuide[0]
 		s.ChannelMessageSend(m.ChannelID, str)
 	}
@@ -111,6 +139,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.
 func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+	//fmt.Println(r.UserID, r.MessageID, r.ChannelID, r.GuildID)
+
 	// 봇 자기자신의 리액션 무시.
 	if r.UserID == s.State.User.ID {
 		return

@@ -85,14 +85,13 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.DisRole = make([]Role, 3)
 	g.LogMsg = make([]string, 0)
 	g.SetUserByID(muid)
-	g.RG = rg
 	g.CurState = &Prepare{g, 0, nil, nil}
 	g.CurState.InitState()
 	return
 }
 
 // SendVoteMsg 는 현재 참가자 모두에게 DM으로 투표 용지를 전송하고,
-// 각각의 투표 용지별로 userList index 순서에 맞춰 MsgID 배열을 반환해주는 함수이다.
+// 각각의 투표 용지별로 UserList index 순서에 맞춰 MsgID 배열을 반환해주는 함수이다.
 func (g *Game) SendVoteMsg(s *discordgo.Session) (messageIDs []string) {
 	messageIDs = make([]string, len(g.UserList))
 	for i, me := range g.UserList {
