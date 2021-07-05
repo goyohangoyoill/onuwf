@@ -30,7 +30,9 @@ func roleGuide(role string, rg []wfGame.RoleGuide) string {
 func roleList(rg []wfGame.RoleGuide) []string {
 	var list []string
 	for i := 0; i < len(rg); i++ {
-		list = append(list, rg[i].RoleName)
+		if rg[i].Priority != -1 {
+			list = append(list, rg[i].RoleName)
+		}
 	}
 	return list
 }
