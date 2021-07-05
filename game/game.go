@@ -85,7 +85,6 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.DisRole = make([]Role, 3)
 	g.LogMsg = make([]string, 0)
 	g.SetUserByID(muid)
-	g.RG = rg
 	g.CurState = &Prepare{g, 0, nil, nil}
 	g.CurState.InitState()
 	return
