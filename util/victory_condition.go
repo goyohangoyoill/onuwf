@@ -1,5 +1,5 @@
 /* "ㅁ승리조건" 명령어 관련 함수 */
-package main
+package util
 
 import (
 	"encoding/json"
@@ -9,9 +9,8 @@ import (
 )
 
 var (
-	VC      victory_condition
-	VCTitle string
-	VCMsg   string
+	vcTitle string
+	vcMsg   string
 )
 
 type victory_condition struct {
@@ -26,26 +25,27 @@ type team struct {
 
 // victory_condition.json 파일 읽어서 "ㅁ승리조건" 실행시 출력할 데이터 세팅
 func readVictoryConditionJSON() {
-	jsonFile, err := os.Open("asset/victory_condition.json")
+	jsonFile, err := os.Open("./asset/victory_condition.json")
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
+	var vc victory_condition
 	defer jsonFile.Close()
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	json.Unmarshal(byteValue, &VC)
+	json.Unmarshal(byteValue, &vc)
 
-	VCTitle = "**" + VC.Title + "**"
-	VCMsg = ""
-	for i := 0; i < len(VC.Team); i++ {
-		VCMsg += "**" + VC.Team[i].Title + "**" + "\n"
-		for j := 0; j < len(VC.Team[i].Line); j++ {
-			VCMsg += VC.Team[i].Line[j] + "\n"
+	vcTitle = "**" + vc.Title + "**"
+	vcMsg = ""
+	for i := 0; i < len(vc.Team); i++ {
+		vcMsg += "**" + vc.Team[i].Title + "**" + "\n"
+		for j := 0; j < len(vc.Team[i].Line); j++ {
+			vcMsg += vc.Team[i].Line[j] + "\n"
 		}
-		VCMsg += "\n"
+		vcMsg += "\n"
 	}
 }
