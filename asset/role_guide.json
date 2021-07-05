@@ -8,7 +8,8 @@
 			"그 사람이 늑대인간이라고 할지라도.."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 0
 	},
 	{
 		"roleName": "도플갱어",
@@ -18,7 +19,8 @@
 			"당신은 복제한 사람 편에 섭니다."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 1
 	},
 	{
 		"roleName": "늑대인간",
@@ -30,7 +32,8 @@
 			"마을 사람들을 혼란에 빠뜨리고 살아남으세요."
 		],
 		"max": 2,
-		"faction": "Werewolf"
+		"faction": "Werewolf",
+		"priority": 2
 	},
 	{
 		"roleName": "태초의늑대인간",
@@ -41,7 +44,8 @@
 			"마을 사람들을 혼란에 빠뜨리고 살아남으세요."
 		],
 		"max": 1,
-		"faction": "Werewolf"
+		"faction": "Werewolf",
+		"priority": -1
 	},
 	{
 		"roleName": "신비한늑대인간",
@@ -52,7 +56,8 @@
 			"마을 사람들을 혼란에 빠뜨리고 살아남으세요."
 		],
 		"max": 1,
-		"faction": "Werewolf"
+		"faction": "Werewolf",
+		"priority": -1
 	},
 	{
 		"roleName": "하수인",
@@ -63,7 +68,8 @@
 			"모든 늑대인간이 살아남도록 도우세요."
 		],
 		"max": 1,
-		"faction": "Werewolf"
+		"faction": "Werewolf",
+		"priority": 3
 	},
 	{
 		"roleName": "프리메이슨",
@@ -74,7 +80,8 @@
 			"동료와 함께 늑대인간을 처형하세요."
 		],
 		"max": 2,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 4
 	},
 	{
 		"roleName": "예언자",
@@ -84,7 +91,8 @@
 			"예언이 밝혀준 곳을 따라 늑대인간을 찾아 처형하세요."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 5
 	},
 	{
 		"roleName": "견습예언자",
@@ -94,7 +102,8 @@
 			"예언이 밝혀준 곳을 따라 늑대인간을 처형하세요."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": -1
 	},
 	{
 		"roleName": "심령수사관",
@@ -106,7 +115,8 @@
 			"이미 당신의 직업이 바뀌었기에 수사를 끝마칩니다."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": -1
 	},
 	{
 		"roleName": "강도",
@@ -117,7 +127,8 @@
 			"훔친 능력에 맞게 누군가를 처형하세요."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 6
 	},
 	{
 		"roleName": "마녀",
@@ -129,7 +140,8 @@
 			"늑대인간의 편은 아닙니다.. 이래봬도 착한 마녀라구요!"
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": -1
 	},
 	{
 		"roleName": "말썽쟁이",
@@ -140,7 +152,8 @@
 			"혼란스럽겠지만 늑대인간을 찾아 처형하세요"
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 7
 	},
 	{
 		"roleName": "동네바보",
@@ -151,7 +164,8 @@
 			".....정말 누르실건가요? ...확실해요?"
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": -1
 	},
 	{
 		"roleName": "주정뱅이",
@@ -161,7 +175,8 @@
 			"어쩌면 당신은 늑대인간일지도..?"
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 8
 	},
 	{
 		"roleName": "불면증환자",
@@ -172,7 +187,8 @@
 			"당신이 늑대인간이 되지 않았다면요."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 9
 	},
 	{
 		"roleName": "계시자",
@@ -184,7 +200,8 @@
 			"당신만 그 사실을 알아요."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 10
 	},
 	{
 		"roleName": "무두장이",
@@ -194,7 +211,8 @@
 			"처형된다면 당신의 승리입니다."
 		],
 		"max": 1,
-		"faction": "Tanner"
+		"faction": "Tanner",
+		"priority": -1
 	},
 	{
 		"roleName": "사냥꾼",
@@ -204,7 +222,8 @@
 			"당신이 처형된다면 길동무로 데려갈 수 있습니다."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 4242
 	},
 	{
 		"roleName": "호위병",
@@ -214,7 +233,8 @@
 			"그 사람이 처형된다면 그를 구출해 낼 수 있을겁니다."
 		],
 		"max": 1,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": -1
 	},
 	{
 		"roleName": "마을주민",
@@ -223,7 +243,8 @@
 			"불안과 공포속에서 늑대인간을 찾아 처형하세요."
 		],
 		"max": 3,
-		"faction": "Villager"
+		"faction": "Villager",
+		"priority": 4242
 	},
 	{
 		"roleName": "잠자는늑대인간",
@@ -234,6 +255,7 @@
 			"당신과 동료 모두가 살아남아야 승리할 수 있습니다."
 		],
 		"max": 1,
-		"faction": "Werewolf"
+		"faction": "Werewolf",
+		"priority": -1
 	}
 ]
