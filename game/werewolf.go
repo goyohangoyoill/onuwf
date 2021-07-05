@@ -14,12 +14,12 @@ type Werewolf struct {
 // Action 함수는 <늑대인간> 의 특수능력 사용에 대한 함수이다.
 func (wf *Werewolf) Action(tar *TargetObject, player *User, g *Game) {
 	switch tar.actionType {
-	case 1:
+	case 3:
 		recvRole := g.DisRole[tar.disRoleIdx]
 		msg := strconv.Itoa(tar.disRoleIdx) + "번째 버려진 카드는\n"
 		msg += "`" + recvRole.String() + "` 입니다."
 		g.Session.ChannelMessageSendEmbed(player.dmChanID, embed.NewGenericEmbed("버려진 직업 확인", msg))
-	case 0:
+	case -1:
 		wolves := g.GetRoleUsers(wf)
 		//wolves = append(wolves, g.getRoleUsers(roleMisticwolf{})...)
 		//wolves = append(wolves, g.getRoleUsers(roleAlphawolf{})...)
