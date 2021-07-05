@@ -118,7 +118,7 @@ func (sPrepare *Prepare) InitState() {
 
 func (sPrepare *Prepare) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	sPrepare.g.CurState = &StartGame{sPrepare.g}
-	s.ChannelMessageSendEmbed(sPrepare.g.ChanID, embed.NewGenericEmbed("게임시작", "개인 DM을 확인하세요"))
+	s.ChannelMessageSend(sPrepare.g.ChanID, "각자의 직업을 배정 중입니다...")
 	sPrepare.g.GameStartedChan <- true
 	sPrepare.g.CurState.InitState()
 }

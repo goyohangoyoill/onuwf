@@ -39,8 +39,7 @@ func (sStartGame *StartGame) PressDirBtn(s *discordgo.Session, r *discordgo.Mess
 }
 
 // InitState 함수는 StartGame state가 시작할 때 진짜로 게임이 시작되므로
-// game에 UserList에 직업을 랜덤 할당해주고 각 유저에게 직업소개 개인 DM을 보낸 후
-// 센티넬 직업을 가진 유저에게 센티넬 동작 DM을 보내고 이를 StartGame 멤버 변수로 저장합니다.
+// game에 UserList에 직업을 랜덤 할당해주고 각 유저에게 직업소개 개인 DM을 보냅니다.
 func (sStartGame *StartGame) InitState() {
 	g := sStartGame.g
 	lenuser := len(g.UserList)
@@ -60,6 +59,7 @@ func (sStartGame *StartGame) InitState() {
 	for i := 0; i < 3; i++ {
 		g.DisRole[i] = g.RoleView[lenuser+i]
 	}
+	ch := make(chan bool, len(g.UserList))
 	for _, item := range g.UserList {
 		go func(item *User, g *Game) {
 			userrole := g.GetRole(item.UserID)
@@ -69,15 +69,22 @@ func (sStartGame *StartGame) InitState() {
 				msg += item + "\n"
 			}
 			g.Session.ChannelMessageSendEmbed(item.dmChanID, embed.NewGenericEmbed("당신의 직업은 `"+userrole.String()+"` 입니다", msg))
+			ch <- true
 		}(item, g)
 	}
+	for i := 0; i < len(g.UserList); i++ {
+		<-ch
+	}
+	sStartGame.stateFinish(g.Session, nil)
 }
 
-// stateFinish 함수는 sentinel role을 가진 user가 능력사용을 끝내고
+// stateFinish 함수는 개인별 안내 메시지가 모두 전송되고,
 // StartGame에서 state가 종료되는 시점에서 호출 됩니다.
 // 다음 state인 ActionDoppelganger의 InitState() 함수를 호출합니다.
 func (sStartGame *StartGame) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-	// do nothing
+	sStartGame.g.CurState = &ActionSentinel{sStartGame.g, nil}
+	s.ChannelMessageSend(sStartGame.g.ChanID, "모두에게 직업이 배정되었습니다.")
+	sStartGame.g.CurState.InitState()
 }
 
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
