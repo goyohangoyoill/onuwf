@@ -14,3 +14,13 @@ type User struct {
 	// 각 유저의 DM 채널 ID
 	dmChanID string
 }
+
+// NewUser make new user object
+func NewUser(uid, nick, chanID, dmChanID string) (u *User) {
+	u = &User{}
+	u.UserID = uid
+	u.nick = nick
+	u.chanID = chanID
+	u.dmChanID = dmChanID
+	return
+}
