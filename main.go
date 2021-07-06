@@ -133,6 +133,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "kalee", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "apple", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "banana", m.ChannelID, m.ChannelID))
+
+		temp2 := &wfGame.StateBeforeVote{thisGame}
+		temp2.InitState()
+
 		voted_list := make([]int, len(thisGame.UserList))
 		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList), 0}
 		guildChanToGameData[m.GuildID+m.ChannelID] = thisGame

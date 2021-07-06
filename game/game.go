@@ -270,6 +270,18 @@ func (g *Game) GetRoleUsers(find Role) (users []*User) {
 	return result
 }
 
+func (g *Game) GetOriRoleUsers(find Role) (users []*User) {
+	result := make([]*User, 0)
+	loop := len(g.UserList)
+	idx := FindRoleIdx(find, g.RoleSeq)
+	for i := 0; i < loop; i++ {
+		if g.oriRoleIdxTable[i][idx] > 0 {
+			result = append(result, g.UserList[i])
+		}
+	}
+	return result
+}
+
 // RotateAllUserRole  모든 사람들의 직업을 입장순서별로 한칸 회전.
 func (g *Game) RotateAllUserRole() {
 	loop := len(g.UserList)
