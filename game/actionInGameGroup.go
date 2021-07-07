@@ -157,6 +157,13 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 					role.Action(tar, user, g)
 				}
 			}
+		case (&Minion{}).String():
+			minUserList := uList
+			for _, user := range minUserList {
+				tar := &TargetObject{-1, "", "", -1}
+				role.Action(tar, user, g)
+				role.GenLog(tar, user, g)
+			}
 		case (&Seer{}).String():
 			seerUserList := uList
 			for _, user := range seerUserList {
