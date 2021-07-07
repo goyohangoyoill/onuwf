@@ -15,7 +15,7 @@ type Seer struct {
 func (sr *Seer) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
 	title := ""
 	if pageNum == 0 {
-		title += "직업을 알아낼 사용자를 고르세요"
+		title += "직업을 알아낼 플레이어를 고르세요"
 	} else {
 		title += "세 개의 직업 중 보지 않을 직업을 고르세요"
 		curEmbed := embed.NewEmbed()

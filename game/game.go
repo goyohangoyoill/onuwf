@@ -155,7 +155,7 @@ func (g *Game) RoleCount(roleToFind Role, roleList []Role) int {
 // sortRole 함수는 AddRole 함수에서 SeqRole을 소팅할 목적으로 만듬
 func (g *Game) sortRole(list []Role) {
 	for i := 0; i < len(list)-1; i++ {
-		if list[i].String() > list[i+1].String() {
+		if list[i].ID() > list[i+1].ID() {
 			list[i], list[i+1] = list[i+1], list[i]
 		}
 	}
