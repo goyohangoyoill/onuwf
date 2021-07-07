@@ -61,6 +61,8 @@ func GenerateRole(num int) (r Role) {
 		*/
 	case 7:
 		r = &TroubleMaker{num}
+	case 11:
+		r = &Hunter{num}
 	case 12:
 		r = &Villager{num}
 		/*
@@ -74,8 +76,6 @@ func GenerateRole(num int) (r Role) {
 				r = &Revealer{num}
 			case 17:
 				r = &Tanner{num}
-			case 18:
-				r = &Hunter{num}
 			case 19:
 				r = &Bodygaurd{num}
 			case 21:
