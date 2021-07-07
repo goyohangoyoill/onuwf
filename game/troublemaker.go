@@ -1,12 +1,39 @@
 package game
 
 import (
+	"strconv"
+
 	embed "github.com/clinet/discordgo-embed"
 )
 
 // TroubleMaker 는 한밤의 늑대인간 중 <말썽쟁이> 에 대한 객체이다.
 type TroubleMaker struct {
 	id int
+}
+
+// SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
+func (tm *TroubleMaker) SendUserSelectGuide(player *User, g *Game, pageNum int) (msgID string) {
+	title := ""
+	if pageNum == 0 {
+		title += "직업을 맞바꿀 첫번째 유저를 고르세요"
+	} else {
+		title += "직업을 맞바꿀 두번쩨 유저를 고르세요"
+	}
+	curEmbed := embed.NewEmbed()
+	curEmbed.SetTitle(title)
+	for uIdx, user := range g.UserList {
+		if !g.IsProtected(user.UserID) {
+			curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", user.nick)
+		} else {
+			curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", "~"+user.nick+"~")
+		}
+	}
+	curEmbed.InlineAllFields()
+	msgObj, _ := g.Session.ChannelMessageSendEmbed(player.dmChanID, curEmbed.MessageEmbed)
+	for i := 0; i < len(g.UserList); i++ {
+		g.Session.MessageReactionAdd(player.dmChanID, msgObj.ID, g.Emj["n"+strconv.Itoa(i+1)])
+	}
+	return msgObj.ID
 }
 
 // Action 함수는 <말썽쟁이> 의 특수능력 사용에 대한 함수이다.

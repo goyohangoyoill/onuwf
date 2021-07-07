@@ -3,7 +3,7 @@ package game
 // Role : 각 직업들의 정보를 담고 있는 스트럭처
 type Role interface {
 	// SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-	// SendUserSelectGuide(player *User, g *Game, pageNum int) (msgID string)
+	SendUserSelectGuide(player *User, g *Game, pageNum int) (msgID string)
 	// Action 각 직업별 행동 함수를 다르게 정의하기 위한 함수 선언
 	Action(tar *TargetObject, player *User, g *Game)
 	// GenLog 함수는 각 직업의 행동 로그를 쌓는 함수이다.

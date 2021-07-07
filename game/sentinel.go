@@ -5,6 +5,11 @@ type Sentinel struct {
 	id int
 }
 
+// SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
+func (r *Sentinel) SendUserSelectGuide(player *User, g *Game, pageNum int) (msgID string) {
+	return ""
+}
+
 // Action is role action
 func (r *Sentinel) Action(tar *TargetObject, player *User, g *Game) {
 	//session 메세지는 state에서 보낼거임

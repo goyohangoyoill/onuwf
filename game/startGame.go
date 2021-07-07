@@ -82,7 +82,14 @@ func (sStartGame *StartGame) InitState() {
 // StartGame에서 state가 종료되는 시점에서 호출 됩니다.
 // 다음 state인 ActionDoppelganger의 InitState() 함수를 호출합니다.
 func (sStartGame *StartGame) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-	sStartGame.g.CurState = &ActionSentinel{sStartGame.g, nil}
+	/*
+		sStartGame.g.CurState = &ActionSentinel{sStartGame.g, nil}
+		s.ChannelMessageSend(sStartGame.g.ChanID, "모두에게 직업이 배정되었습니다.")
+		sStartGame.g.CurState.InitState()
+	*/
+
+	// Test 를 위한 수호자 제외 시작
+	sStartGame.g.CurState = NewActionInGameGroup(sStartGame.g)
 	s.ChannelMessageSend(sStartGame.g.ChanID, "모두에게 직업이 배정되었습니다.")
 	sStartGame.g.CurState.InitState()
 }
