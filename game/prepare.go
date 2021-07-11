@@ -88,10 +88,10 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
 		// roleindex 증감
 		sPrepare.roleIndex += dir
-		if dir > len(sPrepare.g.RG) {
-			dir = 0
-		} else if dir <= 0 {
-			dir = len(sPrepare.g.RG)
+		if sPrepare.roleIndex >= len(sPrepare.g.RG) {
+			sPrepare.roleIndex = 0
+		} else if sPrepare.roleIndex <= 0 {
+			sPrepare.roleIndex = len(sPrepare.g.RG) - 1
 		}
 		// 직업 추가 메세지 반영
 		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
