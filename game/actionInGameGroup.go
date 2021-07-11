@@ -206,7 +206,7 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 }
 
 // stateFinish 함수는 ActionInGameGroup state 가 종료될 때 호출되는 메소드이다.
-func (sActionInGameGroup *ActionInGameGroup) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sActionInGameGroup *ActionInGameGroup) stateFinish() {
 
 }
 

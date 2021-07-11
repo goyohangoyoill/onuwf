@@ -107,6 +107,7 @@ func (g *Game) IsProtected(uid string) (res bool) {
 	for i := 0; i < len(g.RoleSeq); i++ {
 		if g.roleIdxTable[uIdx][i] == 2 {
 			res = true
+			break
 		}
 	}
 	return res
@@ -309,9 +310,14 @@ func (g *Game) RotateAllUserRole() {
 	g.setRole(g.UserList[0].UserID, tmpRole)
 }
 
-// SetPower 유저에게 특수권한 부여
-func (g *Game) SetPower(power int) {
-	// TODO 내부 구현.
+// SetProtect 유저에게 특수권한 부여
+func (g *Game) SetProtect(uid string) {
+	uIdx := FindUserIdx(uid, g.UserList)
+	for i := 0; i < len(g.RoleSeq); i++ {
+		if g.roleIdxTable[uIdx][i] == 1 {
+			g.roleIdxTable[uIdx][i] = 2
+		}
+	}
 }
 
 // CopyRole 특정 유저의 직업을 복사.

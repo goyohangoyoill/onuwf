@@ -54,9 +54,9 @@ func (sStartGame *StartGame) InitState() {
 	g.oriRoleIdxTable = make([][]int, lenuser)
 	lenrole := len(g.RoleSeq)
 	// user에게 랜덤배정되는 role의 수는 lenuser만큼인데
-	// RoleSeq의 인덱스 번호로 할당해야하고
+	// indexTable에서는 RoleSeq의 인덱스 번호로 할당해야하고
 	// 정작 중복안된 직업이 들어있는건 RoleView이므로
-	// RoleView에서 랜덤으로 직업을 뽑아(suffle로 RoleView를 섞음)
+	// RoleView에서 랜덤으로 직업을 뽑아(위에서 suffle로 RoleView를 섞었음)
 	// RoleSeq에서 인덱스 위치를 찾아서 indexTable 업데이트 해야함
 	for i := 0; i < lenuser; i++ {
 		g.roleIdxTable[i] = make([]int, lenrole)
@@ -93,8 +93,7 @@ func (sStartGame *StartGame) InitState() {
 // stateFinish 함수는 StartGame에서 state가 종료되는 시점에서 호출 됩니다.
 // 다음 state인 ActionSentinel의 InitState() 함수를 호출합니다.
 func (sStartGame *StartGame) stateFinish() {
-	// ActionSentinel의 sentinelMsgs 변수 초기화
-	sStartGame.g.CurState = &ActionSentinel{sStartGame.g, nil}
+	sStartGame.g.CurState = &ActionSentinel{sStartGame.g, "", nil}
 	sStartGame.g.CurState.InitState()
 }
 
