@@ -1,5 +1,5 @@
 /* "ㅁ게임배경" 명령어 관련 함수 */
-package main
+package util
 
 import (
 	"encoding/json"
@@ -9,7 +9,6 @@ import (
 )
 
 var (
-	Background      background
 	backgroundTitle string
 	backgroundMsg   string
 )
@@ -27,28 +26,29 @@ type bgLine struct {
 
 // background.json 파일 읽어서 "ㅁ게임배경" 실행시 출력할 데이터 세팅
 func readBackgroundJSON() {
-	jsonFile, err := os.Open("asset/background.json")
+	jsonFile, err := os.Open("./asset/background.json")
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 	defer jsonFile.Close()
+	var bg background
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	json.Unmarshal(byteValue, &Background)
+	json.Unmarshal(byteValue, &bg)
 
-	backgroundTitle = "**" + Background.Title + "**"
+	backgroundTitle = "**" + bg.Title + "**"
 	backgroundMsg = ""
-	for i := 0; i < len(Background.Line); i++ {
-		if len(Background.Line[i].Pre) > 0 {
-			backgroundMsg += Background.Line[i].Pre
+	for i := 0; i < len(bg.Line); i++ {
+		if len(bg.Line[i].Pre) > 0 {
+			backgroundMsg += bg.Line[i].Pre
 		}
-		if len(Background.Line[i].Cmd) > 0 {
-			backgroundMsg += "`" + prefix + Background.Line[i].Cmd + "`"
+		if len(bg.Line[i].Cmd) > 0 {
+			backgroundMsg += "`" + prefix + bg.Line[i].Cmd + "`"
 		}
-		backgroundMsg += Background.Line[i].Post + "\n"
+		backgroundMsg += bg.Line[i].Post + "\n"
 	}
 }

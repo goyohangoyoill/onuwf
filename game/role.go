@@ -20,6 +20,7 @@ type RoleGuide struct {
 	RoleGuide []string `json:"roleGuide"`
 	Max       int      `json:"max"`
 	Faction   string   `json:"faction"`
+	Priority  int      `json:"priority"`
 }
 
 func GenerateRole(num int) (r Role) {
