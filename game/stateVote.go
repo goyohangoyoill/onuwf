@@ -20,6 +20,7 @@ type StateVote struct {
 func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
 	//num를 받음
 	//해당 index list count +1
+	fmt.Println(1)
 	v.Voted_list[num-1]++
 	fmt.Println(v.Voted_list[num-1])
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
@@ -38,7 +39,6 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 				voteResultEmbed.AddField(v.G.UserList[i].nick, v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
 			}
 		}
-		InlineAllFields()
 		s.ChannelMessageSendEmbed(v.G.ChanID, voteResultEmbed.MessageEmbed)
 	}
 }

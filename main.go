@@ -80,6 +80,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 		select {
 		case curUID := <-curGame.EnterUserIDChan:
 			isUserIn[curUID] = true
+			guildChanToGameData[m.GuildID+curUID] = curGame
 		case curUID := <-curGame.QuitUserIDChan:
 			delete(isUserIn, curUID)
 		case <-curGame.GameStartedChan:
@@ -134,9 +135,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "apple", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "banana", m.ChannelID, m.ChannelID))
 
-		temp2 := &wfGame.StateBeforeVote{thisGame}
-		temp2.InitState()
-
 		voted_list := make([]int, len(thisGame.UserList))
 		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList), 0}
 		guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
@@ -152,7 +150,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.
 func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	//fmt.Println(r.UserID, r.MessageID, r.ChannelID, r.GuildID)
-
 	// 봇 자기자신의 리액션 무시.
 	if r.UserID == s.State.User.ID {
 		return
@@ -163,6 +160,7 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		return
 	}
 	g := guildChanToGameData[r.GuildID+r.ChannelID]
+	//여기서  game은 messagecreate의 게임이 되어야함
 	if g == nil {
 		return
 	}
