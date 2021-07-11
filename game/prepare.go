@@ -82,7 +82,7 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	if r.MessageID == sPrepare.EnterGameMsg.ID {
 		// 게임 시작
 		if dir == 1 && len(sPrepare.g.RoleView) == len(sPrepare.g.UserList)+3 {
-			sPrepare.stateFinish(s, r)
+			sPrepare.stateFinish()
 		}
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
@@ -116,9 +116,9 @@ func (sPrepare *Prepare) InitState() {
 	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
 }
 
-func (sPrepare *Prepare) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare *Prepare) stateFinish() {
 	sPrepare.g.CurState = &StartGame{sPrepare.g}
-	s.ChannelMessageSend(sPrepare.g.ChanID, "각자의 직업을 배정 중입니다...")
+	sPrepare.g.Session.ChannelMessageSend(sPrepare.g.ChanID, "각자의 직업을 배정 중입니다...")
 	sPrepare.g.GameStartedChan <- true
 	sPrepare.g.CurState.InitState()
 }

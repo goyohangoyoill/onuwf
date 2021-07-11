@@ -32,7 +32,7 @@ type State interface {
 	// stateFinish 함수는 현재 state가 끝나고 다음 state로 넘어갈 때 호출되는 함수입니다.
 	// game의 CurState 변수에 다음 state를 생성해서 할당해준 다음
 	// 다음 state의 InitState() 함수를 이 함수 안에서 호출해야 합니다
-	stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd)
+	stateFinish()
 
 	// filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 	// 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및

@@ -8,8 +8,8 @@ type ActionSentinel struct {
 	// state 에서 가지고 있는 game
 	g *Game
 
-	// sentinel 능력사용 메세지
-	sentinelMsg *discordgo.Message
+	// sentinel role을 가진 user들에게 보낸 능력사용 메세지
+	sentinelMsgs []*discordgo.Message
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
@@ -37,17 +37,17 @@ func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *disc
 	// do nothing
 }
 
-// InitState 함수는 ActionSentinel state가 시작할 때 진짜로 게임이 시작되므로
-// game에 UserList에 직업을 랜덤 할당해주고 각 유저에게 직업소개 개인 DM을 보낸 후
+// InitState 함수는 ActionSentinel state가 시작할 때
 // 센티넬 직업을 가진 유저에게 센티넬 동작 DM을 보내고 이를 ActionSentinel 멤버 변수로 저장합니다.
 func (sActionSentinel *ActionSentinel) InitState() {
-
+	sActionSentinel.sentinelMsgs = make([]*discordgo.Message, 0)
+	// sentinel role을 가지고 있는 유저들에게 능력사용 메세지 보낸 후 MessageID 저장
 }
 
 // stateFinish 함수는 sentinel role을 가진 user가 능력사용을 끝내고
 // ActionSentinel에서 state가 종료되는 시점에서 호출 됩니다.
 // 다음 state인 ActionDoppelganger의 InitState() 함수를 호출합니다.
-func (sActionSentinel *ActionSentinel) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sActionSentinel *ActionSentinel) stateFinish() {
 
 }
 
