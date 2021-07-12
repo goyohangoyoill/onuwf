@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/bwmarrin/discordgo"
@@ -16,12 +15,21 @@ type StateVote struct {
 	Vote_count int
 }
 
+func NewStateVote(g *Game) *StateVote {
+	ac := &StateVote{}
+	ac.G = g
+	ac.Voted_list = make([]int, len(g.UserList))
+	ac.User_num = len(g.UserList)
+	ac.Vote_count = 0
+
+	return ac
+}
+
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 state에서 하는 동작
 func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
 	//num를 받음
 	//해당 index list count +1
 	v.Voted_list[num-1]++
-	fmt.Println(v.Voted_list[num-1])
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
 	v.Vote_count++
 	if v.Vote_count == v.User_num {
@@ -59,7 +67,6 @@ func (v *StateVote) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactio
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 state에서 하는 동작
 func (v *StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
-	fmt.Println(dir, "test")
 	//do nothing
 }
 
@@ -67,7 +74,10 @@ func (v *StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReacti
 // 메세지 객체를 스테이트의 멤버로 저장합니다.
 // 이 함수는 이전 스테이트가 끝나는 시점에 호출되어야 합니다.
 func (v *StateVote) InitState() {
-
+	//	v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "juhur", v.G.ChanID, v.G.ChanID))
+	//v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "kalee", v.G.ChanID, v.G.ChanID))
+	//v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "min-jo", v.G.ChanID, v.G.ChanID))
+	VoteProcess(v.G.Session, v.G)
 }
 
 // stateFinish 함수는 현재 state가 끝나고 다음 state로 넘어갈 때 호출되는 함수입니다.
@@ -112,7 +122,7 @@ func SendVoteDM(s *discordgo.Session, g *Game, UserNum int) {
 		voteEmbed.AddField(strconv.Itoa(i+1)+"번 ", g.UserList[j].nick)
 	}
 	voteEmbed.SetAuthor(g.UserList[UserNum].nick)
-	UserDM, _ := s.UserChannelCreate(g.UserList[0].UserID) //g.UserList[0] -> g.UsrList[UserNum] change need(test용)
+	UserDM, _ := s.UserChannelCreate(g.UserList[UserNum].UserID) //g.UserList[0] -> g.UsrList[UserNum] change need(test용)
 	voteMsg, _ := s.ChannelMessageSendEmbed(UserDM.ID, voteEmbed.MessageEmbed)
 	addNumAddEmoji(s, voteMsg, g)
 }
