@@ -1,12 +1,48 @@
 package game
 
 import (
+	"strconv"
+
 	embed "github.com/clinet/discordgo-embed"
 )
 
 // Seer 는 한밤의 늑대인간 중 <예언자> 에 대한 객체이다.
 type Seer struct {
 	id int
+}
+
+// SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
+func (sr *Seer) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+	title := ""
+	if pageNum == 0 {
+		title += "직업을 알아낼 플레이어를 고르세요"
+	} else {
+		title += "세 개의 직업 중 보지 않을 직업을 고르세요"
+		curEmbed := embed.NewEmbed()
+		curEmbed.SetTitle(title)
+		curEmbed.AddField("버려진 직업 셋 중 하나를 선택해 나머지 직업들을 볼 수 있습니다.", "1번 🃏 2번 🃏 3번 🃏")
+		msgObj, _ := g.Session.ChannelMessageSendEmbed(player.dmChanID, curEmbed.MessageEmbed)
+		for i := 0; i < 3; i++ {
+			g.Session.MessageReactionAdd(player.dmChanID, msgObj.ID, g.Emj["n"+strconv.Itoa(i+1)])
+		}
+		return msgObj.ID
+	}
+	curEmbed := embed.NewEmbed()
+	curEmbed.SetTitle(title)
+	for uIdx, user := range g.UserList {
+		if !g.IsProtected(user.UserID) {
+			curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", user.nick)
+		} else {
+			curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", "~"+user.nick+"~")
+		}
+	}
+	curEmbed.InlineAllFields()
+	msgObj, _ := g.Session.ChannelMessageSendEmbed(player.dmChanID, curEmbed.MessageEmbed)
+	for i := 0; i < len(g.UserList); i++ {
+		g.Session.MessageReactionAdd(player.dmChanID, msgObj.ID, g.Emj["n"+strconv.Itoa(i+1)])
+	}
+	g.Session.MessageReactionAdd(player.dmChanID, msgObj.ID, g.Emj["DISCARD"])
+	return msgObj.ID
 }
 
 // Action 함수는 <예언자> 의 특수능력 사용에 대한 함수이다.

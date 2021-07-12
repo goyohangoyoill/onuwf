@@ -73,7 +73,7 @@ func (v *StateVote) InitState() {
 // stateFinish 함수는 현재 state가 끝나고 다음 state로 넘어갈 때 호출되는 함수입니다.
 // game의 CurState 변수에 다음 state를 생성해서 할당해준 다음
 // 다음 state의 InitState() 함수를 이 함수 안에서 호출해야 합니다
-func (v *StateVote) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (v *StateVote) stateFinish() {
 
 }
 
