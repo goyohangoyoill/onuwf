@@ -37,7 +37,8 @@ func init() {
 	env = EnvInit()
 	emj = EmojiInit()
 	RoleGuideInit(&rg)
-	util.ReadJSON(rg)
+	//util.ReadJSON(rg)
+	//util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)
 	guildChanToGameData = make(map[string]*wfGame.Game)
@@ -76,6 +77,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 		select {
 		case curUID := <-curGame.EnterUserIDChan:
 			isUserIn[curUID] = true
+			guildChanToGameData[m.GuildID+curUID] = curGame
 			uidToGameData[curUID] = curGame
 		case curUID := <-curGame.QuitUserIDChan:
 			delete(isUserIn, curUID)
@@ -132,6 +134,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "kalee", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "apple", m.ChannelID, m.ChannelID))
 		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "banana", m.ChannelID, m.ChannelID))
+
 		voted_list := make([]int, len(thisGame.UserList))
 		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList), 0}
 		guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
@@ -172,7 +175,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.
 func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	//fmt.Println(r.UserID, r.MessageID, r.ChannelID, r.GuildID)
-
 	// 봇 자기자신의 리액션 무시.
 	if r.UserID == s.State.User.ID {
 		return

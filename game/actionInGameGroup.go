@@ -203,11 +203,20 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 			}
 		}
 	}
+	sActionInGameGroup.stateFinish(g.Session, nil)
 }
 
 // stateFinish 함수는 ActionInGameGroup state 가 종료될 때 호출되는 메소드이다.
 func (sActionInGameGroup *ActionInGameGroup) stateFinish() {
 
+	//voted_list := make([]int, len(sActionInGameGroup.g.UserList))
+	//sActionInGameGroup.g.CurState = &StateVote{sActionInGameGroup.g, voted_list, len(sActionInGameGroup.g.UserList), 0}
+	//guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
+	//isUserIn[m.Author.ID] = true
+
+	sActionInGameGroup.g.CurState = NewStateVote(sActionInGameGroup.g)
+	sActionInGameGroup.g.CurState.InitState()
+	//wfGame.VoteProcess(s, thisGame)
 }
 
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
