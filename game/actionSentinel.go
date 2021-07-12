@@ -65,6 +65,7 @@ func (sActionSentinel *ActionSentinel) InitState() {
 		role.Action(tar, sentinel, g)
 		role.GenLog(tar, sentinel, g)
 	}
+	sActionSentinel.stateFinish()
 }
 
 // stateFinish 함수는 sentinel role을 가진 user가 능력사용을 끝내고
