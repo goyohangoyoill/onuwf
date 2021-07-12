@@ -99,9 +99,11 @@ func printSkillOrder(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGa
 	printMsg := ""
 	roleList := roleList(rg)
 	for i, item := range roleList {
-		printMsg += item + " -> "
-		if i%3 == 2 {
-			printMsg += "\n"
+		if rg[i].Priority != 4242 {
+			printMsg += item + " -> "
+			if i%3 == 2 {
+				printMsg += "\n"
+			}
 		}
 	}
 	printMsg += "투표시작"
