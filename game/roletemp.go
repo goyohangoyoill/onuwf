@@ -9,6 +9,13 @@ type Temp struct {
 	id int
 }
 
+// SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
+func (tmp *Temp) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+	tmpEmbed := embed.NewEmbed()
+	msg, _ := g.Session.ChannelMessageSendEmbed(player.dmChanID, tmpEmbed.MessageEmbed)
+	return msg.ID
+}
+
 // Action 함수는 <직업명> 의 특수능력 사용에 대한 함수이다.
 func (tmp *Temp) Action(tar *TargetObject, player *User, g *Game) {
 	//			<action Type>
@@ -36,7 +43,7 @@ func (tmp Temp) GenLog(tar TargetObject, player *User, g *Game) {
 
 // String 함수는 <직업명> 문자열을 반환하는 함수이다.
 func (tmp *Temp) String() string {
-	return "말썽쟁이"
+	return "직업명"
 }
 
 // ID 함수는 <직업명> 의 고유값을 반환하는 함수이다.

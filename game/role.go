@@ -3,7 +3,7 @@ package game
 // Role : 각 직업들의 정보를 담고 있는 스트럭처
 type Role interface {
 	// SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-	// SendUserSelectGuide(player *User, g *Game, pageNum int) (msgID string)
+	SendUserSelectGuide(player *User, g *Game, pageNum int) (msgID string)
 	// Action 각 직업별 행동 함수를 다르게 정의하기 위한 함수 선언
 	Action(tar *TargetObject, player *User, g *Game)
 	// GenLog 함수는 각 직업의 행동 로그를 쌓는 함수이다.
@@ -38,44 +38,48 @@ func GenerateRole(num int) (r Role) {
 				r = &Alphawolf{num}
 			case 4:
 				r = &Misticwolf{num}
-			case 5:
-				r = &Minion{num}
+		*/
+	case 3:
+		r = &Minion{num}
+		/*
 			case 6:
 				r = &Freemasonry{num}
 		*/
-	case 7:
+	case 5:
 		r = &Seer{num}
 		/*
 			case 8:
 				r = &Apprenticeseer{num}
 			case 9:
 				r = &Paranormalinvestigator{num}
-			case 10:
-				r = &Rober{num}
+		*/
+	case 10:
+		r = &Robber{num}
+		/*
 			case 11:
 				r = &Witch{num}
 		*/
-	case 12:
+	case 7:
 		r = &TroubleMaker{num}
+	case 11:
+		r = &Hunter{num}
+	case 12:
+		r = &Villager{num}
 		/*
 			case 13:
 				r = &Villageidiot{num}
 			case 14:
 				r = &Drunk{num}
 		*/
-	case 15:
-		r = &Insomniac{num}
+		//case 15:
+		//	r = &Insomniac{num}
 		/*
 			case 16:
 				r = &Revealer{num}
 			case 17:
 				r = &Tanner{num}
-			case 18:
-				r = &Hunter{num}
 			case 19:
 				r = &Bodygaurd{num}
-			case 20:
-				r = &Villager{num}
 			case 21:
 				r = &Dreamwolf{num}
 		*/

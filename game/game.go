@@ -16,31 +16,25 @@ type Game struct {
 
 	// 현재 게임이 진행중인 서버의 GID
 	GuildID string
-
 	// 현재 게임이 진행중인 채널의 CID
 	ChanID string
-
 	// 게임을 생성한 방장의 UID
 	MasterID string
-
-	// 현재 게임의 참가자들
-	UserList []*User
-
-	// 현재 게임에서 role_guide.json 순서대로(role ID 순서대로) 추가, 중복제거 된 직업들의 목록
-	RoleSeq []Role
-
-	// 현재 게임에서 사용중인 사용자에게 보여줄 중복 직업들의 목록, 정렬 안됨
-	RoleView []Role
 
 	// 현재 게임의 진행시점
 	CurState State
 
+	// 현재 게임의 참가자들
+	UserList []*User
+	// 현재 게임에서 role_guide.json 순서대로(role ID 순서대로) 추가, 중복제거 된 직업들의 목록
+	RoleSeq []Role
+	// 현재 게임에서 사용중인 사용자에게 보여줄 중복 직업들의 목록, 정렬 안됨
+	RoleView []Role
 	// Role을 User별로 매핑시킨 인덱스 테이블
 	// RoleSeq 사용
 	// <usage : roleIdxTable[userIdx][roleIdx]>
 	roleIdxTable    [][]int
 	oriRoleIdxTable [][]int
-
 	// 게임에서 버려진 직업 목록
 	DisRole []Role
 
@@ -49,16 +43,13 @@ type Game struct {
 
 	// 게임 진행 상황을 기록하는 로그 메시지 배열
 	LogMsg []string
-
 	// 이모지 정보
 	Emj map[string]string
-
 	// 직업의 대한 소개 및 정보
 	RG []RoleGuide
 
 	// 유저 입장, 퇴장 시 ID가 전달되는 채널
 	EnterUserIDChan, QuitUserIDChan chan string
-
 	// 게임이 시작되면 신호가 전달되는 채널
 	GameStartedChan chan bool
 }
@@ -109,6 +100,18 @@ func (g *Game) SendVoteMsg(s *discordgo.Session) (messageIDs []string) {
 	return messageIDs
 }
 
+// IsProtected 는 센티넬에 의해 보호받는 상태인지 확인하는 메소드입니다.
+func (g *Game) IsProtected(uid string) (res bool) {
+	res = false
+	uIdx := FindUserIdx(uid, g.UserList)
+	for i := 0; i < len(g.RoleSeq); i++ {
+		if g.roleIdxTable[uIdx][i] == 2 {
+			res = true
+		}
+	}
+	return res
+}
+
 // SetUserByID 는 게임에 입장한 유저의 정보를 게임 데이터에 추가하는 함수입니다.
 func (g *Game) SetUserByID(uid string) {
 	if i := FindUserIdx(uid, g.UserList); i != -1 {
@@ -152,7 +155,7 @@ func (g *Game) RoleCount(roleToFind Role, roleList []Role) int {
 // sortRole 함수는 AddRole 함수에서 SeqRole을 소팅할 목적으로 만듬
 func (g *Game) sortRole(list []Role) {
 	for i := 0; i < len(list)-1; i++ {
-		if list[i].String() > list[i+1].String() {
+		if list[i].ID() > list[i+1].ID() {
 			list[i], list[i+1] = list[i+1], list[i]
 		}
 	}
@@ -219,6 +222,17 @@ func (g *Game) GetRole(uid string) Role {
 	return nil
 }
 
+// GetOriRole 유저의 원래 직업을 반환
+func (g *Game) GetOriRole(uid string) Role {
+	idx := FindUserIdx(uid, g.UserList)
+	for i := 0; i < len(g.RoleSeq); i++ {
+		if g.oriRoleIdxTable[idx][i] > 0 {
+			return g.RoleSeq[i]
+		}
+	}
+	return nil
+}
+
 // 유저의 직업을 업데이트
 func (g *Game) setRole(uid string, item Role) {
 	userIdx := FindUserIdx(uid, g.UserList)
@@ -270,6 +284,7 @@ func (g *Game) GetRoleUsers(find Role) (users []*User) {
 	return result
 }
 
+// GetOriRoleUsers 특정 원래 직업의 유저 목록 반환.
 func (g *Game) GetOriRoleUsers(find Role) (users []*User) {
 	result := make([]*User, 0)
 	loop := len(g.UserList)

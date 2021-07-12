@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -24,6 +25,7 @@ const (
 
 var (
 	isUserIn            map[string]bool
+	uidToGameData       map[string]*wfGame.Game
 	guildChanToGameData map[string]*wfGame.Game
 
 	env map[string]string
@@ -36,9 +38,11 @@ func init() {
 	emj = EmojiInit()
 	RoleGuideInit(&rg)
 	util.ReadJSON(rg)
+	util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)
 	guildChanToGameData = make(map[string]*wfGame.Game)
+	uidToGameData = make(map[string]*wfGame.Game)
 }
 
 func main() {
@@ -68,13 +72,16 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, enterUserIDChan, quitUserIDChan, gameStartedChan)
 	// Mutex 필요할 것으로 예상됨.
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
+	uidToGameData[m.Author.ID] = curGame
 	for {
 		select {
 		case curUID := <-curGame.EnterUserIDChan:
 			isUserIn[curUID] = true
 			guildChanToGameData[m.GuildID+curUID] = curGame
+			uidToGameData[curUID] = curGame
 		case curUID := <-curGame.QuitUserIDChan:
 			delete(isUserIn, curUID)
+			delete(uidToGameData, curUID)
 		case <-curGame.GameStartedChan:
 			return
 		}
@@ -112,6 +119,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			for _, user := range g.UserList {
 				delete(isUserIn, user.UserID)
+				delete(uidToGameData, user.UserID)
 			}
 			delete(guildChanToGameData, m.GuildID+m.ChannelID)
 			g.CanFunc()
@@ -133,9 +141,34 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		isUserIn[m.Author.ID] = true
 		thisGame.CurState = temp
 		wfGame.VoteProcess(s, thisGame)
-	case "!test":
-		str := rg[3].RoleGuide[0]
-		s.ChannelMessageSend(m.ChannelID, str)
+	case "ㅁ확인":
+		g := guildChanToGameData[m.GuildID+m.ChannelID]
+		if g != nil {
+			Server, _ := s.State.Guild(m.GuildID)
+			Channel, _ := s.State.Channel(m.ChannelID)
+			msg := "----------------------------------------------------\n"
+			msg += "> 현재 서버: " + Server.Name + "\n"
+			msg += "> 현재 채널: " + Channel.Name + "\n"
+			msg += "> 현재 유저 수: " + strconv.Itoa(len(g.UserList)) + "\n"
+			msg += "----------------------------------------------------\n"
+			for i, user := range g.UserList {
+				msg += "< " + strconv.Itoa(i+1) + "번 유저 `" + user.Nick() + "` >\n"
+				msg += "원래직업: " + g.GetOriRole(user.UserID).String() + "\n"
+				msg += "현재직업: " + g.GetRole(user.UserID).String() + "\n"
+			}
+			msg += "< 버려진 직업들 >\n"
+			for i := 0; i < 3; i++ {
+				msg += g.GetDisRole(i).String() + " "
+			}
+			msg += "\n"
+			msg += "----------------------------------------------------\n"
+			msg += "로그 메시지 :\n"
+			for _, text := range g.LogMsg {
+				msg += text + "\n"
+			}
+			msg += "----------------------------------------------------\n"
+			s.ChannelMessageSend(m.ChannelID, msg)
+		}
 	}
 }
 
@@ -151,17 +184,17 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	if !(isUserIn[r.UserID] || (!isUserIn[r.UserID] && r.Emoji.Name == emj["YES"])) {
 		return
 	}
-	g := guildChanToGameData[r.GuildID+r.ChannelID]
-	//여기서  game은 messagecreate의 게임이 되어야함
+	g := uidToGameData[r.UserID]
 	if g == nil {
-		return
+		g = guildChanToGameData[r.GuildID+r.ChannelID]
+		if g == nil {
+			return
+		}
 	}
 	isUserIn[r.UserID] = true
 	// 숫자 이모지 선택.
 	for i := 1; i < 10; i++ {
-		var ch rune
-		ch = '0' + rune(i)
-		emjID := "n" + string(ch)
+		emjID := "n" + strconv.Itoa(i)
 		if r.Emoji.Name == emj[emjID] {
 			go g.CurState.PressNumBtn(s, r, i)
 			break
