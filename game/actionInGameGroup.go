@@ -42,6 +42,10 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
 				return
 			}
+			if sActionInGameGroup.g.IsProtected(sActionInGameGroup.g.UserList[num-1].UserID) {
+				s.ChannelMessageSend(r.ChannelID, "`"+sActionInGameGroup.g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				return
+			}
 			curInfo.Code--
 			s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
 			curInfo.Choice <- num
@@ -57,6 +61,10 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
 				return
 			}
+			if sActionInGameGroup.g.IsProtected(sActionInGameGroup.g.UserList[num-1].UserID) {
+				s.ChannelMessageSend(r.ChannelID, "`"+sActionInGameGroup.g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				return
+			}
 			curInfo.Code++
 			s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
 			curInfo.Choice <- num
@@ -67,6 +75,10 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
 				return
 			}
+			if sActionInGameGroup.g.IsProtected(sActionInGameGroup.g.UserList[num-1].UserID) {
+				s.ChannelMessageSend(r.ChannelID, "`"+sActionInGameGroup.g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				return
+			}
 			curInfo.Code++
 			s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
 			curInfo.Choice <- num
@@ -74,6 +86,10 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 		} else if curInfo.Code == 1 {
 			if sActionInGameGroup.g.UserList[num-1].UserID == r.UserID {
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
+				return
+			}
+			if sActionInGameGroup.g.IsProtected(sActionInGameGroup.g.UserList[num-1].UserID) {
+				s.ChannelMessageSend(r.ChannelID, "`"+sActionInGameGroup.g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
 				return
 			}
 			curInfo.Code++

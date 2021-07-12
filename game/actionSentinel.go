@@ -84,18 +84,20 @@ func (sActionSentinel *ActionSentinel) InitState() {
 		sActionSentinel.sentinelMsgsID[user.UserID] = role.SendUserSelectGuide(user, g, 0)
 	}
 	cnt := 0
-	for input := range sActionSentinel.UserChoice {
-		if input.num == -1 {
-			tar := &TargetObject{2, "", "", -1}
-			role.GenLog(tar, input.user, g)
-		} else {
-			tar := &TargetObject{2, g.UserList[input.num-1].UserID, "", -1}
-			role.Action(tar, input.user, g)
-			role.GenLog(tar, input.user, g)
-		}
-		cnt++
-		if cnt == len(users) {
-			close(sActionSentinel.UserChoice)
+	if len(users) != 0 {
+		for input := range sActionSentinel.UserChoice {
+			if input.num == -1 {
+				tar := &TargetObject{2, "", "", -1}
+				role.GenLog(tar, input.user, g)
+			} else {
+				tar := &TargetObject{2, g.UserList[input.num-1].UserID, "", -1}
+				role.Action(tar, input.user, g)
+				role.GenLog(tar, input.user, g)
+			}
+			cnt++
+			if cnt == len(users) {
+				close(sActionSentinel.UserChoice)
+			}
 		}
 	}
 	sActionSentinel.stateFinish()
