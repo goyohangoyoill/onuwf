@@ -150,5 +150,16 @@
 		"max": 3,
 		"faction": "Villager",
 		"priority": 4242
+	},
+	{
+		"roleName": "무두장이",
+		"roleGuide": [
+			"당신은 죽기로 결심했죠.",
+			"당신이 늑대인간인 것처럼 연기하세요.",
+			"처형된다면 당신의 승리입니다."
+		],
+		"max": 1,
+		"faction": "Tanner",
+		"priority": 4242
 	}
 ]
