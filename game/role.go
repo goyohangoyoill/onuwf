@@ -41,8 +41,10 @@ func GenerateRole(num int) (r Role) {
 		*/
 	case 3:
 		r = &Minion{num}
-	case 4:
-		r = &Freemasonry{num}
+		/*
+			case 4:
+				r = &Freemason{num}
+		*/
 	case 5:
 		r = &Seer{num}
 		/*
