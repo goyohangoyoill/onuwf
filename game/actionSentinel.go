@@ -9,41 +9,65 @@ type ActionSentinel struct {
 	g *Game
 
 	// sentinel role을 가진 user들에게 보낸 능력사용 메세지ID
-	sentinelMsgsID string
+	sentinelMsgsID map[string]string
 
 	// 센티넬의 선택을 기다릴 채널
-	Choice chan int
+	UserChoice chan Choice
+}
+
+type Choice struct {
+	num  int
+	user *User
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
 func (sActionSentinel *ActionSentinel) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
-	sActionSentinel.filterReaction(s, r)
+	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
+	if sActionSentinel.filterReaction(s, r) {
+		return
+	}
 	if sActionSentinel.g.UserList[num-1].UserID == r.UserID {
 		s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
 		return
 	}
-	sActionSentinel.Choice <- num - 1
+	sActionSentinel.UserChoice <- Choice{num, sActionSentinel.g.FindUserByUID(r.UserID)}
+	s.ChannelMessageDelete(r.ChannelID, sActionSentinel.sentinelMsgsID[r.UserID])
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
 func (sActionSentinel *ActionSentinel) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-	sActionSentinel.filterReaction(s, r)
+	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
+	if sActionSentinel.filterReaction(s, r) {
+		return
+	}
 	s.ChannelMessageSend(r.ChannelID, "아무도 방패로 보호하지 않았습니다.")
-	sActionSentinel.Choice <- -1
+	sActionSentinel.UserChoice <- Choice{-1, sActionSentinel.g.FindUserByUID(r.UserID)}
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
 func (sActionSentinel *ActionSentinel) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
+	if sActionSentinel.filterReaction(s, r) {
+		return
+	}
 	// do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
 func (sActionSentinel *ActionSentinel) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
+	if sActionSentinel.filterReaction(s, r) {
+		return
+	}
 	// do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
 func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
+	if sActionSentinel.filterReaction(s, r) {
+		return
+	}
 	// do nothing
 }
 
@@ -53,17 +77,26 @@ func (sActionSentinel *ActionSentinel) InitState() {
 	// sentinel role을 가지고 있는 유저들에게 능력사용 메세지 보낸 후 MessageID 저장
 	g := sActionSentinel.g
 	role := &Sentinel{}
-	sentinel := g.GetRoleUsers(role)[0]
-	sActionSentinel.Choice = make(chan int)
-	sActionSentinel.sentinelMsgsID = role.SendUserSelectGuide(sentinel, g, 0)
-	input := <-sActionSentinel.Choice
-	if input == -1 {
-		tar := &TargetObject{2, "", "", -1}
-		role.GenLog(tar, sentinel, g)
-	} else {
-		tar := &TargetObject{2, g.UserList[input-1].UserID, "", -1}
-		role.Action(tar, sentinel, g)
-		role.GenLog(tar, sentinel, g)
+	users := g.GetOriRoleUsers(role)
+	sActionSentinel.UserChoice = make(chan Choice)
+	sActionSentinel.sentinelMsgsID = make(map[string]string)
+	for _, user := range users {
+		sActionSentinel.sentinelMsgsID[user.UserID] = role.SendUserSelectGuide(user, g, 0)
+	}
+	cnt := 0
+	for input := range sActionSentinel.UserChoice {
+		if input.num == -1 {
+			tar := &TargetObject{2, "", "", -1}
+			role.GenLog(tar, input.user, g)
+		} else {
+			tar := &TargetObject{2, g.UserList[input.num-1].UserID, "", -1}
+			role.Action(tar, input.user, g)
+			role.GenLog(tar, input.user, g)
+		}
+		cnt++
+		if cnt == len(users) {
+			close(sActionSentinel.UserChoice)
+		}
 	}
 	sActionSentinel.stateFinish()
 }
@@ -80,11 +113,14 @@ func (sActionSentinel *ActionSentinel) stateFinish() {
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
-func (sActionSentinel *ActionSentinel) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sActionSentinel *ActionSentinel) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
 	// 현재 스테이트에서 보낸 메세지에 리액션한 게 아니면 거름
-	if !(r.MessageID == sActionSentinel.sentinelMsgsID) {
-		return
+	for _, MsgID := range sActionSentinel.sentinelMsgsID {
+		if r.MessageID == MsgID {
+			// 메세지에 리약션한 거 지워줌
+			s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
+			return false
+		}
 	}
-	// 메세지에 리약션한 거 지워줌
-	s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
+	return true
 }

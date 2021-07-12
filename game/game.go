@@ -187,10 +187,11 @@ func (g *Game) DelRole(roleIndex int) {
 	if i := FindRoleIdx(roleToRemove, g.RoleView); i != -1 {
 		g.RoleView = append(g.RoleView[:i], g.RoleView[i+1:]...)
 	}
-	// RoleSeq는 unique unsorted니까 방금 지운 Rol eView에 없으면 지우기
+	// RoleSeq는 unique unsorted니까 방금 지운 RoleView에 없으면 지우기
 	if g.RoleCount(roleToRemove, g.RoleView) == 0 {
-		i := FindRoleIdx(roleToRemove, g.RoleSeq)
-		g.RoleSeq = append(g.RoleSeq[:i], g.RoleSeq[i+1:]...)
+		if i := FindRoleIdx(roleToRemove, g.RoleSeq); i != -1 {
+			g.RoleSeq = append(g.RoleSeq[:i], g.RoleSeq[i+1:]...)
+		}
 	}
 }
 
