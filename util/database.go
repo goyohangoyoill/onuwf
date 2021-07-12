@@ -50,3 +50,32 @@ func AllData(collection string, mongoDB *mongo.Database, ctx context.Context) st
 
 	return string(data)
 }
+
+/*
+func CreateUser(user User, collection string, mongoDB *mongo.Database, ctx contxt.Context) {
+
+	filter := bson.M{"UserID": User.UserID, "nick": User.nick, "dmChanID": User.dmChanID}
+	// DB에 값이 존재하는지 확인
+	num, err := mongoDB.collection.CountDocuments(ctx, filter)
+	U.CheckErr(err)
+
+	// 새로 넣을 데이터 정의
+	newData := m.UserInfo{
+		GoogleID: googleID,
+		Name:     name,
+		Email:    email,
+	}
+
+	// DB값이 존재하지 않으면
+	if num == 0 {
+		_, err := GetCollection(client, "[collection이름]").InsertOne(ctx, newData)
+		U.CheckErr(err)
+	}
+
+	return "create!"
+}
+
+func VoteData(collection string, mongoDB *mongo.Database, ctx contxt.Context) string {
+
+}
+*/
