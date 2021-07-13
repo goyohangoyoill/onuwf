@@ -82,22 +82,24 @@ func (sActionSentinel *ActionSentinel) InitState() {
 		users := g.GetOriRoleUsers(role)
 		sActionSentinel.UserChoice = make(chan Choice)
 		sActionSentinel.sentinelMsgsID = make(map[string]string)
-		for _, user := range users {
-			sActionSentinel.sentinelMsgsID[user.UserID] = role.SendUserSelectGuide(user, g, 0)
-		}
-		cnt := 0
-		for input := range sActionSentinel.UserChoice {
-			if input.num == -1 {
-				tar := &TargetObject{2, "", "", -1}
-				role.GenLog(tar, input.user, g)
-			} else {
-				tar := &TargetObject{2, g.UserList[input.num-1].UserID, "", -1}
-				role.Action(tar, input.user, g)
-				role.GenLog(tar, input.user, g)
+		if len(users) != 0 {
+			for _, user := range users {
+				sActionSentinel.sentinelMsgsID[user.UserID] = role.SendUserSelectGuide(user, g, 0)
 			}
-			cnt++
-			if cnt == len(users) {
-				close(sActionSentinel.UserChoice)
+			cnt := 0
+			for input := range sActionSentinel.UserChoice {
+				if input.num == -1 {
+					tar := &TargetObject{2, "", "", -1}
+					role.GenLog(tar, input.user, g)
+				} else {
+					tar := &TargetObject{2, g.UserList[input.num-1].UserID, "", -1}
+					role.Action(tar, input.user, g)
+					role.GenLog(tar, input.user, g)
+				}
+				cnt++
+				if cnt == len(users) {
+					close(sActionSentinel.UserChoice)
+				}
 			}
 		}
 	}
