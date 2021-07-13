@@ -73,6 +73,10 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 		sPrepare.g.DelUserByID(r.UserID)
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
+		if sPrepare.roleIndex == 2 {
+			s.ChannelMessageSend(sPrepare.g.ChanID, "늑대인간은 2개 있어야 합니다")
+			return
+		}
 		// role 생성해서 game의 RoleView와 RoleSeq에서 찾아 제거
 		sPrepare.g.DelRole(sPrepare.roleIndex)
 	}
@@ -110,6 +114,10 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 
 // InitState 함수는 prepare state가 시작할 때 입장, 직업추가 메세지를 보냅니다.
 func (sPrepare *Prepare) InitState() {
+	// 늑대인간 2개 추가
+	sPrepare.g.AddRole(2)
+	sPrepare.g.AddRole(2)
+
 	enterEmbed := sPrepare.NewEnterEmbed()
 	roleEmbed := sPrepare.NewRoleEmbed()
 	s := sPrepare.g.Session
