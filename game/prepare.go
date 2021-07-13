@@ -150,7 +150,8 @@ func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.Messa
 // newRoleEmbed 함수는 role guide와 현재 게임에 추가된 직업 / 게임의 참여중인 인원수 + 3 임베드를 만든다
 func (sPrepare *Prepare) NewRoleEmbed() *embed.Embed {
 	roleEmbed := embed.NewEmbed()
-	roleEmbed.SetTitle("직업 추가")
+	title := "직업 추가" + "（" + strconv.Itoa(sPrepare.roleIndex+1) + "／" + strconv.Itoa(len(sPrepare.g.RG)) + "）"
+	roleEmbed.SetTitle(title)
 	roleEmbed.AddField(sPrepare.g.RG[sPrepare.roleIndex].RoleName, strings.Join(sPrepare.g.RG[sPrepare.roleIndex].RoleGuide, "\n"))
 	roleStr := ""
 	if len(sPrepare.g.RoleView) == 0 {
