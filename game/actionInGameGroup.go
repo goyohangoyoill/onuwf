@@ -42,6 +42,10 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
 				return
 			}
+			if sActionInGameGroup.g.IsProtected(sActionInGameGroup.g.UserList[num-1].UserID) {
+				s.ChannelMessageSend(r.ChannelID, "`"+sActionInGameGroup.g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				return
+			}
 			curInfo.Code--
 			s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
 			curInfo.Choice <- num
@@ -57,6 +61,10 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
 				return
 			}
+			if sActionInGameGroup.g.IsProtected(sActionInGameGroup.g.UserList[num-1].UserID) {
+				s.ChannelMessageSend(r.ChannelID, "`"+sActionInGameGroup.g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				return
+			}
 			curInfo.Code++
 			s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
 			curInfo.Choice <- num
@@ -67,6 +75,10 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
 				return
 			}
+			if sActionInGameGroup.g.IsProtected(sActionInGameGroup.g.UserList[num-1].UserID) {
+				s.ChannelMessageSend(r.ChannelID, "`"+sActionInGameGroup.g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				return
+			}
 			curInfo.Code++
 			s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
 			curInfo.Choice <- num
@@ -74,6 +86,10 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 		} else if curInfo.Code == 1 {
 			if sActionInGameGroup.g.UserList[num-1].UserID == r.UserID {
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
+				return
+			}
+			if sActionInGameGroup.g.IsProtected(sActionInGameGroup.g.UserList[num-1].UserID) {
+				s.ChannelMessageSend(r.ChannelID, "`"+sActionInGameGroup.g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
 				return
 			}
 			curInfo.Code++
@@ -121,7 +137,9 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 		curInfo := &DMInfo{"", make(chan int), 0}
 		sActionInGameGroup.Info[user.UserID] = curInfo
 		role := g.GetOriRole(user.UserID)
-		if role.String() == (&Werewolf{}).String() {
+		if role.String() == (&Sentinel{}).String() {
+			continue
+		} else if role.String() == (&Werewolf{}).String() {
 			wolves := g.GetRoleUsers(&Werewolf{})
 			//wolves = append(wolves, g.GetRoleUsers(&Misticwolf{})...)
 			//wolves = append(wolves, g.GetRoleUsers(&Alphawolf{})...)
@@ -222,6 +240,7 @@ func (sActionInGameGroup *ActionInGameGroup) stateFinish() {
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
-func (sActionInGameGroup *ActionInGameGroup) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-
+func (sActionInGameGroup *ActionInGameGroup) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
+	return false
+	// do nothing
 }

@@ -25,21 +25,27 @@ type Prepare struct {
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
-	sPrepare.filterReaction(s, r)
+	if sPrepare.filterReaction(s, r) {
+		return
+	}
 	// do nothing
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
-	sPrepare.filterReaction(s, r)
+	if sPrepare.filterReaction(s, r) {
+		return
+	}
 	// do nothing
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
-	sPrepare.filterReaction(s, r)
+	if sPrepare.filterReaction(s, r) {
+		return
+	}
 	// 입장 메세지에서 리액션한거라면
 	if r.MessageID == sPrepare.EnterGameMsg.ID {
 		//user 생성해서 append()
@@ -58,7 +64,9 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
-	sPrepare.filterReaction(s, r)
+	if sPrepare.filterReaction(s, r) {
+		return
+	}
 	// 입장 메세지에서 리액션한거라면
 	if r.MessageID == sPrepare.EnterGameMsg.ID {
 		// userList에서 지우고
@@ -77,7 +85,9 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
-	sPrepare.filterReaction(s, r)
+	if sPrepare.filterReaction(s, r) {
+		return
+	}
 	// 입장 메세지에서 리액션한거라면
 	if r.MessageID == sPrepare.EnterGameMsg.ID {
 		// 게임 시작
@@ -90,7 +100,7 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 		sPrepare.roleIndex += dir
 		if sPrepare.roleIndex >= len(sPrepare.g.RG) {
 			sPrepare.roleIndex = 0
-		} else if sPrepare.roleIndex <= 0 {
+		} else if sPrepare.roleIndex < 0 {
 			sPrepare.roleIndex = len(sPrepare.g.RG) - 1
 		}
 		// 직업 추가 메세지 반영
@@ -124,13 +134,17 @@ func (sPrepare *Prepare) stateFinish() {
 }
 
 // filterReaction 함수는 입장 메세지랑 직업추가 메세지에 리액션한게 아니면 걸러준다.
-func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
 	// 현재 스테이트에서 보낸 메세지에 리액션한 게 아니면 거름
 	if !(r.MessageID == sPrepare.EnterGameMsg.ID || r.MessageID == sPrepare.RoleAddMsg.ID) {
-		return
+		return true
 	}
-	// 메세지에 리약션한 거 지워줌
+	// 메세지에 리액션한 거 지워줌
 	s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
+	if nil == sPrepare.g.FindUserByUID(r.UserID) && !(r.MessageID == sPrepare.EnterGameMsg.ID && r.Emoji.Name == sPrepare.g.Emj["YES"]) {
+		return true
+	}
+	return false
 }
 
 // newRoleEmbed 함수는 role guide와 현재 게임에 추가된 직업 / 게임의 참여중인 인원수 + 3 임베드를 만든다

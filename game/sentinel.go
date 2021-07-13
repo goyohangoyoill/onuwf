@@ -23,6 +23,7 @@ func (r *Sentinel) SendUserSelectGuide(player *User, g *Game, pageNum int) (msgI
 	for i := 0; i < len(g.UserList); i++ {
 		g.Session.MessageReactionAdd(player.dmChanID, msgObj.ID, g.Emj["n"+strconv.Itoa(i+1)])
 	}
+	g.Session.MessageReactionAdd(player.dmChanID, msgObj.ID, g.Emj["DISCARD"])
 	return msgObj.ID
 }
 
@@ -42,7 +43,12 @@ func (r *Sentinel) GenLog(tar *TargetObject, player *User, g *Game) {
 	var msg string
 	// 항상 tar.actionType == 2
 	tarUser := g.FindUserByUID(tar.uid1)
-	msg = "수호자 `" + player.nick + "` 은(는) `" + tarUser.nick + "` 을 방패로 수호하였습니다"
+	msg = "수호자 `" + player.nick + "` 은(는)"
+	if tarUser == nil {
+		msg += "아무도 수호하지 않았습니다"
+	} else {
+		msg += "`" + tarUser.nick + "` 을 방패로 수호하였습니다"
+	}
 	g.AppendLog(msg)
 }
 

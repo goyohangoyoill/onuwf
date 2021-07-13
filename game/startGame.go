@@ -93,13 +93,14 @@ func (sStartGame *StartGame) InitState() {
 // stateFinish 함수는 StartGame에서 state가 종료되는 시점에서 호출 됩니다.
 // 다음 state인 ActionSentinel의 InitState() 함수를 호출합니다.
 func (sStartGame *StartGame) stateFinish() {
-	sStartGame.g.CurState = &ActionSentinel{sStartGame.g, "", nil}
+	sStartGame.g.CurState = &ActionSentinel{sStartGame.g, nil, nil}
 	sStartGame.g.CurState.InitState()
 }
 
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
-func (sStartGame *StartGame) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sStartGame *StartGame) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
 	// do nothing
+	return false
 }
