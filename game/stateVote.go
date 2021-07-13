@@ -29,6 +29,17 @@ func NewStateVote(g *Game) *StateVote {
 func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
 	//num를 받음
 	//해당 index list count +1
+
+	rUserNum := 9999
+	for i := 0; i < num; i++ {
+		if r.UserID == v.G.UserList[i].UserID {
+			rUserNum = i
+			break
+		}
+	}
+	if rUserNum < num {
+		num = num + 1
+	}
 	v.Voted_list[num-1]++
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
 	v.Vote_count++
@@ -123,6 +134,7 @@ func SendVoteDM(s *discordgo.Session, g *Game, UserNum int) {
 	}
 	voteEmbed.SetAuthor(g.UserList[UserNum].nick)
 	UserDM, _ := s.UserChannelCreate(g.UserList[UserNum].UserID) //g.UserList[0] -> g.UsrList[UserNum] change need(test용)
+	voteEmbed.InlineAllFields()
 	voteMsg, _ := s.ChannelMessageSendEmbed(UserDM.ID, voteEmbed.MessageEmbed)
 	addNumAddEmoji(s, voteMsg, g)
 }

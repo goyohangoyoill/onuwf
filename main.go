@@ -37,7 +37,7 @@ func init() {
 	env = EnvInit()
 	emj = EmojiInit()
 	RoleGuideInit(&rg)
-	//util.ReadJSON(rg)
+	util.ReadJSON(rg)
 	//util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)

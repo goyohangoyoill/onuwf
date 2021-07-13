@@ -133,24 +133,33 @@ func (sActionInGameGroup *ActionInGameGroup) PressDirBtn(s *discordgo.Session, r
 // InitState 함수는 ActionInGameGroup state 가 시작되었을 때 호출되는 메소드이다.
 func (sActionInGameGroup *ActionInGameGroup) InitState() {
 	g := sActionInGameGroup.g
-	for _, user := range g.UserList {
+	// 늑대인간2 부터 말썽쟁이7 까지
+	for i := 2; i < 8; i++ {
 		curInfo := &DMInfo{"", make(chan int), 0}
-		sActionInGameGroup.Info[user.UserID] = curInfo
-		role := g.GetOriRole(user.UserID)
-		if role.String() == (&Sentinel{}).String() {
-			continue
-		} else if role.String() == (&Werewolf{}).String() {
-			wolves := g.GetRoleUsers(&Werewolf{})
-			//wolves = append(wolves, g.GetRoleUsers(&Misticwolf{})...)
-			//wolves = append(wolves, g.GetRoleUsers(&Alphawolf{})...)
-			//wolves = append(wolves, g.GEtRoleUsers(&Dreamwolf{})...)
-			if len(wolves) == 1 {
-				(sActionInGameGroup.Info[user.UserID]).Code = 1
-				curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
-			}
+		role := GenerateRole(i)
+		// role.go에 4 프리메이슨이 없어서 체크해야됨
+		if role == nil {
 			continue
 		}
-		curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
+		// 밑에서 getRoleUsers에서 nil나와서 검사 해야됨
+		rIdx := FindRoleIdx(role, g.RoleSeq)
+		if rIdx != -1 {
+			for _, user := range g.GetRoleUsers(role) {
+				sActionInGameGroup.Info[user.UserID] = curInfo
+				if role.String() == (&Werewolf{}).String() {
+					wolves := g.GetRoleUsers(&Werewolf{})
+					//wolves = append(wolves, g.GetRoleUsers(&Misticwolf{})...)
+					//wolves = append(wolves, g.GetRoleUsers(&Alphawolf{})...)
+					//wolves = append(wolves, g.GEtRoleUsers(&Dreamwolf{})...)
+					if len(wolves) == 1 {
+						(sActionInGameGroup.Info[user.UserID]).Code = 1
+						curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
+					}
+					continue
+				}
+				curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
+			}
+		}
 	}
 	curInfo := sActionInGameGroup.Info
 	for i := 0; i < len(g.RoleSeq); i++ {
@@ -232,7 +241,7 @@ func (sActionInGameGroup *ActionInGameGroup) stateFinish() {
 	//guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
 	//isUserIn[m.Author.ID] = true
 
-	sActionInGameGroup.g.CurState = NewStateVote(sActionInGameGroup.g)
+	sActionInGameGroup.g.CurState = NewStateBeforeVote(sActionInGameGroup.g)
 	sActionInGameGroup.g.CurState.InitState()
 	//wfGame.VoteProcess(s, thisGame)
 }
