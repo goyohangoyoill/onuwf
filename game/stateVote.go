@@ -37,6 +37,11 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 			break
 		}
 	}
+	msg := ""
+	msg += v.G.GetRole(r.UserID).String() + " " + v.G.FindUserByUID(r.UserID).nick + " 는 "
+	msg += v.G.GetRole(v.G.UserList[num-1].UserID).String() + " " + v.G.UserList[num-1].nick + "에게 투표하였습니다"
+	v.G.AppendLog(msg)
+
 	if rUserNum < num {
 		num = num + 1
 	}
@@ -52,9 +57,12 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 		}
 		voteResultEmbed := embed.NewEmbed()
 		voteResultEmbed.SetTitle("투표 결과")
+		rMsg := ""
 		for i := 0; i < v.User_num; i++ {
 			if max_value == v.Voted_list[i] {
 				voteResultEmbed.AddField(v.G.UserList[i].nick, v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
+				rMsg += v.G.UserList[i].nick + "는 " + strconv.Itoa(max_value) + "회 지목당해 투표로 사망하였습니다"
+				v.G.AppendLog(rMsg)
 			}
 		}
 		s.ChannelMessageSendEmbed(v.G.ChanID, voteResultEmbed.MessageEmbed)

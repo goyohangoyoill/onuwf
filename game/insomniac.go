@@ -38,8 +38,8 @@ func (is Insomniac) GenLog(tar *TargetObject, player *User, g *Game) {
 	switch tar.actionType {
 	case 2:
 		role := g.GetRole(tar.uid1)
-		msg += "불면증환자 " + player.nick + "` 는 "
-		msg += "`자신의 직업 `" + role.String() + "`을 (를) 확인했습니다."
+		msg += "불면증환자 `" + player.nick + "` 는 "
+		msg += "자신의 직업 `" + role.String() + "`을 (를) 확인했습니다."
 	}
 	g.AppendLog(msg)
 }

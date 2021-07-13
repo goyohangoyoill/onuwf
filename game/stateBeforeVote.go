@@ -55,7 +55,6 @@ func (sb *StateBeforeVote) InitState() {
 	role := GenerateRole(9)
 	InsomUsers := sb.G.GetOriRoleUsers(role)
 	for i := 0; i < len(InsomUsers); i++ {
-		//role := GenerateRole(15)
 		tar := &TargetObject{2, InsomUsers[i].UserID, "", 0}
 		role.SendUserSelectGuide(InsomUsers[i], sb.G, 0)
 		role.Action(tar, InsomUsers[i], sb.G)
@@ -69,11 +68,8 @@ func (sb *StateBeforeVote) InitState() {
 		sb.Info[user.UserID] = curInfo
 		curInfo.MsgID = role.SendUserSelectGuide(user, sb.G, 1)
 	}
-	//curInfo := &DMInfo{"", make(chan int), 0}
 	curInfo := sb.Info
 	for i := 0; i < len(DrunkUsers); i++ {
-		//curInfo.MsgID = role.SendUserSelectGuide(DrunkUsers[i], sb.G, 1)
-		//curInfo := sb.Info
 		input := <-curInfo[DrunkUsers[i].UserID].Choice
 		tar := &TargetObject{1, DrunkUsers[i].UserID, "", input - 1}
 
