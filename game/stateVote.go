@@ -54,7 +54,7 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 		voteResultEmbed.SetTitle("투표 결과")
 		for i := 0; i < v.User_num; i++ {
 			if max_value == v.Voted_list[i] {
-				voteResultEmbed.AddField(v.G.UserList[i].nick, v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
+				voteResultEmbed.AddField(v.G.UserList[i].nick, "`"+v.G.GetRole(v.G.UserList[i].UserID).String()+"` "+v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
 			}
 		}
 		s.ChannelMessageSendEmbed(v.G.ChanID, voteResultEmbed.MessageEmbed)
