@@ -77,14 +77,15 @@ func (sActionSentinel *ActionSentinel) InitState() {
 	// sentinel role을 가지고 있는 유저들에게 능력사용 메세지 보낸 후 MessageID 저장
 	g := sActionSentinel.g
 	role := &Sentinel{}
-	users := g.GetOriRoleUsers(role)
-	sActionSentinel.UserChoice = make(chan Choice)
-	sActionSentinel.sentinelMsgsID = make(map[string]string)
-	for _, user := range users {
-		sActionSentinel.sentinelMsgsID[user.UserID] = role.SendUserSelectGuide(user, g, 0)
-	}
-	cnt := 0
-	if len(users) != 0 {
+	rIdx := FindRoleIdx(role, sActionSentinel.g.RoleSeq)
+	if rIdx != -1 {
+		users := g.GetOriRoleUsers(role)
+		sActionSentinel.UserChoice = make(chan Choice)
+		sActionSentinel.sentinelMsgsID = make(map[string]string)
+		for _, user := range users {
+			sActionSentinel.sentinelMsgsID[user.UserID] = role.SendUserSelectGuide(user, g, 0)
+		}
+		cnt := 0
 		for input := range sActionSentinel.UserChoice {
 			if input.num == -1 {
 				tar := &TargetObject{2, "", "", -1}
