@@ -214,7 +214,7 @@ func (sActionInGameGroup *ActionInGameGroup) stateFinish(s *discordgo.Session, r
 	//guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
 	//isUserIn[m.Author.ID] = true
 
-	sActionInGameGroup.g.CurState = NewStateVote(sActionInGameGroup.g)
+	sActionInGameGroup.g.CurState = NewStateBeforeVote(sActionInGameGroup.g)
 	sActionInGameGroup.g.CurState.InitState()
 	//wfGame.VoteProcess(s, thisGame)
 }

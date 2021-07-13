@@ -7,13 +7,26 @@ import (
 // State 는 리액션 입력이 발생했을 때 현재 상태에 따라 다른 함수를 호출하는 작업을 수행하는
 // 인터페이스로, 숫자 버튼, 쓰레기통 버튼, 예/아니오 버튼, 방향 버튼을 인식할 수 있게 구현한다.
 type StateBeforeVote struct {
-	G *Game
+	G    *Game
+	Info map[string]*DMInfo
+}
+
+func NewStateBeforeVote(g *Game) *StateBeforeVote {
+	ac := &StateBeforeVote{}
+	ac.G = g
+	ac.Info = make(map[string]*DMInfo)
+	return ac
 }
 
 // 사용자 인원수 3 ~ 26
 // num: 0 ~ 23
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 state에서 하는 동작
 func (sb *StateBeforeVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+	player := sb.G.FindUserByUID(r.UserID)
+	curInfo := sb.Info[player.UserID]
+	s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
+
+	curInfo.Choice <- num
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 state에서 하는 동작
@@ -38,7 +51,8 @@ func (sb *StateBeforeVote) PressDirBtn(s *discordgo.Session, r *discordgo.Messag
 func (sb *StateBeforeVote) InitState() {
 	//불면증, 주정뱅이 각각의 rolemsg는 이전 state에서 보내야함
 	//능력사용
-	role := GenerateRole(15)
+
+	role := GenerateRole(9)
 	InsomUsers := sb.G.GetOriRoleUsers(role)
 	for i := 0; i < len(InsomUsers); i++ {
 		//role := GenerateRole(15)
@@ -47,12 +61,33 @@ func (sb *StateBeforeVote) InitState() {
 		role.GenLog(tar, InsomUsers[i], sb.G)
 	}
 
+	role = GenerateRole(8)
+	DrunkUsers := sb.G.GetOriRoleUsers(role)
+	for _, user := range DrunkUsers {
+		curInfo := &DMInfo{"", make(chan int), 0}
+		sb.Info[user.UserID] = curInfo
+		//curInfo.MsgID = role.SendUserSelectGuide(user, sb.G, 1)
+	}
+	//curInfo := &DMInfo{"", make(chan int), 0}
+	curInfo := sb.Info
+	for i := 0; i < len(DrunkUsers); i++ {
+		//curInfo.MsgID = role.SendUserSelectGuide(DrunkUsers[i], sb.G, 1)
+		//curInfo := sb.Info
+		input := <-curInfo[DrunkUsers[i].UserID].Choice
+		tar := &TargetObject{1, DrunkUsers[i].UserID, "", input - 1}
+
+		role.Action(tar, DrunkUsers[i], sb.G)
+		role.GenLog(tar, DrunkUsers[i], sb.G)
+	}
+	sb.stateFinish(sb.G.Session, nil)
 }
 
 // stateFinish 함수는 현재 state가 끝나고 다음 state로 넘어갈 때 호출되는 함수입니다.
 // game의 CurState 변수에 다음 state를 생성해서 할당해준 다음
 // 다음 state의 InitState() 함수를 이 함수 안에서 호출해야 합니다
 func (sb *StateBeforeVote) stateFinish(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+	sb.G.CurState = NewStateVote(sb.G)
+	sb.G.CurState.InitState()
 }
 
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.

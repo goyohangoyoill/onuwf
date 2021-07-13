@@ -38,7 +38,7 @@ func init() {
 	emj = EmojiInit()
 	RoleGuideInit(&rg)
 	util.ReadJSON(rg)
-	util.MongoConn(env)
+	//util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)
 	guildChanToGameData = make(map[string]*wfGame.Game)
