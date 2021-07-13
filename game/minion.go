@@ -37,6 +37,9 @@ func (min *Minion) Action(tar *TargetObject, player *User, g *Game) {
 		for i, wfUser := range wfList {
 			minEmbed.AddField(strconv.Itoa(i+1)+"번", "`"+wfUser.nick+"`")
 		}
+		if len(wfList) == 0 {
+			minEmbed.AddField("없습니다.", "당신이 유일한 늑대인간 진영입니다. 살아남으세요.")
+		}
 		minEmbed.InlineAllFields()
 	}
 	g.Session.ChannelMessageSendEmbed(player.dmChanID, minEmbed.MessageEmbed)
