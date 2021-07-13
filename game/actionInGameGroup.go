@@ -182,6 +182,15 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 				role.Action(tar, user, g)
 				role.GenLog(tar, user, g)
 			}
+		case (&Freemason{}).String():
+			frmUserList := uList
+			tar := &TargetObject{-1, "", "", -1}
+			if len(frmUserList) != 0 {
+				role.GenLog(tar, frmUserList[0], g)
+			}
+			for _, user := range frmUserList {
+				role.Action(tar, user, g)
+			}
 		case (&Seer{}).String():
 			seerUserList := uList
 			for _, user := range seerUserList {

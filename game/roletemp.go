@@ -37,7 +37,7 @@ func (tmp *Temp) Action(tar *TargetObject, player *User, g *Game) {
 }
 
 // GenLog 함수는 <직업명> 의 특수능력 사용에 대한 함수이다.
-func (tmp Temp) GenLog(tar TargetObject, player *User, g *Game) {
+func (tmp Temp) GenLog(tar *TargetObject, player *User, g *Game) {
 	g.AppendLog("여기에 로그 메시지를 입력하세요")
 }
 
