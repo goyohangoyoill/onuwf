@@ -3,7 +3,6 @@ package util
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -53,10 +52,6 @@ func readNoteJSON(rg []wfGame.RoleGuide) {
 		}
 		noteMsg += "\n"
 	}
-	fmt.Println(noteMsg)
-	fmt.Println()
-	fmt.Println()
-	fmt.Println()
 	list := roleList(rg)
 	for i, item := range list {
 		noteMsg += item + " "
@@ -64,5 +59,4 @@ func readNoteJSON(rg []wfGame.RoleGuide) {
 			noteMsg += "\n"
 		}
 	}
-	fmt.Println(noteMsg)
 }
