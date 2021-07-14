@@ -39,9 +39,7 @@ func (dr *Drunk) Action(tar *TargetObject, player *User, g *Game) {
 		g.SwapRoleFromDiscard(player.UserID, tar.disRoleIdx)
 
 	}
-	curEmbed := embed.NewEmbed()
-	curEmbed.SetDescription("변경된 당신의 직업은" + "` " + g.GetRole(player.UserID).String() + " `" + "입니다.")
-	g.Session.ChannelMessageSendEmbed(player.dmChanID, curEmbed.MessageEmbed)
+
 }
 
 // GenLog 함수는 <직업명> 의 특수능력 사용에 대한 함수이다.

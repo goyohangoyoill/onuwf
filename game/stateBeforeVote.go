@@ -84,6 +84,7 @@ func (sb *StateBeforeVote) InitState() {
 			role.Action(tar, DrunkUsers[i], sb.G)
 			role.GenLog(tar, DrunkUsers[i], sb.G)
 		}
+		sb.G.AppendLog("")
 	}
 	sb.stateFinish()
 }
