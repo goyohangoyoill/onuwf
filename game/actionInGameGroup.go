@@ -140,10 +140,10 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 		if role.String() == (&Sentinel{}).String() {
 			continue
 		} else if role.String() == (&Werewolf{}).String() {
-			wolves := g.GetRoleUsers(&Werewolf{})
-			//wolves = append(wolves, g.GetRoleUsers(&Misticwolf{})...)
-			//wolves = append(wolves, g.GetRoleUsers(&Alphawolf{})...)
-			//wolves = append(wolves, g.GEtRoleUsers(&Dreamwolf{})...)
+			wolves := g.GetOriRoleUsers(&Werewolf{})
+			//wolves = append(wolves, g.GetOriRoleUsers(&Misticwolf{})...)
+			//wolves = append(wolves, g.GetOriRoleUsers(&Alphawolf{})...)
+			//wolves = append(wolves, g.GetOriRoleUsers(&Dreamwolf{})...)
 			if len(wolves) == 1 {
 				(sActionInGameGroup.Info[user.UserID]).Code = 1
 				curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
@@ -192,11 +192,11 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 				role.Action(tar, user, g)
 			}
 		case (&Seer{}).String():
-			seerUserList := uList
+			seerUserList := g.GetOriRoleUsersWithoutDpl(role)
 			for _, user := range seerUserList {
 				input := <-curInfo[user.UserID].Choice
 				if input == -1 {
-					tar := &TargetObject{3, "", "", <-curInfo[user.UserID].Choice}
+					tar := &TargetObject{3, "", "", <-curInfo[user.UserID].Choice - 1}
 					role.Action(tar, user, g)
 					role.GenLog(tar, user, g)
 				} else {
@@ -206,7 +206,7 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 				}
 			}
 		case (&Robber{}).String():
-			rbUserList := uList
+			rbUserList := g.GetOriRoleUsersWithoutDpl(role)
 			for _, user := range rbUserList {
 				input := <-curInfo[user.UserID].Choice
 				tar := &TargetObject{2, g.UserList[input-1].UserID, "", -1}
@@ -214,7 +214,7 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 				role.GenLog(tar, user, g)
 			}
 		case (&TroubleMaker{}).String():
-			tmUserList := uList
+			tmUserList := g.GetOriRoleUsersWithoutDpl(role)
 			for _, user := range tmUserList {
 				var input1, input2 int
 				for {

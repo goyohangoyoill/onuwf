@@ -20,7 +20,7 @@ func (rb *Robber) SendUserSelectGuide(player *User, g *Game, pageNum int) string
 		if !g.IsProtected(user.UserID) {
 			curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", user.nick)
 		} else {
-			curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", "~"+user.nick+"~")
+			curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", "🛡"+user.nick)
 		}
 	}
 	curEmbed.InlineAllFields()
