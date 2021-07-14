@@ -21,7 +21,7 @@ type Choice struct {
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
-func (sActionSentinel *ActionSentinel) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+func (sActionSentinel *ActionSentinel) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sActionSentinel.filterReaction(s, r) {
 		return
@@ -35,7 +35,7 @@ func (sActionSentinel *ActionSentinel) PressNumBtn(s *discordgo.Session, r *disc
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
-func (sActionSentinel *ActionSentinel) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sActionSentinel *ActionSentinel) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sActionSentinel.filterReaction(s, r) {
 		return
@@ -45,7 +45,7 @@ func (sActionSentinel *ActionSentinel) PressDisBtn(s *discordgo.Session, r *disc
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
-func (sActionSentinel *ActionSentinel) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sActionSentinel *ActionSentinel) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sActionSentinel.filterReaction(s, r) {
 		return
@@ -54,7 +54,7 @@ func (sActionSentinel *ActionSentinel) PressYesBtn(s *discordgo.Session, r *disc
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
-func (sActionSentinel *ActionSentinel) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sActionSentinel *ActionSentinel) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sActionSentinel.filterReaction(s, r) {
 		return
@@ -63,7 +63,7 @@ func (sActionSentinel *ActionSentinel) PressNoBtn(s *discordgo.Session, r *disco
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
-func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sActionSentinel.filterReaction(s, r) {
 		return
@@ -118,7 +118,7 @@ func (sActionSentinel *ActionSentinel) stateFinish() {
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
-func (sActionSentinel *ActionSentinel) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
+func (sActionSentinel *ActionSentinel) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
 	// 현재 스테이트에서 보낸 메세지에 리액션한 게 아니면 거름
 	for _, MsgID := range sActionSentinel.sentinelMsgsID {
 		if r.MessageID == MsgID {

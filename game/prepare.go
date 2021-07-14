@@ -23,25 +23,17 @@ type Prepare struct {
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
-	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
-	if sPrepare.filterReaction(s, r) {
-		return
-	}
+func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	// do nothing
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
-	if sPrepare.filterReaction(s, r) {
-		return
-	}
+func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// do nothing
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sPrepare.filterReaction(s, r) {
 		return
@@ -59,10 +51,11 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 	// 직업 추가 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sPrepare.filterReaction(s, r) {
 		return
@@ -73,6 +66,10 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 		sPrepare.g.DelUserByID(r.UserID)
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
+		if sPrepare.roleIndex == 2 {
+			s.ChannelMessageSend(sPrepare.g.ChanID, "늑대인간은 2개 있어야 합니다")
+			return
+		}
 		// role 생성해서 game의 RoleView와 RoleSeq에서 찾아 제거
 		sPrepare.g.DelRole(sPrepare.roleIndex)
 	}
@@ -80,10 +77,11 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 	// 직업 추가 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sPrepare.filterReaction(s, r) {
 		return
@@ -106,10 +104,15 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 		// 직업 추가 메세지 반영
 		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
 	}
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // InitState 함수는 prepare state가 시작할 때 입장, 직업추가 메세지를 보냅니다.
 func (sPrepare *Prepare) InitState() {
+	// 늑대인간 2개 추가
+	sPrepare.g.AddRole(2)
+	sPrepare.g.AddRole(2)
+
 	enterEmbed := sPrepare.NewEnterEmbed()
 	roleEmbed := sPrepare.NewRoleEmbed()
 	s := sPrepare.g.Session
@@ -134,13 +137,11 @@ func (sPrepare *Prepare) stateFinish() {
 }
 
 // filterReaction 함수는 입장 메세지랑 직업추가 메세지에 리액션한게 아니면 걸러준다.
-func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
+func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
 	// 현재 스테이트에서 보낸 메세지에 리액션한 게 아니면 거름
 	if !(r.MessageID == sPrepare.EnterGameMsg.ID || r.MessageID == sPrepare.RoleAddMsg.ID) {
 		return true
 	}
-	// 메세지에 리액션한 거 지워줌
-	s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	if nil == sPrepare.g.FindUserByUID(r.UserID) && !(r.MessageID == sPrepare.EnterGameMsg.ID && r.Emoji.Name == sPrepare.g.Emj["YES"]) {
 		return true
 	}

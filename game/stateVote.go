@@ -26,9 +26,25 @@ func NewStateVote(g *Game) *StateVote {
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	//num를 받음
 	//해당 index list count +1
+
+	rUserNum := 9999
+	for i := 0; i < num; i++ {
+		if r.UserID == v.G.UserList[i].UserID {
+			rUserNum = i
+			break
+		}
+	}
+	msg := ""
+	msg += v.G.GetRole(r.UserID).String() + " " + v.G.FindUserByUID(r.UserID).nick + " 는 "
+	msg += v.G.GetRole(v.G.UserList[num-1].UserID).String() + " " + v.G.UserList[num-1].nick + "에게 투표하였습니다"
+	v.G.AppendLog(msg)
+
+	if rUserNum < num {
+		num = num + 1
+	}
 	v.Voted_list[num-1]++
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
 	v.Vote_count++
@@ -42,8 +58,11 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 		voteResultEmbed := embed.NewEmbed()
 		voteResultEmbed.SetTitle("투표 결과")
 		for i := 0; i < v.User_num; i++ {
+			rMsg := ""
 			if max_value == v.Voted_list[i] {
-				voteResultEmbed.AddField(v.G.UserList[i].nick, v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
+				voteResultEmbed.AddField(v.G.UserList[i].nick, "`"+v.G.GetRole(v.G.UserList[i].UserID).String()+"` "+v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
+				rMsg += v.G.UserList[i].nick + "는 " + strconv.Itoa(max_value) + "회 지목당해 투표로 사망하였습니다"
+				v.G.AppendLog(rMsg)
 			}
 		}
 		s.ChannelMessageSendEmbed(v.G.ChanID, voteResultEmbed.MessageEmbed)
@@ -51,22 +70,22 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (v *StateVote) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	//do nothing
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (v *StateVote) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	//do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (v *StateVote) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	//do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+func (v *StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
 	//do nothing
 }
 
@@ -90,7 +109,7 @@ func (v *StateVote) stateFinish() {
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
-func (v *StateVote) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
+func (v *StateVote) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
 	// do nothing
 	return false
 }
@@ -124,6 +143,7 @@ func SendVoteDM(s *discordgo.Session, g *Game, UserNum int) {
 	voteEmbed.SetAuthor(g.UserList[UserNum].nick)
 	voteEmbed.InlineAllFields()
 	UserDM, _ := s.UserChannelCreate(g.UserList[UserNum].UserID) //g.UserList[0] -> g.UsrList[UserNum] change need(test용)
+	voteEmbed.InlineAllFields()
 	voteMsg, _ := s.ChannelMessageSendEmbed(UserDM.ID, voteEmbed.MessageEmbed)
 	addNumAddEmoji(s, voteMsg, g)
 }

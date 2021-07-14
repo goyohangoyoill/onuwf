@@ -37,7 +37,7 @@ func init() {
 	env = EnvInit()
 	emj = EmojiInit()
 	RoleGuideInit(&rg)
-	//util.ReadJSON(rg)
+	util.ReadJSON(rg)
 	//util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)
@@ -98,7 +98,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	switch m.Content {
-	case "ㅁ시작":
+	case prefix + "시작":
 		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
 			return
@@ -109,7 +109,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
-	case "ㅁ강제종료":
+	case prefix + "강제종료":
 		if isUserIn[m.Author.ID] {
 			s.ChannelMessageSend(m.ChannelID, "3초 후 게임을 강제종료합니다.")
 			time.Sleep(3 * time.Second)
@@ -125,23 +125,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
 		}
-	case "ㅁ투표":
-		uidChan := make(chan string, 7)
-		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, uidChan, nil, nil)
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "jae-kim", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "juhur", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "min-jo", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "kalee", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "apple", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "banana", m.ChannelID, m.ChannelID))
-
-		voted_list := make([]int, len(thisGame.UserList))
-		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList), 0}
-		guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
-		isUserIn[m.Author.ID] = true
-		thisGame.CurState = temp
-		wfGame.VoteProcess(s, thisGame)
-	case "ㅁ확인":
+	case prefix + "확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g != nil {
 			Server, _ := s.State.Guild(m.GuildID)
@@ -196,26 +180,26 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	for i := 1; i < 10; i++ {
 		emjID := "n" + strconv.Itoa(i)
 		if r.Emoji.Name == emj[emjID] {
-			go g.CurState.PressNumBtn(s, r, i)
+			go g.CurState.PressNumBtn(s, r.MessageReaction, i)
 			break
 		}
 	}
 	switch r.Emoji.Name {
 	case emj["DISCARD"]:
 		// 쓰레기통 이모지 선택.
-		g.CurState.PressDisBtn(s, r)
+		g.CurState.PressDisBtn(s, r.MessageReaction)
 	case emj["YES"]:
 		// O 이모지 선택.
-		g.CurState.PressYesBtn(s, r)
+		g.CurState.PressYesBtn(s, r.MessageReaction)
 	case emj["NO"]:
 		// X 이모지 선택.
-		g.CurState.PressNoBtn(s, r)
+		g.CurState.PressNoBtn(s, r.MessageReaction)
 	case emj["LEFT"]:
 		// 왼쪽 화살표 선택.
-		g.CurState.PressDirBtn(s, r, -1)
+		g.CurState.PressDirBtn(s, r.MessageReaction, -1)
 	case emj["RIGHT"]:
 		// 오른쪽 화살표 선택.
-		g.CurState.PressDirBtn(s, r, 1)
+		g.CurState.PressDirBtn(s, r.MessageReaction, 1)
 	}
 }
 

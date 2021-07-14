@@ -70,10 +70,14 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.EnterUserIDChan = enterUserIDChan
 	g.QuitUserIDChan = quitUserIDChan
 	g.GameStartedChan = gameStartedChan
-	g.UserList = make([]*User, 0)
-	g.RoleSeq = make([]Role, 0)
-	g.RoleView = make([]Role, 0)
-	g.DisRole = make([]Role, 3)
+	var maxrole int
+	for _, roleItem := range rg {
+		maxrole += roleItem.Max
+	}
+	g.UserList = make([]*User, 0, maxrole-3)
+	g.RoleSeq = make([]Role, 0, len(rg))
+	g.RoleView = make([]Role, 0, maxrole)
+	g.DisRole = make([]Role, 3, 3)
 	g.LogMsg = make([]string, 0)
 	g.SetUserByID(muid)
 	g.CurState = &Prepare{g, 0, nil, nil}

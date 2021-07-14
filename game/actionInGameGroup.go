@@ -25,7 +25,7 @@ func NewActionInGameGroup(g *Game) *ActionInGameGroup {
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
-func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	role := sActionInGameGroup.g.GetOriRole(r.UserID)
 	player := sActionInGameGroup.g.FindUserByUID(r.UserID)
 	curInfo := sActionInGameGroup.Info[player.UserID]
@@ -100,7 +100,7 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
-func (sActionInGameGroup *ActionInGameGroup) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sActionInGameGroup *ActionInGameGroup) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	role := sActionInGameGroup.g.GetOriRole(r.UserID)
 	player := sActionInGameGroup.g.FindUserByUID(r.UserID)
 	curInfo := sActionInGameGroup.Info[player.UserID]
@@ -116,41 +116,50 @@ func (sActionInGameGroup *ActionInGameGroup) PressDisBtn(s *discordgo.Session, r
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
-func (sActionInGameGroup *ActionInGameGroup) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sActionInGameGroup *ActionInGameGroup) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
-func (sActionInGameGroup *ActionInGameGroup) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sActionInGameGroup *ActionInGameGroup) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
-func (sActionInGameGroup *ActionInGameGroup) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+func (sActionInGameGroup *ActionInGameGroup) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
 	// do nothing
 }
 
 // InitState 함수는 ActionInGameGroup state 가 시작되었을 때 호출되는 메소드이다.
 func (sActionInGameGroup *ActionInGameGroup) InitState() {
 	g := sActionInGameGroup.g
-	for _, user := range g.UserList {
+	// 늑대인간2 부터 말썽쟁이7 까지
+	for i := 2; i < 8; i++ {
 		curInfo := &DMInfo{"", make(chan int), 0}
-		sActionInGameGroup.Info[user.UserID] = curInfo
-		role := g.GetOriRole(user.UserID)
-		if role.String() == (&Sentinel{}).String() {
-			continue
-		} else if role.String() == (&Werewolf{}).String() {
-			wolves := g.GetOriRoleUsers(&Werewolf{})
-			//wolves = append(wolves, g.GetOriRoleUsers(&Misticwolf{})...)
-			//wolves = append(wolves, g.GetOriRoleUsers(&Alphawolf{})...)
-			//wolves = append(wolves, g.GetOriRoleUsers(&Dreamwolf{})...)
-			if len(wolves) == 1 {
-				(sActionInGameGroup.Info[user.UserID]).Code = 1
-				curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
-			}
+		role := GenerateRole(i)
+		// role.go에 4 프리메이슨이 없어서 체크해야됨
+		if role == nil {
 			continue
 		}
-		curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
+		// 밑에서 getRoleUsers에서 nil나와서 검사 해야됨
+		uList := g.GetRoleUsers(role)
+		if uList != nil {
+			for _, user := range uList {
+				sActionInGameGroup.Info[user.UserID] = curInfo
+				if role.String() == (&Werewolf{}).String() {
+					wolves := g.GetOriRoleUsers(&Werewolf{})
+					//wolves = append(wolves, g.GetOriRoleUsers(&Misticwolf{})...)
+					//wolves = append(wolves, g.GetOriRoleUsers(&Alphawolf{})...)
+					//wolves = append(wolves, g.GetOriRoleUsers(&Dreamwolf{})...)
+					if len(wolves) == 1 {
+						(sActionInGameGroup.Info[user.UserID]).Code = 1
+						curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
+					}
+					continue
+				}
+				curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
+			}
+		}
 	}
 	curInfo := sActionInGameGroup.Info
 	for i := 0; i < len(g.RoleSeq); i++ {
@@ -210,8 +219,8 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 			for _, user := range rbUserList {
 				input := <-curInfo[user.UserID].Choice
 				tar := &TargetObject{2, g.UserList[input-1].UserID, "", -1}
-				role.Action(tar, user, g)
 				role.GenLog(tar, user, g)
+				role.Action(tar, user, g)
 			}
 		case (&TroubleMaker{}).String():
 			tmUserList := g.GetOriRoleUsersWithoutDpl(role)
@@ -241,7 +250,7 @@ func (sActionInGameGroup *ActionInGameGroup) stateFinish() {
 	//guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
 	//isUserIn[m.Author.ID] = true
 
-	sActionInGameGroup.g.CurState = NewStateVote(sActionInGameGroup.g)
+	sActionInGameGroup.g.CurState = NewStateBeforeVote(sActionInGameGroup.g)
 	sActionInGameGroup.g.CurState.InitState()
 	//wfGame.VoteProcess(s, thisGame)
 }
@@ -249,7 +258,7 @@ func (sActionInGameGroup *ActionInGameGroup) stateFinish() {
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
-func (sActionInGameGroup *ActionInGameGroup) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
+func (sActionInGameGroup *ActionInGameGroup) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
 	return false
 	// do nothing
 }
