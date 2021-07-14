@@ -98,7 +98,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	switch m.Content {
-	case "ㅁ시작":
+	case prefix + "시작":
 		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
 			return
@@ -109,7 +109,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
-	case "ㅁ강제종료":
+	case prefix + "강제종료":
 		if isUserIn[m.Author.ID] {
 			s.ChannelMessageSend(m.ChannelID, "3초 후 게임을 강제종료합니다.")
 			time.Sleep(3 * time.Second)
@@ -125,7 +125,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
 		}
-	case "ㅁ확인":
+	case prefix + "확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g != nil {
 			Server, _ := s.State.Guild(m.GuildID)
