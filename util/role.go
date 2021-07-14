@@ -39,7 +39,7 @@ func roleList(rg []wfGame.RoleGuide) []string {
 
 // "ㅁ직업소개 <직업명>", "ㅁ직업소개" 입력시 실행되는 함수
 // 메세지 출력시: true, 미출력시: false
-func printRoleInfo(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame.RoleGuide) bool {
+func printRoleInfo(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame.RoleGuide, prefix string) bool {
 	// "ㅁ직업소개"로 시작하지 않는 명령어
 	if !strings.HasPrefix(m.Content, prefix+"직업소개") {
 		return false
@@ -73,7 +73,7 @@ func printRoleInfo(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame
 }
 
 // "ㅁ직업목록" 명령어 입력시 실행되는 함수
-func printRoleList(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame.RoleGuide) {
+func printRoleList(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame.RoleGuide, prefix string) {
 	if m.Content != prefix+"직업목록" {
 		return
 	}
@@ -92,7 +92,7 @@ func printRoleList(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame
 }
 
 // "ㅁ능력순서" 명령어 입력시 실행되는 함수
-func printSkillOrder(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame.RoleGuide) {
+func printSkillOrder(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame.RoleGuide, prefix string) {
 	if m.Content != prefix+"능력순서" {
 		return
 	}

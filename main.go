@@ -37,7 +37,7 @@ func init() {
 	env = EnvInit()
 	emj = EmojiInit()
 	RoleGuideInit(&rg)
-	util.ReadJSON(rg)
+	util.ReadJSON(rg, prefix)
 	//util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)
@@ -94,7 +94,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// 명령어모음
-	if util.PrintHelpList(s, m, rg) {
+	if util.PrintHelpList(s, m, rg, prefix) {
 		return
 	}
 	switch m.Content {

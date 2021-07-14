@@ -8,28 +8,24 @@ import (
 	wfGame "onuwf.com/game"
 )
 
-const (
-	prefix = "ㅁ"
-)
-
 // ReadJSON ./asset에 있는 json파일들을 읽어오는 함수
-func ReadJSON(rg []wfGame.RoleGuide) {
+func ReadJSON(rg []wfGame.RoleGuide, prefix string) {
 	// 명령어
-	readCommandJSON()
+	readCommandJSON(prefix)
 	// 게임방법
-	readRuleJSON()
+	readRuleJSON(prefix)
 	// 참고
 	readNoteJSON(rg)
 	// 게임배경
-	readBackgroundJSON()
+	readBackgroundJSON(prefix)
 	// 승리조건
 	readVictoryConditionJSON()
 }
 
 // PrintHelpList 게임진행에 관련된 명령어가 입력될시 각 명령어에 해당하는 메시지를 출력하는 함수
-func PrintHelpList(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame.RoleGuide) bool {
+func PrintHelpList(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame.RoleGuide, prefix string) bool {
 	// "ㅁ직업소개 <직업명>" or "ㅁ직업소개 모두"
-	if printRoleInfo(s, m, rg) {
+	if printRoleInfo(s, m, rg, prefix) {
 		return true
 	}
 	switch m.Content {
@@ -49,9 +45,9 @@ func PrintHelpList(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame
 	case prefix + "승리조건":
 		s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed(vcTitle, vcMsg))
 	case prefix + "직업목록":
-		printRoleList(s, m, rg)
+		printRoleList(s, m, rg, prefix)
 	case prefix + "능력순서":
-		printSkillOrder(s, m, rg)
+		printSkillOrder(s, m, rg, prefix)
 	default:
 		return false
 	}

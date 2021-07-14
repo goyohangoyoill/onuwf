@@ -24,7 +24,7 @@ type commandList struct {
 }
 
 // command.json 파일 읽어서 "ㅁ명령어" 실행시 출력할 데이터 세팅
-func readCommandJSON() {
+func readCommandJSON(prefix string) {
 	cmdFile, err := os.Open("./asset/command.json")
 	if err != nil {
 		log.Fatal(err)
