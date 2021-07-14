@@ -147,8 +147,6 @@ func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.Messa
 	if !(r.MessageID == sPrepare.EnterGameMsg.ID || r.MessageID == sPrepare.RoleAddMsg.ID) {
 		return true
 	}
-	// 메세지에 리액션한 거 지워줌
-	s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 	if nil == sPrepare.g.FindUserByUID(r.UserID) && !(r.MessageID == sPrepare.EnterGameMsg.ID && r.Emoji.Name == sPrepare.g.Emj["YES"]) {
 		return true
 	}
