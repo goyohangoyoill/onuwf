@@ -23,7 +23,7 @@ type Prepare struct {
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sPrepare.filterReaction(s, r) {
 		return
@@ -32,7 +32,7 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sPrepare.filterReaction(s, r) {
 		return
@@ -41,7 +41,7 @@ func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageR
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sPrepare.filterReaction(s, r) {
 		return
@@ -62,7 +62,7 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sPrepare.filterReaction(s, r) {
 		return
@@ -87,7 +87,7 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sPrepare.filterReaction(s, r) {
 		return
@@ -142,7 +142,7 @@ func (sPrepare *Prepare) stateFinish() {
 }
 
 // filterReaction 함수는 입장 메세지랑 직업추가 메세지에 리액션한게 아니면 걸러준다.
-func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
+func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
 	// 현재 스테이트에서 보낸 메세지에 리액션한 게 아니면 거름
 	if !(r.MessageID == sPrepare.EnterGameMsg.ID || r.MessageID == sPrepare.RoleAddMsg.ID) {
 		return true

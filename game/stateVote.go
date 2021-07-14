@@ -26,7 +26,7 @@ func NewStateVote(g *Game) *StateVote {
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	//num를 받음
 	//해당 index list count +1
 
@@ -62,22 +62,22 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (v *StateVote) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	//do nothing
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (v *StateVote) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	//do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (v *StateVote) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	//do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 state에서 하는 동작
-func (v *StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+func (v *StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
 	//do nothing
 }
 
@@ -101,7 +101,7 @@ func (v *StateVote) stateFinish() {
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
-func (v *StateVote) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
+func (v *StateVote) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
 	// do nothing
 	return false
 }
