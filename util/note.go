@@ -3,6 +3,7 @@ package util
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -21,8 +22,8 @@ type note struct {
 }
 
 type noteLine struct {
-	Bold string `json:"bold"`
-	Post string `json:"post"`
+	Bold bool   `json:"bold"`
+	Msg  string `json:"msg"`
 }
 
 // note.json 파일 읽어서 "ㅁ참고" 실행시 출력할 데이터 세팅
@@ -44,11 +45,18 @@ func readNoteJSON(rg []wfGame.RoleGuide) {
 	noteTitle = "**" + note.Title + "**"
 	noteMsg = ""
 	for i := 0; i < len(note.Line); i++ {
-		if len(note.Line[i].Bold) > 0 {
-			noteMsg += "**" + note.Line[i].Bold + "**"
+		switch note.Line[i].Bold {
+		case true:
+			noteMsg += "**" + note.Line[i].Msg + "**"
+		case false:
+			noteMsg += note.Line[i].Msg
 		}
-		noteMsg += note.Line[i].Post + "\n"
+		noteMsg += "\n"
 	}
+	fmt.Println(noteMsg)
+	fmt.Println()
+	fmt.Println()
+	fmt.Println()
 	list := roleList(rg)
 	for i, item := range list {
 		noteMsg += item + " "
@@ -56,4 +64,5 @@ func readNoteJSON(rg []wfGame.RoleGuide) {
 			noteMsg += "\n"
 		}
 	}
+	fmt.Println(noteMsg)
 }
