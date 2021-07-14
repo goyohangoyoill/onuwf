@@ -24,19 +24,11 @@ type Prepare struct {
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
-	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
-	if sPrepare.filterReaction(s, r) {
-		return
-	}
 	// do nothing
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
-	if sPrepare.filterReaction(s, r) {
-		return
-	}
 	// do nothing
 }
 
@@ -59,6 +51,7 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 	// 직업 추가 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 Prepare에서 하는 동작
@@ -84,6 +77,7 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 	// 직업 추가 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 Prepare에서 하는 동작
@@ -110,6 +104,7 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 		// 직업 추가 메세지 반영
 		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
 	}
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // InitState 함수는 prepare state가 시작할 때 입장, 직업추가 메세지를 보냅니다.
