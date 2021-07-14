@@ -219,8 +219,8 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 			for _, user := range rbUserList {
 				input := <-curInfo[user.UserID].Choice
 				tar := &TargetObject{2, g.UserList[input-1].UserID, "", -1}
-				role.Action(tar, user, g)
 				role.GenLog(tar, user, g)
+				role.Action(tar, user, g)
 			}
 		case (&TroubleMaker{}).String():
 			tmUserList := uList
