@@ -1,4 +1,4 @@
-/* "ㅁ명령어" 명령어 관련 함수 */
+// Package util is a package for json files and database.
 package util
 
 import (

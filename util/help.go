@@ -1,3 +1,4 @@
+// Package util is a package for json files and database.
 package util
 
 import (
@@ -11,6 +12,7 @@ const (
 	prefix = "ㅁ"
 )
 
+// ReadJSON ./asset에 있는 json파일들을 읽어오는 함수
 func ReadJSON(rg []wfGame.RoleGuide) {
 	// 명령어
 	readCommandJSON()
@@ -24,7 +26,7 @@ func ReadJSON(rg []wfGame.RoleGuide) {
 	readVictoryConditionJSON()
 }
 
-// 게임진행에 관련된 명령어가 입력될시 각 명령어에 해당하는 메시지를 출력하는 함수
+// PrintHelpList 게임진행에 관련된 명령어가 입력될시 각 명령어에 해당하는 메시지를 출력하는 함수
 func PrintHelpList(s *discordgo.Session, m *discordgo.MessageCreate, rg []wfGame.RoleGuide) bool {
 	// "ㅁ직업소개 <직업명>" or "ㅁ직업소개 모두"
 	if printRoleInfo(s, m, rg) {
