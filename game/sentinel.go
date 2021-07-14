@@ -16,7 +16,7 @@ func (r *Sentinel) SendUserSelectGuide(player *User, g *Game, pageNum int) (msgI
 	curEmbed := embed.NewEmbed()
 	curEmbed.SetTitle("🛡 수호할 플레이어를 고르세요")
 	for uIdx, user := range g.UserList {
-		curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", "~"+user.nick+"~")
+		curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", user.nick)
 	}
 	curEmbed.InlineAllFields()
 	msgObj, _ := g.Session.ChannelMessageSendEmbed(player.dmChanID, curEmbed.MessageEmbed)

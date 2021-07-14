@@ -142,9 +142,9 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 			continue
 		}
 		// 밑에서 getRoleUsers에서 nil나와서 검사 해야됨
-		uList := g.GetRoleUsers(role)
-		if uList != nil {
-			for _, user := range uList {
+		rIdx := FindRoleIdx(role, g.RoleSeq)
+		if rIdx != -1 {
+			for _, user := range g.GetRoleUsers(role) {
 				sActionInGameGroup.Info[user.UserID] = curInfo
 				if role.String() == (&Werewolf{}).String() {
 					wolves := g.GetOriRoleUsers(&Werewolf{})
