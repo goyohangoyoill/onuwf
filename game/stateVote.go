@@ -57,8 +57,8 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 		}
 		voteResultEmbed := embed.NewEmbed()
 		voteResultEmbed.SetTitle("투표 결과")
-		rMsg := ""
 		for i := 0; i < v.User_num; i++ {
+			rMsg := ""
 			if max_value == v.Voted_list[i] {
 				voteResultEmbed.AddField(v.G.UserList[i].nick, v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
 				rMsg += v.G.UserList[i].nick + "는 " + strconv.Itoa(max_value) + "회 지목당해 투표로 사망하였습니다"

@@ -71,9 +71,6 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	gameStartedChan := make(chan bool)
 	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, enterUserIDChan, quitUserIDChan, gameStartedChan)
 	// Mutex 필요할 것으로 예상됨.
-	curGame.UserList = append(curGame.UserList, wfGame.NewUser(m.Author.ID, "juhur", m.ChannelID, m.ChannelID))
-	curGame.UserList = append(curGame.UserList, wfGame.NewUser(m.Author.ID, "min-jo", m.ChannelID, m.ChannelID))
-	curGame.UserList = append(curGame.UserList, wfGame.NewUser(m.Author.ID, "kalee", m.ChannelID, m.ChannelID))
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
 	uidToGameData[m.Author.ID] = curGame
 	for {

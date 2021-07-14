@@ -46,7 +46,6 @@ func (dr *Drunk) Action(tar *TargetObject, player *User, g *Game) {
 
 // GenLog 함수는 <직업명> 의 특수능력 사용에 대한 함수이다.
 func (dr *Drunk) GenLog(tar *TargetObject, player *User, g *Game) {
-	g.AppendLog("여기에 로그 메시지를 입력하세요")
 	msg := ""
 	switch tar.actionType {
 	case 1:
