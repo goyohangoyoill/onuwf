@@ -77,7 +77,7 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.UserList = make([]*User, 0, maxrole-3)
 	g.RoleSeq = make([]Role, 0, len(rg))
 	g.RoleView = make([]Role, 0, maxrole)
-	g.DisRole = make([]Role, 3, 3)
+	g.DisRole = make([]Role, 3)
 	g.LogMsg = make([]string, 0)
 	g.SetUserByID(muid)
 	g.CurState = &Prepare{g, 0, nil, nil}
@@ -251,6 +251,18 @@ func (g *Game) setRole(uid string, item Role) {
 	g.roleIdxTable[userIdx][roleIdx] = 1
 }
 
+// 도플갱어인 유저의 직업을 업데이트
+func (g *Game) setDplRole(uid string, item Role) {
+	userIdx := FindUserIdx(uid, g.UserList)
+	roleIdx := FindRoleIdx(item, g.RoleSeq)
+	loop := len(g.RoleSeq)
+
+	for i := 0; i < loop; i++ {
+		g.oriRoleIdxTable[userIdx][i] = 0
+	}
+	g.oriRoleIdxTable[userIdx][roleIdx] = 2
+}
+
 // SetDisRole 버려진 직업을 업데이트
 func (g *Game) SetDisRole(disRoleIdx int, item Role) {
 	g.DisRole[disRoleIdx] = item
@@ -303,6 +315,19 @@ func (g *Game) GetOriRoleUsers(find Role) (users []*User) {
 	return result
 }
 
+// GetOriRoleUsersWithoutDpl 특정 원래 직업의 유저 목록 반환.
+func (g *Game) GetOriRoleUsersWithoutDpl(find Role) (users []*User) {
+	result := make([]*User, 0)
+	loop := len(g.UserList)
+	idx := FindRoleIdx(find, g.RoleSeq)
+	for i := 0; i < loop; i++ {
+		if g.oriRoleIdxTable[i][idx] == 1 {
+			result = append(result, g.UserList[i])
+		}
+	}
+	return result
+}
+
 // RotateAllUserRole  모든 사람들의 직업을 입장순서별로 한칸 회전.
 func (g *Game) RotateAllUserRole() {
 	loop := len(g.UserList)
@@ -329,6 +354,12 @@ func (g *Game) SetProtect(uid string) {
 func (g *Game) CopyRole(destUID, srcUID string) {
 	srcRole := g.GetRole(srcUID)
 	g.setRole(destUID, srcRole)
+}
+
+// DplCopyRole 도플갱어인 유저의 직업을 다른 사람것으로 복사
+func (g *Game) DplCopyRole(destUID, srcUID string) {
+	srcRole := g.GetRole(srcUID)
+	g.setDplRole(destUID, srcRole)
 }
 
 // FindUserIdx 유저의 인덱스 찾기를 위한 함수

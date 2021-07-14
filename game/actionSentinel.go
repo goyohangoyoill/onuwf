@@ -111,7 +111,7 @@ func (sActionSentinel *ActionSentinel) InitState() {
 // 다음 state인 ActionDoppelganger의 InitState() 함수를 호출합니다.
 func (sActionSentinel *ActionSentinel) stateFinish() {
 	// ActionDoppelganger의 Msg 변수 초기화
-	sActionSentinel.g.CurState = NewActionInGameGroup(sActionSentinel.g)
+	sActionSentinel.g.CurState = NewActionDoppelganger(sActionSentinel.g)
 	sActionSentinel.g.CurState.InitState()
 }
 

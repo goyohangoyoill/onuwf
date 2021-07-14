@@ -27,10 +27,8 @@ func GenerateRole(num int) (r Role) {
 	switch num {
 	case 0:
 		r = &Sentinel{num}
-		/*
-			case 1:
-				r = &Doppelganger{num}
-		*/
+	case 1:
+		r = &Doppelganger{num}
 	case 2:
 		r = &Werewolf{num}
 		/*

@@ -141,6 +141,7 @@ func SendVoteDM(s *discordgo.Session, g *Game, UserNum int) {
 		voteEmbed.AddField(strconv.Itoa(i+1)+"번 ", g.UserList[j].nick)
 	}
 	voteEmbed.SetAuthor(g.UserList[UserNum].nick)
+	voteEmbed.InlineAllFields()
 	UserDM, _ := s.UserChannelCreate(g.UserList[UserNum].UserID) //g.UserList[0] -> g.UsrList[UserNum] change need(test용)
 	voteEmbed.InlineAllFields()
 	voteMsg, _ := s.ChannelMessageSendEmbed(UserDM.ID, voteEmbed.MessageEmbed)
