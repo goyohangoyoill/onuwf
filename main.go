@@ -53,6 +53,7 @@ func main() {
 	}
 	dg.AddHandler(messageCreate)
 	dg.AddHandler(messageReactionAdd)
+	dg.AddHandler(messageReactionRemove)
 	err = dg.Open()
 	if err != nil {
 		fmt.Println("error opening connection,", err)
@@ -125,22 +126,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
 		}
-	case "ㅁ투표":
-		uidChan := make(chan string, 7)
-		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, uidChan, nil, nil)
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "jae-kim", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "juhur", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "min-jo", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "kalee", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "apple", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "banana", m.ChannelID, m.ChannelID))
-
-		voted_list := make([]int, len(thisGame.UserList))
-		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList), 0}
-		guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
-		isUserIn[m.Author.ID] = true
-		thisGame.CurState = temp
-		wfGame.VoteProcess(s, thisGame)
 	case "ㅁ확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g != nil {
@@ -196,26 +181,70 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	for i := 1; i < 10; i++ {
 		emjID := "n" + strconv.Itoa(i)
 		if r.Emoji.Name == emj[emjID] {
-			go g.CurState.PressNumBtn(s, r, i)
+			go g.CurState.PressNumBtn(s, r.MessageReaction, i)
 			break
 		}
 	}
 	switch r.Emoji.Name {
 	case emj["DISCARD"]:
 		// 쓰레기통 이모지 선택.
-		g.CurState.PressDisBtn(s, r)
+		g.CurState.PressDisBtn(s, r.MessageReaction)
 	case emj["YES"]:
 		// O 이모지 선택.
-		g.CurState.PressYesBtn(s, r)
+		g.CurState.PressYesBtn(s, r.MessageReaction)
 	case emj["NO"]:
 		// X 이모지 선택.
-		g.CurState.PressNoBtn(s, r)
+		g.CurState.PressNoBtn(s, r.MessageReaction)
 	case emj["LEFT"]:
 		// 왼쪽 화살표 선택.
-		g.CurState.PressDirBtn(s, r, -1)
+		g.CurState.PressDirBtn(s, r.MessageReaction, -1)
 	case emj["RIGHT"]:
 		// 오른쪽 화살표 선택.
-		g.CurState.PressDirBtn(s, r, 1)
+		g.CurState.PressDirBtn(s, r.MessageReaction, 1)
+	}
+}
+
+// messageReactionRemove 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.
+func messageReactionRemove(s *discordgo.Session, r *discordgo.MessageReactionRemove) {
+	//fmt.Println(r.UserID, r.MessageID, r.ChannelID, r.GuildID)
+	// 봇 자기자신의 리액션 무시.
+	if r.UserID == s.State.User.ID {
+		return
+	}
+	// 게임 참가중이 아닌 사용자의 리액션 무시.
+	// 단, 참가자가 아니면 참가 가능해야 함. 무시해버리면 참가 못 함.
+	if !(isUserIn[r.UserID] || (!isUserIn[r.UserID] && r.Emoji.Name == emj["YES"])) {
+		return
+	}
+	g := uidToGameData[r.UserID]
+	if g == nil {
+		g = guildChanToGameData[r.GuildID+r.ChannelID]
+		if g == nil {
+			return
+		}
+	}
+	isUserIn[r.UserID] = true
+	// 숫자 이모지 선택.
+	for i := 1; i < 10; i++ {
+		emjID := "n" + strconv.Itoa(i)
+		if r.Emoji.Name == emj[emjID] {
+			go g.CurState.PressNumBtn(s, r.MessageReaction, i)
+			break
+		}
+	}
+	switch r.Emoji.Name {
+	case emj["YES"]:
+		// O 이모지 선택.
+		g.CurState.PressYesBtn(s, r.MessageReaction)
+	case emj["NO"]:
+		// X 이모지 선택.
+		g.CurState.PressNoBtn(s, r.MessageReaction)
+	case emj["LEFT"]:
+		// 왼쪽 화살표 선택.
+		g.CurState.PressDirBtn(s, r.MessageReaction, -1)
+	case emj["RIGHT"]:
+		// 오른쪽 화살표 선택.
+		g.CurState.PressDirBtn(s, r.MessageReaction, 1)
 	}
 }
 
