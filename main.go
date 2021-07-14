@@ -34,8 +34,8 @@ var (
 )
 
 func init() {
-	env = EnvInit()
-	emj = EmojiInit()
+	env = util.EnvInit()
+	emj = util.EmojiInit()
 	RoleGuideInit(&rg)
 	util.ReadJSON(rg, prefix)
 	//util.MongoConn(env)
@@ -203,24 +203,6 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	}
 }
 
-// EnvInit 설치 환경 불러오기.
-func EnvInit() map[string]string {
-	envFile, err := os.Open("asset/env.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer envFile.Close()
-
-	var byteValue []byte
-	byteValue, err = ioutil.ReadAll(envFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	env := make(map[string]string)
-	json.Unmarshal([]byte(byteValue), &env)
-	return env
-}
-
 // RoleGuideInit 직업 가이드 에셋 불러오기.
 func RoleGuideInit(rg *[]wfGame.RoleGuide) {
 	rgFile, err := os.Open("asset/role_guide.json")
@@ -235,22 +217,4 @@ func RoleGuideInit(rg *[]wfGame.RoleGuide) {
 		log.Fatal(err)
 	}
 	json.Unmarshal([]byte(byteValue), rg)
-}
-
-// EmojiInit 이모지 맵에 불러오기.
-func EmojiInit() map[string]string {
-	emjFile, err := os.Open("asset/emoji.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer emjFile.Close()
-
-	var byteValue []byte
-	byteValue, err = ioutil.ReadAll(emjFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	emj := make(map[string]string)
-	json.Unmarshal([]byte(byteValue), &emj)
-	return emj
 }
