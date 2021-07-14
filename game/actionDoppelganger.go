@@ -139,11 +139,11 @@ func (sdpl *ActionDoppelganger) InitState() {
 	g := sdpl.g
 	var role Role
 	role = &Doppelganger{}
-	dplUserList := g.GetOriRoleUsers(role)
-	if len(dplUserList) == 0 {
+	if FindRoleIdx(role, g.RoleSeq) == -1 {
 		sdpl.stateFinish()
 		return
 	}
+	dplUserList := g.GetOriRoleUsers(role)
 	user := dplUserList[0]
 	role.SendUserSelectGuide(user, g, 0)
 	idx := <-sdpl.info.Choice - 1
