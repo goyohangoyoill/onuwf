@@ -39,14 +39,21 @@ func (dr *Drunk) Action(tar *TargetObject, player *User, g *Game) {
 		g.SwapRoleFromDiscard(player.UserID, tar.disRoleIdx)
 
 	}
-	curEmbed := embed.NewEmbed()
-	curEmbed.SetDescription("변경된 당신의 직업은" + "` " + g.GetRole(player.UserID).String() + " `" + "입니다.")
-	g.Session.ChannelMessageSendEmbed(player.dmChanID, curEmbed.MessageEmbed)
+
 }
 
 // GenLog 함수는 <직업명> 의 특수능력 사용에 대한 함수이다.
 func (dr *Drunk) GenLog(tar *TargetObject, player *User, g *Game) {
-	g.AppendLog("여기에 로그 메시지를 입력하세요")
+	msg := ""
+	switch tar.actionType {
+	case 1:
+		Orirole := g.GetOriRole(tar.uid1)
+		role := g.GetRole(tar.uid1)
+		msg += "주정뱅이 `" + player.nick + "` 는 "
+		msg += "자신의 직업 `" + Orirole.String() + "`을(를) 버려진 카드`" + role.String() + "`와(과) 교환했습니다."
+	}
+	g.AppendLog(msg)
+
 }
 
 // String 함수는 <직업명> 문자열을 반환하는 함수이다.
