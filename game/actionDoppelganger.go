@@ -20,7 +20,7 @@ func NewActionDoppelganger(g *Game) *ActionDoppelganger {
 }
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 ActionDoppelganger에서 하는 동작
-func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, num int) {
+func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	g := sdpl.g
 	role := g.GetOriRole(r.UserID)
 	if role.String() != (&Doppelganger{}).String() {
@@ -103,7 +103,7 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 ActionDoppelganger에서 하는 동작
-func (sdpl *ActionDoppelganger) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sdpl *ActionDoppelganger) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	g := sdpl.g
 	role := g.GetOriRole(r.UserID)
 	player := g.FindUserByUID(r.UserID)
@@ -120,17 +120,17 @@ func (sdpl *ActionDoppelganger) PressDisBtn(s *discordgo.Session, r *discordgo.M
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 ActionDoppelganger에서 하는 동작
-func (sdpl *ActionDoppelganger) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sdpl *ActionDoppelganger) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 ActionDoppelganger에서 하는 동작
-func (sdpl *ActionDoppelganger) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+func (sdpl *ActionDoppelganger) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
 	// do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionDoppelganger에서 하는 동작
-func (sdpl *ActionDoppelganger) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReactionAdd, dir int) {
+func (sdpl *ActionDoppelganger) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
 	// do nothing
 }
 
@@ -234,7 +234,7 @@ func (sdpl *ActionDoppelganger) stateFinish() {
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
-func (sdpl *ActionDoppelganger) filterReaction(s *discordgo.Session, r *discordgo.MessageReactionAdd) bool {
+func (sdpl *ActionDoppelganger) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
 	// do nothing
 	return false
 }
