@@ -125,22 +125,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
 		}
-	case "ㅁ투표":
-		uidChan := make(chan string, 7)
-		thisGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, uidChan, nil, nil)
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "jae-kim", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "juhur", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "min-jo", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "kalee", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "apple", m.ChannelID, m.ChannelID))
-		thisGame.UserList = append(thisGame.UserList, wfGame.NewUser(m.Author.ID, "banana", m.ChannelID, m.ChannelID))
-
-		voted_list := make([]int, len(thisGame.UserList))
-		temp := &wfGame.StateVote{thisGame, voted_list, len(thisGame.UserList), 0}
-		guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
-		isUserIn[m.Author.ID] = true
-		thisGame.CurState = temp
-		wfGame.VoteProcess(s, thisGame)
 	case "ㅁ확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g != nil {
