@@ -32,10 +32,10 @@ func (wf *Werewolf) Action(tar *TargetObject, player *User, g *Game) {
 		msg += "`" + recvRole.String() + "` 입니다."
 		g.Session.ChannelMessageSendEmbed(player.dmChanID, embed.NewGenericEmbed("버려진 직업 확인", msg))
 	case -1:
-		wolves := g.GetRoleUsers(wf)
-		//wolves = append(wolves, g.GetRoleUsers(&Misticwolf{})...)
-		//wolves = append(wolves, g.GetRoleUsers(&Alphawolf{})...)
-		//dreams := g.GetRoleUsers(roleDreamwolf{})
+		wolves := g.GetOriRoleUsers(wf)
+		//wolves = append(wolves, g.GetOriRoleUsers(&Misticwolf{})...)
+		//wolves = append(wolves, g.GetOriRoleUsers(&Alphawolf{})...)
+		//dreams := g.GetOriRoleUsers(roleDreamwolf{})
 		var wolflist string
 		//var dreamlist string
 		for _, item := range wolves {
@@ -66,10 +66,10 @@ func (wf *Werewolf) GenLog(tar *TargetObject, player *User, g *Game) {
 		logMsg += "버려진 직업 `" + recvRole.String() + "`를 확인했습니다."
 		g.AppendLog(logMsg)
 	case -1:
-		wolves := g.GetRoleUsers(wf)
-		//wolves = append(wolves, g.getRoleUsers(roleMisticwolf{})...)
-		//wolves = append(wolves, g.getRoleUsers(roleAlphawolf{})...)
-		//dreams := g.getRoleUsers(roleDreamwolf{})
+		wolves := g.GetOriRoleUsers(wf)
+		//wolves = append(wolves, g.getOriRoleUsers(roleMisticwolf{})...)
+		//wolves = append(wolves, g.getOriRoleUsers(roleAlphawolf{})...)
+		//dreams := g.getOriRoleUsers(roleDreamwolf{})
 		var wolflist string
 		//var dreamlist string
 		for _, item := range wolves {

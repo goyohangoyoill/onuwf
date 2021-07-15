@@ -11,6 +11,7 @@ type ActionDoppelganger struct {
 	info      *DMInfo
 }
 
+// NewActionDoppelganger 는 도플갱어행동 스테이트를 만드는 생성자이다.
 func NewActionDoppelganger(g *Game) *ActionDoppelganger {
 	ac := &ActionDoppelganger{}
 	ac.g = g
@@ -23,12 +24,12 @@ func NewActionDoppelganger(g *Game) *ActionDoppelganger {
 func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	g := sdpl.g
 	role := g.GetOriRole(r.UserID)
-	if role.String() != (&Doppelganger{}).String() {
+	if role.String() != (&Doppelganger{}).String() && !g.IsDoppel(r.UserID) {
 		return
 	}
 	player := g.FindUserByUID(r.UserID)
 	switch sdpl.cpyRoleID {
-	case (&Doppelganger{}).ID():
+	case -1:
 		if g.UserList[num-1].UserID == r.UserID {
 			s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
 			return
@@ -107,6 +108,9 @@ func (sdpl *ActionDoppelganger) PressDisBtn(s *discordgo.Session, r *discordgo.M
 	g := sdpl.g
 	role := g.GetOriRole(r.UserID)
 	player := g.FindUserByUID(r.UserID)
+	if !(g.IsDoppel(r.UserID)) {
+		return
+	}
 	curInfo := sdpl.info
 	switch sdpl.cpyRoleID {
 	case (&Seer{}).ID():
@@ -144,6 +148,10 @@ func (sdpl *ActionDoppelganger) InitState() {
 		return
 	}
 	dplUserList := g.GetOriRoleUsers(role)
+	if len(dplUserList) == 0 {
+		sdpl.stateFinish()
+		return
+	}
 	user := dplUserList[0]
 	sdpl.info.MsgID = role.SendUserSelectGuide(user, g, 0)
 	idx := <-sdpl.info.Choice - 1
@@ -152,39 +160,7 @@ func (sdpl *ActionDoppelganger) InitState() {
 	role = g.GetRole(g.UserList[idx].UserID)
 	sdpl.info.MsgID = role.SendUserSelectGuide(user, g, 0)
 	sdpl.cpyRoleID = role.ID()
-	uList := g.GetOriRoleUsers(role)
 	switch role.String() {
-	case (&Werewolf{}).String():
-		wfUserList := uList
-		onlyWF := wfUserList[0]
-		if sdpl.info.Code == 1 {
-			input := <-sdpl.info.Choice
-			tar := &TargetObject{3, "", "", input - 1}
-			role.Action(tar, onlyWF, g)
-			role.GenLog(tar, onlyWF, g)
-		} else {
-			tar := &TargetObject{-1, "", "", -1}
-			role.GenLog(tar, onlyWF, g)
-			for _, user := range wfUserList {
-				role.Action(tar, user, g)
-			}
-		}
-	case (&Minion{}).String():
-		minUserList := uList
-		for _, user := range minUserList {
-			tar := &TargetObject{-1, "", "", -1}
-			role.Action(tar, user, g)
-			role.GenLog(tar, user, g)
-		}
-	case (&Freemason{}).String():
-		frmUserList := uList
-		tar := &TargetObject{-1, "", "", -1}
-		if len(frmUserList) != 0 {
-			role.GenLog(tar, frmUserList[0], g)
-		}
-		for _, user := range frmUserList {
-			role.Action(tar, user, g)
-		}
 	case (&Seer{}).String():
 		seerUserList := g.GetOriRoleUsersWithoutDpl(role)
 		for _, user := range seerUserList {

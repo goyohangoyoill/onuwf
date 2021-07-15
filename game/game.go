@@ -104,6 +104,19 @@ func (g *Game) SendVoteMsg(s *discordgo.Session) (messageIDs []string) {
 	return messageIDs
 }
 
+// IsDoppel 은 UserID 로 해당 유저가 도플갱어인지 확인하는 메소드입니다.
+func (g *Game) IsDoppel(uid string) (res bool) {
+	res = false
+	uIdx := FindUserIdx(uid, g.UserList)
+	for i := 0; i < len(g.RoleSeq); i++ {
+		if g.oriRoleIdxTable[uIdx][i] == 2 {
+			res = true
+			break
+		}
+	}
+	return res
+}
+
 // IsProtected 는 센티넬에 의해 보호받는 상태인지 확인하는 메소드입니다.
 func (g *Game) IsProtected(uid string) (res bool) {
 	res = false
@@ -229,10 +242,14 @@ func (g *Game) GetRole(uid string) Role {
 }
 
 // GetOriRole 유저의 원래 직업을 반환
+// 원래 직업이 도플갱어였다면 값이 2
 func (g *Game) GetOriRole(uid string) Role {
 	idx := FindUserIdx(uid, g.UserList)
 	for i := 0; i < len(g.RoleSeq); i++ {
 		if g.oriRoleIdxTable[idx][i] > 0 {
+			if g.oriRoleIdxTable[idx][i] == 2 {
+				return (&Doppelganger{})
+			}
 			return g.RoleSeq[i]
 		}
 	}
@@ -259,8 +276,10 @@ func (g *Game) setDplRole(uid string, item Role) {
 
 	for i := 0; i < loop; i++ {
 		g.oriRoleIdxTable[userIdx][i] = 0
+		g.roleIdxTable[userIdx][i] = 0
 	}
 	g.oriRoleIdxTable[userIdx][roleIdx] = 2
+	g.roleIdxTable[userIdx][roleIdx] = 1
 }
 
 // SetDisRole 버려진 직업을 업데이트
