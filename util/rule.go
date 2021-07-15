@@ -1,4 +1,4 @@
-/* "ㅁ게임방법" 명령어 관련 함수 */
+// Package util is a package for json files and database.
 package util
 
 import (
@@ -25,7 +25,7 @@ type line struct {
 }
 
 // rule.json 파일 읽어서 "ㅁ게임방법" 실행시 출력할 데이터 세팅
-func readRuleJSON() {
+func readRuleJSON(prefix string) {
 	jsonFile, err := os.Open("./asset/rule.json")
 	if err != nil {
 		log.Fatal(err)
