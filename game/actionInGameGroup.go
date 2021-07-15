@@ -232,6 +232,8 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 					if input1 != input2 {
 						break
 					}
+					curInfo[user.UserID].MsgID = role.SendUserSelectGuide(user, g, 0)
+					curInfo[user.UserID].Code = 0
 				}
 				tar := &TargetObject{0, g.UserList[input1-1].UserID, g.UserList[input2-1].UserID, -1}
 				role.Action(tar, user, g)

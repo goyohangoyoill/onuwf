@@ -31,10 +31,12 @@ func GenerateRole(num int) (r Role) {
 		r = &Doppelganger{num}
 	case 2:
 		r = &Werewolf{num}
-	case 3:
-		r = &Alphawolf{num}
-	case 4:
-		r = &Misticwolf{num}
+		/*
+			case 3:
+				r = &Alphawolf{num}
+			case 4:
+				r = &Misticwolf{num}
+		*/
 	case 5:
 		r = &Minion{num}
 	case 6:
