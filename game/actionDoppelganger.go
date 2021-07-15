@@ -145,11 +145,12 @@ func (sdpl *ActionDoppelganger) InitState() {
 	}
 	dplUserList := g.GetOriRoleUsers(role)
 	user := dplUserList[0]
-	role.SendUserSelectGuide(user, g, 0)
+	sdpl.info.MsgID = role.SendUserSelectGuide(user, g, 0)
 	idx := <-sdpl.info.Choice - 1
 	tar := &TargetObject{0, user.UserID, g.UserList[idx].UserID, -1}
 	role.Action(tar, user, g)
 	role = g.GetRole(g.UserList[idx].UserID)
+	sdpl.info.MsgID = role.SendUserSelectGuide(user, g, 0)
 	sdpl.cpyRoleID = role.ID()
 	uList := g.GetOriRoleUsers(role)
 	switch role.String() {
