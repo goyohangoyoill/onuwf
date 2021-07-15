@@ -37,16 +37,12 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 			break
 		}
 	}
-	msg := ""
-	msg += v.G.GetRole(r.UserID).String() + " " + v.G.FindUserByUID(r.UserID).nick + " 는 "
-	msg += v.G.GetRole(v.G.UserList[num-1].UserID).String() + " " + v.G.UserList[num-1].nick + "에게 투표하였습니다"
-	v.G.AppendLog(msg)
 
 	if rUserNum < num {
 		num = num + 1
 	}
 	v.Voted_list[num-1]++
-	msg = ""
+	msg := ""
 	msg += v.G.GetRole(r.UserID).String() + " " + v.G.FindUserByUID(r.UserID).nick + " 는 "
 	msg += v.G.GetRole(v.G.UserList[num-1].UserID).String() + " " + v.G.UserList[num-1].nick + "에게 투표하였습니다"
 	v.G.AppendLog(msg)
@@ -100,6 +96,8 @@ func (v *StateVote) InitState() {
 	//	v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "juhur", v.G.ChanID, v.G.ChanID))
 	//v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "kalee", v.G.ChanID, v.G.ChanID))
 	//v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "min-jo", v.G.ChanID, v.G.ChanID))
+	msg := ""
+	v.G.AppendLog(msg)
 	VoteProcess(v.G.Session, v.G)
 }
 
