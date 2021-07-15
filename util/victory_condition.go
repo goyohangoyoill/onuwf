@@ -1,4 +1,4 @@
-/* "ㅁ승리조건" 명령어 관련 함수 */
+// Package util is a package for json files and database.
 package util
 
 import (
@@ -13,7 +13,7 @@ var (
 	vcMsg   string
 )
 
-type victory_condition struct {
+type victoryCondition struct {
 	Title string `json:"title"`
 	Team  []team `json:"team"`
 }
@@ -30,7 +30,7 @@ func readVictoryConditionJSON() {
 		log.Fatal(err)
 		return
 	}
-	var vc victory_condition
+	var vc victoryCondition
 	defer jsonFile.Close()
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
