@@ -35,6 +35,30 @@
 		"faction": "Werewolf",
 		"priority": 2
 	},
+		{
+		"roleName": "태초의늑대인간",
+		"roleGuide": [
+			"당신의 무리 늑대인간들이 머리를 조아립니다.",
+			"당신은 다른 모든 늑대인간들을 확인한 후",
+			"한 명의 마을주민을 늑대인간으로 타락시킬 수 있습니다.",
+			"마을 사람들을 혼란에 빠뜨리고 살아남으세요."
+		],
+		"max": 1,
+		"faction": "Werewolf",
+		"priority": 3
+	},
+	{
+		"roleName": "신비한늑대인간",
+		"roleGuide": [
+			"당신의 차례에 동료 늑대인간을 확인할 수 있습니...어?",
+			"당신은 늑대가 아닌 다른 누군가의 기운을 느꼈습니다.",
+			"당신이 선택한 한 사람의 직업을 볼 수 있습니다.",
+			"마을 사람들을 혼란에 빠뜨리고 살아남으세요."
+		],
+		"max": 1,
+		"faction": "Werewolf",
+		"priority": 4
+	},
 	{
 		"roleName": "하수인",
 		"roleGuide": [
@@ -45,7 +69,7 @@
 		],
 		"max": 1,
 		"faction": "Werewolf",
-		"priority": 3
+		"priority": 5
 	},
 	{
 		"roleName": "프리메이슨",
@@ -57,7 +81,7 @@
 		],
 		"max": 2,
 		"faction": "Villager",
-		"priority": 4
+		"priority": 6
 	},
 	{
 		"roleName": "예언자",
@@ -68,7 +92,7 @@
 		],
 		"max": 1,
 		"faction": "Villager",
-		"priority": 5
+		"priority": 7
 	},
 	{
 		"roleName": "강도",
@@ -78,9 +102,9 @@
 			"자신이 아직 원래 직업인 줄 알 겁니다.",
 			"훔친 능력에 맞게 누군가를 처형하세요."
 		],
-		"max": 1,
+		"max": 3,
 		"faction": "Villager",
-		"priority": 6
+		"priority": 8
 	},
 	{
 		"roleName": "말썽쟁이",
@@ -92,7 +116,7 @@
 		],
 		"max": 1,
 		"faction": "Villager",
-		"priority": 7
+		"priority": 9
 	},
 	{
 		"roleName": "주정뱅이",
@@ -103,7 +127,7 @@
 		],
 		"max": 1,
 		"faction": "Villager",
-		"priority": 8
+		"priority": 10
 	},
 	{
 		"roleName": "불면증환자",
@@ -115,20 +139,7 @@
 		],
 		"max": 1,
 		"faction": "Villager",
-		"priority": 9
-	},
-	{
-		"roleName": "계시자",
-		"roleGuide": [
-			"모두의 차례가 끝나고 한 사람을 선택합니다.",
-			"그 사람이 늑대인간이나 무두장이가 아니라면",
-			"모두가 그 사람의 직업을 알게 됩니다.",
-			"그 사람이 늑대인간이나 무두장이였다면",
-			"당신만 그 사실을 알아요."
-		],
-		"max": 1,
-		"faction": "Villager",
-		"priority": 10
+		"priority": 11
 	},
 	{
 		"roleName": "사냥꾼",
