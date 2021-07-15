@@ -46,6 +46,10 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 		num = num + 1
 	}
 	v.Voted_list[num-1]++
+	msg := ""
+	msg += v.G.GetRole(r.UserID).String() + " " + v.G.FindUserByUID(r.UserID).nick + " 는 "
+	msg += v.G.GetRole(v.G.UserList[num-1].UserID).String() + " " + v.G.UserList[num-1].nick + "에게 투표하였습니다"
+	v.G.AppendLog(msg)
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
 	v.Vote_count++
 	if v.Vote_count == v.User_num {
