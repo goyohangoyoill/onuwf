@@ -127,32 +127,38 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	case prefix + "확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
-		if g != nil {
-			Server, _ := s.State.Guild(m.GuildID)
-			Channel, _ := s.State.Channel(m.ChannelID)
-			msg := "----------------------------------------------------\n"
-			msg += "> 현재 서버: " + Server.Name + "\n"
-			msg += "> 현재 채널: " + Channel.Name + "\n"
-			msg += "> 현재 유저 수: " + strconv.Itoa(len(g.UserList)) + "\n"
-			msg += "----------------------------------------------------\n"
-			for i, user := range g.UserList {
-				msg += "< " + strconv.Itoa(i+1) + "번 유저 `" + user.Nick() + "` >\n"
-				msg += "원래직업: " + g.GetOriRole(user.UserID).String() + "\n"
-				msg += "현재직업: " + g.GetRole(user.UserID).String() + "\n"
-			}
-			msg += "< 버려진 직업들 >\n"
-			for i := 0; i < 3; i++ {
-				msg += g.GetDisRole(i).String() + " "
-			}
-			msg += "\n"
-			msg += "----------------------------------------------------\n"
-			msg += "로그 메시지 :\n"
-			for _, text := range g.LogMsg {
-				msg += text + "\n"
-			}
-			msg += "----------------------------------------------------\n"
-			s.ChannelMessageSend(m.ChannelID, msg)
+		if g == nil {
+			return
 		}
+		// 게임시작 전에 prefix + "확인" 입력시 panic 방지
+		// ▶️ 버튼 누르기 전에는 직업배정이 되어있지 않음
+		if len(g.OriRoleIdxTable) == 0 {
+			return
+		}
+		Server, _ := s.State.Guild(m.GuildID)
+		Channel, _ := s.State.Channel(m.ChannelID)
+		msg := "----------------------------------------------------\n"
+		msg += "> 현재 서버: " + Server.Name + "\n"
+		msg += "> 현재 채널: " + Channel.Name + "\n"
+		msg += "> 현재 유저 수: " + strconv.Itoa(len(g.UserList)) + "\n"
+		msg += "----------------------------------------------------\n"
+		for i, user := range g.UserList {
+			msg += "< " + strconv.Itoa(i+1) + "번 유저 `" + user.Nick() + "` >\n"
+			msg += "원래직업: " + g.GetOriRole(user.UserID).String() + "\n"
+			msg += "현재직업: " + g.GetRole(user.UserID).String() + "\n"
+		}
+		msg += "< 버려진 직업들 >\n"
+		for i := 0; i < 3; i++ {
+			msg += g.GetDisRole(i).String() + " "
+		}
+		msg += "\n"
+		msg += "----------------------------------------------------\n"
+		msg += "로그 메시지 :\n"
+		for _, text := range g.LogMsg {
+			msg += text + "\n"
+		}
+		msg += "----------------------------------------------------\n"
+		s.ChannelMessageSend(m.ChannelID, msg)
 	}
 }
 

@@ -34,7 +34,7 @@ type Game struct {
 	// RoleSeq 사용
 	// <usage : roleIdxTable[userIdx][roleIdx]>
 	roleIdxTable    [][]int
-	oriRoleIdxTable [][]int
+	OriRoleIdxTable [][]int
 	// 게임에서 버려진 직업 목록
 	DisRole []Role
 
@@ -109,7 +109,7 @@ func (g *Game) IsDoppel(uid string) (res bool) {
 	res = false
 	uIdx := FindUserIdx(uid, g.UserList)
 	for i := 0; i < len(g.RoleSeq); i++ {
-		if g.oriRoleIdxTable[uIdx][i] == 2 {
+		if g.OriRoleIdxTable[uIdx][i] == 2 {
 			res = true
 			break
 		}
@@ -249,8 +249,8 @@ func (g *Game) GetRole(uid string) Role {
 func (g *Game) GetOriRole(uid string) Role {
 	idx := FindUserIdx(uid, g.UserList)
 	for i := 0; i < len(g.RoleSeq); i++ {
-		if g.oriRoleIdxTable[idx][i] > 0 {
-			if g.oriRoleIdxTable[idx][i] == 2 {
+		if g.OriRoleIdxTable[idx][i] > 0 {
+			if g.OriRoleIdxTable[idx][i] == 2 {
 				return (&Doppelganger{})
 			}
 			return g.RoleSeq[i]
@@ -278,10 +278,10 @@ func (g *Game) setDplRole(uid string, item Role) {
 	loop := len(g.RoleSeq)
 
 	for i := 0; i < loop; i++ {
-		g.oriRoleIdxTable[userIdx][i] = 0
+		g.OriRoleIdxTable[userIdx][i] = 0
 		g.roleIdxTable[userIdx][i] = 0
 	}
-	g.oriRoleIdxTable[userIdx][roleIdx] = 2
+	g.OriRoleIdxTable[userIdx][roleIdx] = 2
 	g.roleIdxTable[userIdx][roleIdx] = 1
 }
 
@@ -330,7 +330,7 @@ func (g *Game) GetOriRoleUsers(find Role) (users []*User) {
 	loop := len(g.UserList)
 	idx := FindRoleIdx(find, g.RoleSeq)
 	for i := 0; i < loop; i++ {
-		if g.oriRoleIdxTable[i][idx] > 0 {
+		if g.OriRoleIdxTable[i][idx] > 0 {
 			result = append(result, g.UserList[i])
 		}
 	}
@@ -343,7 +343,7 @@ func (g *Game) GetOriRoleUsersWithoutDpl(find Role) (users []*User) {
 	loop := len(g.UserList)
 	idx := FindRoleIdx(find, g.RoleSeq)
 	for i := 0; i < loop; i++ {
-		if g.oriRoleIdxTable[i][idx] == 1 {
+		if g.OriRoleIdxTable[i][idx] == 1 {
 			result = append(result, g.UserList[i])
 		}
 	}

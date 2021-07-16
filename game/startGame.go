@@ -51,7 +51,7 @@ func (sStartGame *StartGame) InitState() {
 	// indexTable은 [len(UserList)][len(RoleSeq)] 만큼의 크기를 갖는다.
 	// role이 중복되지 않음에 주의, len(RoleView) > len(RoleSeq)
 	g.roleIdxTable = make([][]int, lenuser)
-	g.oriRoleIdxTable = make([][]int, lenuser)
+	g.OriRoleIdxTable = make([][]int, lenuser)
 	lenrole := len(g.RoleSeq)
 	// user에게 랜덤배정되는 role의 수는 lenuser만큼인데
 	// indexTable에서는 RoleSeq의 인덱스 번호로 할당해야하고
@@ -61,8 +61,8 @@ func (sStartGame *StartGame) InitState() {
 	for i := 0; i < lenuser; i++ {
 		g.roleIdxTable[i] = make([]int, lenrole)
 		g.roleIdxTable[i][FindRoleIdx(g.RoleView[i], g.RoleSeq)] = 1
-		g.oriRoleIdxTable[i] = make([]int, lenrole)
-		g.oriRoleIdxTable[i][FindRoleIdx(g.RoleView[i], g.RoleSeq)] = 1
+		g.OriRoleIdxTable[i] = make([]int, lenrole)
+		g.OriRoleIdxTable[i][FindRoleIdx(g.RoleView[i], g.RoleSeq)] = 1
 	}
 	// len(UserList) + 3 == len(RoleView) 이므로
 	// lenuser 만큼 할당하고 남은 3개는 DisRole에 들어가야 함
