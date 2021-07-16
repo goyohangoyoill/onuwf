@@ -9,10 +9,11 @@ import (
 
 // Prepare is test
 type StateVote struct {
-	G          *Game
-	Voted_list []int
-	User_num   int
-	Vote_count int
+	G            *Game
+	Voted_list   []int
+	User_num     int
+	Vote_count   int
+	userVoteData map[string]string
 }
 
 func NewStateVote(g *Game) *StateVote {
@@ -21,6 +22,7 @@ func NewStateVote(g *Game) *StateVote {
 	ac.Voted_list = make([]int, len(g.UserList))
 	ac.User_num = len(g.UserList)
 	ac.Vote_count = 0
+	ac.userVoteData = make(map[string]string)
 
 	return ac
 }
@@ -47,6 +49,8 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	msg += v.G.GetRole(v.G.UserList[num-1].UserID).String() + " " + v.G.UserList[num-1].nick + "에게 투표하였습니다"
 	v.G.AppendLog(msg)
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
+	// 투표 내용 저장
+	v.setUserVoteId(r.UserID, v.G.UserList[num-1].UserID)
 	v.Vote_count++
 	if v.Vote_count == v.User_num {
 		max_value := 0
@@ -66,6 +70,8 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 			}
 		}
 		s.ChannelMessageSendEmbed(v.G.ChanID, voteResultEmbed.MessageEmbed)
+		// 헌터 능력 발동
+		v.hunterSkillMsg(s, max_value)
 	}
 }
 
@@ -158,4 +164,39 @@ func addNumAddEmoji(s *discordgo.Session, msg *discordgo.Message, g *Game) {
 	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n2"])
 	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n3"])
 	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n4"])
+}
+
+// User.voteUserId에 투표내용 저장
+func (v *StateVote) setUserVoteId(voteUserId, votedUserId string) {
+	for _, user := range v.G.UserList {
+		if user.UserID == voteUserId {
+			user.voteUserId = votedUserId
+			break
+		}
+	}
+}
+
+// 사냥꾼 능력발동 조건을 확인하는 함수
+func (v *StateVote) chkUseHunterSkill(i, max_value int) bool {
+	if max_value == v.Voted_list[i] {
+		if v.G.GetRole(v.G.UserList[i].UserID).String() == "사냥꾼" {
+			return true
+		}
+	}
+	return false
+}
+
+// 사냥꾼 능력발동 및 로그 작성하는 함수
+func (v *StateVote) hunterSkillMsg(s *discordgo.Session, max_value int) {
+	for i, user := range v.G.UserList {
+		if v.chkUseHunterSkill(i, max_value) {
+			hunterTitle := "사냥꾼 능력발동!"
+			hunterMsg := "`사냥꾼` `" + user.nick + "`이 "
+			hunterMsg += "`" + v.G.GetRole(user.voteUserId).String() + "` "
+			hunterMsg += "`" + v.G.FindUserByUID(user.voteUserId).nick + "`를 지목하여 사냥에 성공했습니다!"
+			s.ChannelMessageSendEmbed(v.G.ChanID, embed.NewGenericEmbed(hunterTitle, hunterMsg))
+			v.G.AppendLog(hunterMsg)
+			break
+		}
+	}
 }

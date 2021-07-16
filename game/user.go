@@ -13,6 +13,9 @@ type User struct {
 
 	// 각 유저의 DM 채널 ID
 	dmChanID string
+
+	// 각 유저가 투표한 유저의 ID
+	voteUserId string
 }
 
 func (u User) Nick() string {
