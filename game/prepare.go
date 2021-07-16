@@ -113,6 +113,13 @@ func (sPrepare *Prepare) InitState() {
 	sPrepare.g.AddRole(2)
 	sPrepare.g.AddRole(2)
 
+	// <test code>
+	//sPrepare.g.AddRole(0)
+	//sPrepare.g.AddRole(1)
+	//sPrepare.g.AddRole(7)
+	//sPrepare.g.AddRole(8)
+	//sPrepare.g.AddRole(9)
+
 	enterEmbed := sPrepare.NewEnterEmbed()
 	roleEmbed := sPrepare.NewRoleEmbed()
 	s := sPrepare.g.Session
@@ -181,6 +188,6 @@ func (sPrepare *Prepare) NewEnterEmbed() *embed.Embed {
 		enterStr += "`" + item.nick + "`\n"
 	}
 	enterEmbed.AddField("참가자 목록", "현재 참가 인원: "+strconv.Itoa(len(sPrepare.g.UserList))+"명\n"+enterStr)
-	enterEmbed.SetFooter("⭕: 입장 ❌: 퇴장 ▶️: 시작")
+	enterEmbed.SetFooter("(최대 10명, 방장은 나갈 수 없음)\n⭕: 입장 ❌: 퇴장 ▶️: 시작")
 	return enterEmbed
 }

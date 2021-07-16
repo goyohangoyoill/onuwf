@@ -135,6 +135,9 @@ func (g *Game) SetUserByID(uid string) {
 	if i := FindUserIdx(uid, g.UserList); i != -1 {
 		return
 	}
+	if len(g.UserList) >= 10 {
+		return
+	}
 	newOne := &User{}
 	newOne.UserID = uid
 	dgUser, _ := g.Session.User(uid)
@@ -348,14 +351,29 @@ func (g *Game) GetOriRoleUsersWithoutDpl(find Role) (users []*User) {
 }
 
 // RotateAllUserRole  모든 사람들의 직업을 입장순서별로 한칸 회전.
+// 문제 많아서 잠시 구현 보류
 func (g *Game) RotateAllUserRole() {
 	loop := len(g.UserList)
-
-	tmpRole := g.GetRole(g.UserList[loop-1].UserID)
-	for i := loop - 1; i > 0; i++ {
-		item := g.GetRole(g.UserList[i-1].UserID)
-		g.setRole(g.UserList[i].UserID, item)
+	shIdx := -1
+	var shUID string
+	for i, user := range g.UserList {
+		if g.IsProtected(user.UserID) {
+			shUID = user.UserID
+			shIdx = i
+		}
 	}
+	tmpRole := g.GetRole(g.UserList[loop-1].UserID)
+	for i := 1; i < loop; i++ {
+		srcUser := g.UserList[i-1]
+		destUser := g.UserList[i]
+		role := g.GetRole(srcUser.UserID)
+		g.AppendLog("`" + srcUser.nick + "`의 직업 `" + role.String() + "` 은(는)\n다음 플레이어 `" + destUser.nick + "` 에게 주어졌습니다.")
+		g.setRole(destUser.UserID, role)
+	}
+	if shIdx != -1 {
+		g.SetProtect(shUID)
+	}
+	g.AppendLog("마지막 플레이어 `" + g.UserList[loop-1].nick + "`의 직업 `" + tmpRole.String() + "` 은(는)\n첫번째 플레이어 `" + g.UserList[0].nick + "` 에게 주어졌습니다.")
 	g.setRole(g.UserList[0].UserID, tmpRole)
 }
 

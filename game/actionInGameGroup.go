@@ -26,6 +26,9 @@ func NewActionInGameGroup(g *Game) *ActionInGameGroup {
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
 func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
+	if FindUserIdx(r.UserID, sActionInGameGroup.g.UserList) == -1 {
+		return
+	}
 	role := sActionInGameGroup.g.GetOriRole(r.UserID)
 	player := sActionInGameGroup.g.FindUserByUID(r.UserID)
 	curInfo := sActionInGameGroup.Info[player.UserID]
@@ -101,6 +104,9 @@ func (sActionInGameGroup *ActionInGameGroup) PressNumBtn(s *discordgo.Session, r
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
 func (sActionInGameGroup *ActionInGameGroup) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+	if FindUserIdx(r.UserID, sActionInGameGroup.g.UserList) == -1 {
+		return
+	}
 	role := sActionInGameGroup.g.GetOriRole(r.UserID)
 	player := sActionInGameGroup.g.FindUserByUID(r.UserID)
 	curInfo := sActionInGameGroup.Info[player.UserID]
@@ -109,20 +115,18 @@ func (sActionInGameGroup *ActionInGameGroup) PressDisBtn(s *discordgo.Session, r
 		if curInfo.Code == 0 {
 			curInfo.Code++
 			s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
-			curInfo.Choice <- -1
 			curInfo.MsgID = role.SendUserSelectGuide(player, sActionInGameGroup.g, 1)
+			curInfo.Choice <- -1
 		}
 	}
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
 func (sActionInGameGroup *ActionInGameGroup) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	// do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
 func (sActionInGameGroup *ActionInGameGroup) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	// do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
@@ -144,7 +148,7 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 		// 밑에서 getRoleUsers에서 nil나와서 검사 해야됨
 		rIdx := FindRoleIdx(role, g.RoleSeq)
 		if rIdx != -1 {
-			for _, user := range g.GetRoleUsers(role) {
+			for _, user := range g.GetOriRoleUsersWithoutDpl(role) {
 				sActionInGameGroup.Info[user.UserID] = curInfo
 				if role.String() == (&Werewolf{}).String() {
 					wolves := g.GetOriRoleUsers(&Werewolf{})
@@ -232,6 +236,7 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 					if input1 != input2 {
 						break
 					}
+					g.Session.ChannelMessageSend(user.dmChanID, "같은 사람을 두 번 선택할 수 없습니다.")
 					curInfo[user.UserID].MsgID = role.SendUserSelectGuide(user, g, 0)
 					curInfo[user.UserID].Code = 0
 				}

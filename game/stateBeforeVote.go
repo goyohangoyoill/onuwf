@@ -69,7 +69,7 @@ func (sb *StateBeforeVote) InitState() {
 	role = GenerateRole(10)
 	rIdx = FindRoleIdx(role, sb.G.RoleSeq)
 	if rIdx != -1 {
-		DrunkUsers := sb.G.GetOriRoleUsers(role)
+		DrunkUsers := sb.G.GetOriRoleUsersWithoutDpl(role)
 		for _, user := range DrunkUsers {
 			curInfo := &DMInfo{"", make(chan int), 0}
 			sb.Info[user.UserID] = curInfo

@@ -6,16 +6,16 @@ import (
 
 type ActionDoppelganger struct {
 	// state 에서 가지고 있는 game
-	g         *Game
-	cpyRoleID int
-	info      *DMInfo
+	g             *Game
+	cpyRoleString string
+	info          *DMInfo
 }
 
 // NewActionDoppelganger 는 도플갱어행동 스테이트를 만드는 생성자이다.
 func NewActionDoppelganger(g *Game) *ActionDoppelganger {
 	ac := &ActionDoppelganger{}
 	ac.g = g
-	ac.cpyRoleID = -1
+	ac.cpyRoleString = (&Doppelganger{}).String()
 	ac.info = &DMInfo{"", make(chan int), 0}
 	return ac
 }
@@ -28,8 +28,8 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 		return
 	}
 	player := g.FindUserByUID(r.UserID)
-	switch sdpl.cpyRoleID {
-	case -1:
+	switch sdpl.cpyRoleString {
+	case (&Doppelganger{}).String():
 		if g.UserList[num-1].UserID == r.UserID {
 			s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
 			return
@@ -40,7 +40,7 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 		}
 		s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
 		sdpl.info.Choice <- num
-	case (&Seer{}).ID():
+	case (&Seer{}).String():
 		if sdpl.info.Code == 0 {
 			if g.UserList[num-1].UserID == r.UserID {
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
@@ -59,7 +59,7 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 			s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
 			sdpl.info.Choice <- num
 		}
-	case (&Robber{}).ID():
+	case (&Robber{}).String():
 		if sdpl.info.Code == 0 {
 			if g.UserList[num-1].UserID == r.UserID {
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
@@ -73,7 +73,7 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 			s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
 			sdpl.info.Choice <- num
 		}
-	case (&TroubleMaker{}).ID():
+	case (&TroubleMaker{}).String():
 		if sdpl.info.Code == 0 {
 			if g.UserList[num-1].UserID == r.UserID {
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
@@ -85,8 +85,8 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 			}
 			sdpl.info.Code++
 			s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
-			sdpl.info.Choice <- num
 			sdpl.info.MsgID = role.SendUserSelectGuide(player, g, 1)
+			sdpl.info.Choice <- num
 		} else if sdpl.info.Code == 1 {
 			if g.UserList[num-1].UserID == r.UserID {
 				s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
@@ -100,6 +100,9 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 			s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
 			sdpl.info.Choice <- num
 		}
+	case (&Drunk{}).String():
+		s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
+		sdpl.info.Choice <- num
 	}
 }
 
@@ -112,8 +115,8 @@ func (sdpl *ActionDoppelganger) PressDisBtn(s *discordgo.Session, r *discordgo.M
 		return
 	}
 	curInfo := sdpl.info
-	switch sdpl.cpyRoleID {
-	case (&Seer{}).ID():
+	switch sdpl.cpyRoleString {
+	case (&Seer{}).String():
 		if curInfo.Code == 0 {
 			curInfo.Code++
 			s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
@@ -125,12 +128,10 @@ func (sdpl *ActionDoppelganger) PressDisBtn(s *discordgo.Session, r *discordgo.M
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 ActionDoppelganger에서 하는 동작
 func (sdpl *ActionDoppelganger) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	// do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 ActionDoppelganger에서 하는 동작
 func (sdpl *ActionDoppelganger) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	// do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionDoppelganger에서 하는 동작
@@ -156,48 +157,49 @@ func (sdpl *ActionDoppelganger) InitState() {
 	sdpl.info.MsgID = role.SendUserSelectGuide(user, g, 0)
 	idx := <-sdpl.info.Choice - 1
 	tar := &TargetObject{0, user.UserID, g.UserList[idx].UserID, -1}
+	role.GenLog(tar, user, g)
 	role.Action(tar, user, g)
 	role = g.GetRole(g.UserList[idx].UserID)
 	sdpl.info.MsgID = role.SendUserSelectGuide(user, g, 0)
-	sdpl.cpyRoleID = role.ID()
+	sdpl.info.Code = 0
+	sdpl.cpyRoleString = role.String()
 	switch role.String() {
 	case (&Seer{}).String():
-		seerUserList := g.GetOriRoleUsersWithoutDpl(role)
-		for _, user := range seerUserList {
-			input := <-sdpl.info.Choice
-			if input == -1 {
-				tar := &TargetObject{3, "", "", <-sdpl.info.Choice - 1}
-				role.Action(tar, user, g)
-				role.GenLog(tar, user, g)
-			} else {
-				tar := &TargetObject{2, g.UserList[input-1].UserID, "", -1}
-				role.Action(tar, user, g)
-				role.GenLog(tar, user, g)
-			}
+		input := <-sdpl.info.Choice
+		if input == -1 {
+			tar := &TargetObject{3, "", "", <-sdpl.info.Choice - 1}
+			role.GenLog(tar, user, g)
+			role.Action(tar, user, g)
+		} else {
+			tar := &TargetObject{2, g.UserList[input-1].UserID, "", -1}
+			role.GenLog(tar, user, g)
+			role.Action(tar, user, g)
 		}
 	case (&Robber{}).String():
-		rbUserList := g.GetOriRoleUsersWithoutDpl(role)
-		for _, user := range rbUserList {
-			input := <-sdpl.info.Choice
-			tar := &TargetObject{2, g.UserList[input-1].UserID, "", -1}
-			role.Action(tar, user, g)
-			role.GenLog(tar, user, g)
-		}
+		input := <-sdpl.info.Choice
+		tar := &TargetObject{2, g.UserList[input-1].UserID, "", -1}
+		role.GenLog(tar, user, g)
+		role.Action(tar, user, g)
 	case (&TroubleMaker{}).String():
-		tmUserList := g.GetOriRoleUsersWithoutDpl(role)
-		for _, user := range tmUserList {
-			var input1, input2 int
-			for {
-				input1 = <-sdpl.info.Choice
-				input2 = <-sdpl.info.Choice
-				if input1 != input2 {
-					break
-				}
+		var input1, input2 int
+		for {
+			input1 = <-sdpl.info.Choice
+			input2 = <-sdpl.info.Choice
+			if input1 != input2 {
+				break
 			}
-			tar := &TargetObject{0, g.UserList[input1-1].UserID, g.UserList[input2-1].UserID, -1}
-			role.Action(tar, user, g)
-			role.GenLog(tar, user, g)
+			g.Session.ChannelMessageSend(user.dmChanID, "같은 사람을 두 번 선택할 수 없습니다")
+			sdpl.info.MsgID = role.SendUserSelectGuide(user, g, 0)
+			sdpl.info.Code = 0
 		}
+		tar := &TargetObject{0, g.UserList[input1-1].UserID, g.UserList[input2-1].UserID, -1}
+		role.GenLog(tar, user, g)
+		role.Action(tar, user, g)
+	case (&Drunk{}).String():
+		input := <-sdpl.info.Choice
+		tar := &TargetObject{1, user.UserID, "", input - 1}
+		role.Action(tar, user, g)
+		role.GenLog(tar, user, g)
 	}
 	sdpl.stateFinish()
 }

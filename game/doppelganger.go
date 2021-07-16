@@ -60,7 +60,7 @@ func (dpl *Doppelganger) GenLog(tar *TargetObject, player *User, g *Game) {
 		g.DplCopyRole(player.UserID, tar.uid2)
 		role := g.GetRole(tar.uid2)
 		tUser := g.FindUserByUID(tar.uid2)
-		g.AppendLog("도플갱어 `" + player.nick + "`(은)는 " + tUser.nick + "`의 직업`" + role.String() + "`(을)를 복사했습니다.")
+		g.AppendLog("도플갱어 `" + player.nick + "`(은)는 `" + tUser.nick + "`의 직업`" + role.String() + "`(을)를 복사했습니다.")
 	}
 }
 
