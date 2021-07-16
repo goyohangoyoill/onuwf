@@ -51,6 +51,8 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
 	// 투표 내용 저장
 	v.setUserVoteId(r.UserID, v.G.UserList[num-1].UserID)
+	// 투표 완료 DM메시지
+	v.sendVoteCompleteMsgToDm(v.G.FindUserByUID(r.UserID), v.G.UserList[num-1].nick)
 	v.Vote_count++
 	if v.Vote_count == v.User_num {
 		max_value := 0
@@ -199,4 +201,11 @@ func (v *StateVote) hunterSkillMsg(s *discordgo.Session, max_value int) {
 			break
 		}
 	}
+}
+
+// 투표완료시 어떤 유저에게 투표했는지 DM으로 메시지를 보내는 함수
+func (v *StateVote) sendVoteCompleteMsgToDm(voteUser *User, votedUserNick string) {
+	title := "투표 완료"
+	msg := "`" + votedUserNick + "`에게 투표하셨습니다"
+	v.G.Session.ChannelMessageSendEmbed(voteUser.dmChanID, embed.NewGenericEmbed(title, msg))
 }
