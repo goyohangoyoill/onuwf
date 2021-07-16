@@ -7,7 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
 
-	wfGame "onuwf.com/game"
+	wfGame "github.com/goyohangoyoill/ONUWF/game"
 )
 
 // RoleName을 이용하여 RoleGuide를 가져옴

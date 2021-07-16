@@ -13,8 +13,8 @@ import (
 	"syscall"
 	"time"
 
-	wfGame "onuwf.com/game"
-	util "onuwf.com/util"
+	wfGame "github.com/goyohangoyoill/ONUWF/game"
+	util "github.com/goyohangoyoill/ONUWF/util"
 
 	"github.com/bwmarrin/discordgo"
 )

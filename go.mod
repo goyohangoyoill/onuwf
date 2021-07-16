@@ -4,11 +4,10 @@ go 1.16
 
 require (
 	github.com/bwmarrin/discordgo v0.23.2
-	onuwf.com/game v0.0.0
-	onuwf.com/util v0.0.0
+	github.com/goyohangoyoill/ONUWF/game v0.0.0-20210716193736-9feb9e0ae0e4
+	github.com/goyohangoyoill/ONUWF/util v0.0.0-00010101000000-000000000000
 )
 
-replace (
-	onuwf.com/game v0.0.0 => ./game
-	onuwf.com/util v0.0.0 => ./util
-)
+replace github.com/goyohangoyoill/ONUWF/game => ./game
+
+replace github.com/goyohangoyoill/ONUWF/util => ./util

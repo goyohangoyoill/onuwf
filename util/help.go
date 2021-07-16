@@ -5,7 +5,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
 
-	wfGame "onuwf.com/game"
+	wfGame "github.com/goyohangoyoill/ONUWF/game"
 )
 
 // ReadJSON ./asset에 있는 json파일들을 읽어오는 함수

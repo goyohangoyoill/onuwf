@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	wfGame "onuwf.com/game"
+	wfGame "github.com/goyohangoyoill/ONUWF/game"
 )
 
 var (
