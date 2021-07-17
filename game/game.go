@@ -418,3 +418,31 @@ func FindRoleIdx(r Role, target []Role) int {
 	}
 	return -1
 }
+
+// SendLogMsg 현재 게임의 로그 메시지를 전송하는 함수
+func (g *Game) SendLogMsg(cid string) {
+	s := g.Session
+	tmpEmbed := embed.NewEmbed()
+	tmpEmbed.SetTitle("직업 배정")
+	for _, user := range g.UserList {
+		tmpEmbed.AddField(
+			"`"+user.nick+"`",
+			"원래직업 : `"+g.GetOriRole(user.UserID).String()+"`\n"+
+				"현재직업 : `"+g.GetRole(user.UserID).String()+"`",
+		)
+	}
+	tmpEmbed.InlineAllFields()
+	disMsg := ""
+	for i := 0; i < 3; i++ {
+		disMsg += "`" + g.DisRole[i].String() + "` "
+	}
+	tmpEmbed.AddField("버려진 직업들 :", disMsg)
+	if len(g.LogMsg) != 0 {
+		logMsg := ""
+		for _, line := range g.LogMsg {
+			logMsg += line + "\n"
+		}
+		tmpEmbed.AddField("게임 로그", logMsg)
+	}
+	s.ChannelMessageSendEmbed(cid, tmpEmbed.MessageEmbed)
+}

@@ -83,7 +83,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 			delete(isUserIn, curUID)
 			delete(uidToGameData, curUID)
 		case <-curGame.GameStartedChan:
-			return
+			break
 		}
 	}
 }
@@ -126,6 +126,20 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
 		}
+	case prefix + "관전":
+		g := guildChanToGameData[m.GuildID+m.ChannelID]
+		if g == nil {
+			return
+		}
+		if len(g.OriRoleIdxTable) == 0 {
+			return
+		}
+		if isUserIn[m.Author.ID] {
+			s.ChannelMessageSend(m.ChannelID, "게임에 참가중인 사람은 관전할 수 없습니다.")
+			return
+		}
+		dmChan, _ := s.UserChannelCreate(m.Author.ID)
+		g.SendLogMsg(dmChan.ID)
 	case prefix + "확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g == nil {
@@ -143,23 +157,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		msg += "> 현재 채널: " + Channel.Name + "\n"
 		msg += "> 현재 유저 수: " + strconv.Itoa(len(g.UserList)) + "\n"
 		msg += "----------------------------------------------------\n"
-		for i, user := range g.UserList {
-			msg += "< " + strconv.Itoa(i+1) + "번 유저 `" + user.Nick() + "` >\n"
-			msg += "원래직업: " + g.GetOriRole(user.UserID).String() + "\n"
-			msg += "현재직업: " + g.GetRole(user.UserID).String() + "\n"
-		}
-		msg += "< 버려진 직업들 >\n"
-		for i := 0; i < 3; i++ {
-			msg += g.GetDisRole(i).String() + " "
-		}
-		msg += "\n"
-		msg += "----------------------------------------------------\n"
-		msg += "로그 메시지 :\n"
-		for _, text := range g.LogMsg {
-			msg += text + "\n"
-		}
-		msg += "----------------------------------------------------\n"
 		s.ChannelMessageSend(m.ChannelID, msg)
+		g.SendLogMsg(m.ChannelID)
 	}
 }
 
@@ -182,7 +181,6 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 			return
 		}
 	}
-	isUserIn[r.UserID] = true
 	// 숫자 이모지 선택.
 	for i := 1; i < 10; i++ {
 		emjID := "n" + strconv.Itoa(i)
