@@ -35,7 +35,7 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 			return
 		}
 		if g.IsProtected(g.UserList[num-1].UserID) {
-			s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+			s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는)\n수호자의 방패로 보호되어 있습니다.")
 			return
 		}
 		s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
@@ -47,7 +47,7 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 				return
 			}
 			if g.IsProtected(g.UserList[num-1].UserID) {
-				s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는)\n수호자의 방패로 보호되어 있습니다.")
 				return
 			}
 			sdpl.info.Code--
@@ -66,7 +66,7 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 				return
 			}
 			if g.IsProtected(g.UserList[num-1].UserID) {
-				s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는)\n수호자의 방패로 보호되어 있습니다.")
 				return
 			}
 			sdpl.info.Code++
@@ -80,7 +80,7 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 				return
 			}
 			if g.IsProtected(g.UserList[num-1].UserID) {
-				s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는)\n수호자의 방패로 보호되어 있습니다.")
 				return
 			}
 			sdpl.info.Code++
@@ -93,7 +93,7 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 				return
 			}
 			if g.IsProtected(g.UserList[num-1].UserID) {
-				s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는) 수호자의 방패로 보호되어 있습니다.")
+				s.ChannelMessageSend(r.ChannelID, "`"+g.UserList[num-1].nick+"`은(는)\n수호자의 방패로 보호되어 있습니다.")
 				return
 			}
 			sdpl.info.Code++
@@ -160,6 +160,10 @@ func (sdpl *ActionDoppelganger) InitState() {
 	role.GenLog(tar, user, g)
 	role.Action(tar, user, g)
 	role = g.GetRole(g.UserList[idx].UserID)
+	if role.String() == (&Werewolf{}).String() {
+		sdpl.stateFinish()
+		return
+	}
 	sdpl.info.MsgID = role.SendUserSelectGuide(user, g, 0)
 	sdpl.info.Code = 0
 	sdpl.cpyRoleString = role.String()

@@ -112,6 +112,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	case prefix + "강제종료":
 		if isUserIn[m.Author.ID] {
 			s.ChannelMessageSend(m.ChannelID, "3초 후 게임을 강제종료합니다.")
+			isUserIn[m.Author.ID] = false
 			time.Sleep(3 * time.Second)
 			g := guildChanToGameData[m.GuildID+m.ChannelID]
 			if m.Author.ID != g.MasterID {

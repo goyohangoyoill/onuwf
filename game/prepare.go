@@ -43,7 +43,7 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 		//user 생성해서 append()
 		sPrepare.g.SetUserByID(r.UserID)
 		// 직업추가 메세지에서 리액션한거라면
-	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
+	} else if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID == sPrepare.g.MasterID {
 		// role 생성해서 game의 RoleView와 RoleSeq에 추가
 		sPrepare.g.AddRole(sPrepare.roleIndex)
 	}
@@ -65,7 +65,7 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 		// userList에서 지우고
 		sPrepare.g.DelUserByID(r.UserID)
 		// 직업추가 메세지에서 리액션한거라면
-	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
+	} else if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID == sPrepare.g.MasterID {
 		if sPrepare.roleIndex == 2 {
 			s.ChannelMessageSend(sPrepare.g.ChanID, "늑대인간은 2개 있어야 합니다")
 			return
@@ -93,7 +93,7 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 			sPrepare.stateFinish()
 		}
 		// 직업추가 메세지에서 리액션한거라면
-	} else if r.MessageID == sPrepare.RoleAddMsg.ID {
+	} else if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID == sPrepare.g.MasterID {
 		// roleindex 증감
 		sPrepare.roleIndex += dir
 		if sPrepare.roleIndex >= len(sPrepare.g.RG) {
