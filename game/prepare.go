@@ -42,13 +42,13 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 	if r.MessageID == sPrepare.EnterGameMsg.ID {
 		//user 생성해서 append()
 		sPrepare.g.SetUserByID(r.UserID)
+		// 입장 확인 메세지 반영
+		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID == sPrepare.g.MasterID {
 		// role 생성해서 game의 RoleView와 RoleSeq에 추가
 		sPrepare.g.AddRole(sPrepare.roleIndex)
 	}
-	// 입장 확인 메세지 반영
-	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 	// 직업 추가 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
 	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
