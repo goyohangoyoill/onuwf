@@ -24,6 +24,7 @@ var (
 	isUserIn            map[string]bool
 	uidToGameData       map[string]*wfGame.Game
 	guildChanToGameData map[string]*wfGame.Game
+	fqChan              chan bool
 
 	env map[string]string
 	emj map[string]string
@@ -40,6 +41,7 @@ func init() {
 	isUserIn = make(map[string]bool)
 	guildChanToGameData = make(map[string]*wfGame.Game)
 	uidToGameData = make(map[string]*wfGame.Game)
+	fqChan = make(chan bool)
 }
 
 func main() {
@@ -107,6 +109,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
 	case prefix + "강제종료":
+		// Mutex Lock
+		fqChan <- true
 		if isUserIn[m.Author.ID] {
 			s.ChannelMessageSend(m.ChannelID, "3초 후 게임을 강제종료합니다.")
 			isUserIn[m.Author.ID] = false
@@ -123,6 +127,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
 		}
+		// Mutex Release
+		<-fqChan
 	case prefix + "관전":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g == nil {

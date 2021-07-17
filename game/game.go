@@ -439,11 +439,11 @@ func (g *Game) SendLogMsg(cid string) {
 		disMsg += "`" + g.DisRole[i].String() + "` "
 	}
 	tmpEmbed.AddField("버려진 직업들 :", disMsg)
-	if len(g.LogMsg) != 0 {
-		logMsg := ""
-		for _, line := range g.LogMsg {
-			logMsg += line + "\n"
-		}
+	logMsg := ""
+	for _, line := range g.LogMsg {
+		logMsg += line + "\n"
+	}
+	if logMsg != "" {
 		tmpEmbed.AddField("게임 로그", logMsg)
 	}
 	s.ChannelMessageSendEmbed(cid, tmpEmbed.MessageEmbed)
