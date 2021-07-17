@@ -53,7 +53,7 @@ func (sb *StateBeforeVote) InitState() {
 	//능력사용
 
 	// 불면증환자
-	role := GenerateRole(11)
+	role := GenerateRole(9)
 	rIdx := FindRoleIdx(role, sb.G.RoleSeq)
 	if rIdx != -1 {
 		InsomUsers := sb.G.GetOriRoleUsers(role)
@@ -66,7 +66,7 @@ func (sb *StateBeforeVote) InitState() {
 		}
 	}
 	// 주정뱅이
-	role = GenerateRole(10)
+	role = GenerateRole(8)
 	rIdx = FindRoleIdx(role, sb.G.RoleSeq)
 	if rIdx != -1 {
 		DrunkUsers := sb.G.GetOriRoleUsersWithoutDpl(role)
