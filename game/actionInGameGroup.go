@@ -138,7 +138,7 @@ func (sActionInGameGroup *ActionInGameGroup) PressDirBtn(s *discordgo.Session, r
 func (sActionInGameGroup *ActionInGameGroup) InitState() {
 	g := sActionInGameGroup.g
 	// 늑대인간2 부터 말썽쟁이까지
-	for i := 2; i < 10; i++ {
+	for i := 2; i < 8; i++ {
 		curInfo := &DMInfo{"", make(chan int), 0}
 		role := GenerateRole(i)
 		// role.go에 4 프리메이슨이 없어서 체크해야됨

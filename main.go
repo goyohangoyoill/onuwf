@@ -3,10 +3,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
 	"os/signal"
 	"strconv"
@@ -30,13 +27,13 @@ var (
 
 	env map[string]string
 	emj map[string]string
-	rg  []wfGame.RoleGuide
+	rg  []util.RoleGuide
 )
 
 func init() {
 	env = util.EnvInit()
 	emj = util.EmojiInit()
-	RoleGuideInit(&rg)
+	util.RoleGuideInit(&rg)
 	util.ReadJSON(rg, prefix)
 	//util.MongoConn(env)
 
@@ -206,20 +203,4 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		// 오른쪽 화살표 선택.
 		g.CurState.PressDirBtn(s, r.MessageReaction, 1)
 	}
-}
-
-// RoleGuideInit 직업 가이드 에셋 불러오기.
-func RoleGuideInit(rg *[]wfGame.RoleGuide) {
-	rgFile, err := os.Open("asset/role_guide.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rgFile.Close()
-
-	var byteValue []byte
-	byteValue, err = ioutil.ReadAll(rgFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	json.Unmarshal([]byte(byteValue), rg)
 }

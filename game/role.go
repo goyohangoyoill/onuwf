@@ -14,15 +14,6 @@ type Role interface {
 	ID() int
 }
 
-// RoleGuide has info of each role
-type RoleGuide struct {
-	RoleName  string   `json:"roleName"`
-	RoleGuide []string `json:"roleGuide"`
-	Max       int      `json:"max"`
-	Faction   string   `json:"faction"`
-	Priority  int      `json:"priority"`
-}
-
 func GenerateRole(num int) (r Role) {
 	switch num {
 	case 0:
@@ -37,11 +28,11 @@ func GenerateRole(num int) (r Role) {
 			case 4:
 				r = &Misticwolf{num}
 		*/
-	case 5:
+	case 3:
 		r = &Minion{num}
-	case 6:
+	case 4:
 		r = &Freemason{num}
-	case 7:
+	case 5:
 		r = &Seer{num}
 		/*
 			case 8:
@@ -49,29 +40,31 @@ func GenerateRole(num int) (r Role) {
 			case 9:
 				r = &Paranormalinvestigator{num}
 		*/
-	case 8:
+	case 6:
 		r = &Robber{num}
 		/*
 			case 11:
 				r = &Witch{num}
 		*/
-	case 9:
+	case 7:
 		r = &TroubleMaker{num}
-	case 15:
-		r = &Idiot{num}
-	case 10:
+		/*
+			case 15:
+				r = &Idiot{num}
+		*/
+	case 8:
 		r = &Drunk{num}
-	case 11:
+	case 9:
 		r = &Insomniac{num}
 		/*
 			case 10:
 				r = &Revealer{num}
 		*/
-	case 12:
+	case 10:
 		r = &Hunter{num}
-	case 13:
+	case 11:
 		r = &Villager{num}
-	case 14:
+	case 12:
 		r = &Tanner{num}
 		/*
 			case 19:

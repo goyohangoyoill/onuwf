@@ -5,6 +5,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
+
+	"github.com/goyohangoyoill/ONUWF/util"
 )
 
 // Game 구조체는 게임 진행을 위한 정보를 담고 있는 스트럭처
@@ -46,7 +48,7 @@ type Game struct {
 	// 이모지 정보
 	Emj map[string]string
 	// 직업의 대한 소개 및 정보
-	RG []RoleGuide
+	RG []util.RoleGuide
 
 	// 유저 입장, 퇴장 시 ID가 전달되는 채널
 	EnterUserIDChan, QuitUserIDChan chan string
@@ -55,7 +57,7 @@ type Game struct {
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
-func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj map[string]string, enterUserIDChan, quitUserIDChan chan string, gameStartedChan chan bool) (g *Game) {
+func NewGame(gid, cid, muid string, s *discordgo.Session, rg []util.RoleGuide, emj map[string]string, enterUserIDChan, quitUserIDChan chan string, gameStartedChan chan bool) (g *Game) {
 	g = &Game{}
 	g.GuildID = gid
 	g.ChanID = cid

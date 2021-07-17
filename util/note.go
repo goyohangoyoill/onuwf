@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-
-	wfGame "github.com/goyohangoyoill/ONUWF/game"
 )
 
 var (
@@ -26,7 +24,7 @@ type noteLine struct {
 }
 
 // note.json 파일 읽어서 "ㅁ참고" 실행시 출력할 데이터 세팅
-func readNoteJSON(rg []wfGame.RoleGuide) {
+func readNoteJSON(rg []RoleGuide) {
 	noteFile, err := os.Open("./asset/note.json")
 	if err != nil {
 		log.Fatal(err)
