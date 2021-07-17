@@ -9,11 +9,10 @@ import (
 
 // Prepare is test
 type StateVote struct {
-	G            *Game
-	Voted_list   []int
-	User_num     int
-	Vote_count   int
-	userVoteData map[string]string
+	G          *Game
+	Voted_list []int
+	User_num   int
+	Vote_count int
 }
 
 func NewStateVote(g *Game) *StateVote {
@@ -22,7 +21,6 @@ func NewStateVote(g *Game) *StateVote {
 	ac.Voted_list = make([]int, len(g.UserList))
 	ac.User_num = len(g.UserList)
 	ac.Vote_count = 0
-	ac.userVoteData = make(map[string]string)
 
 	return ac
 }
