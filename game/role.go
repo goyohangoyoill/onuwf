@@ -14,15 +14,6 @@ type Role interface {
 	ID() int
 }
 
-// RoleGuide has info of each role
-type RoleGuide struct {
-	RoleName  string   `json:"roleName"`
-	RoleGuide []string `json:"roleGuide"`
-	Max       int      `json:"max"`
-	Faction   string   `json:"faction"`
-	Priority  int      `json:"priority"`
-}
-
 func GenerateRole(num int) (r Role) {
 	switch num {
 	case 0:
