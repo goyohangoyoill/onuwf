@@ -21,11 +21,10 @@ var (
 	uidToGameData       map[string]*wfGame.Game
 	guildChanToGameData map[string]*wfGame.Game
 	fqChanMap           map[string]chan bool
-
-	env    map[string]string
-	emj    map[string]string
-	rg     []util.RoleGuide
-	config util.Config
+	env                 map[string]string
+	emj                 map[string]string
+	rg                  []util.RoleGuide
+	config              util.Config
 )
 
 func init() {
