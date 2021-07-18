@@ -29,6 +29,10 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 	if sPrepare.filterReaction(s, r) {
 		return
 	}
+	// 직업추가 방장만 가능
+	if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID != sPrepare.g.MasterID {
+		return
+	}
 
 	num = num + sPrepare.pageNum*pageMax - 1
 	if num >= len(sPrepare.g.RG) {
