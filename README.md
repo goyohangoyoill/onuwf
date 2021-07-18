@@ -27,7 +27,7 @@ go get github.com/clinet/discordgo-embed
 
 # 추가해야하는 파일들
 
-`config/env.json` -> 슬랙 고요일 채널 참고
+`./asset/env.json` -> 슬랙 고요일 채널 참고
 
 # 설계 진행 상황
 
