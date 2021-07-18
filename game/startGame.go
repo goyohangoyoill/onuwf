@@ -70,6 +70,7 @@ func (sStartGame *StartGame) InitState() {
 		g.DisRole[i] = g.RoleView[lenuser+i]
 	}
 	ch := make(chan bool, len(g.UserList))
+	g.Session.ChannelMessageEdit(g.ChanID, g.GameStateMID, "각 직업별 선택지 전송중입니다...")
 	// 각 유저에게 직업소개 DM을 보낸다.
 	for _, item := range g.UserList {
 		go func(item *User, g *Game) {

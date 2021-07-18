@@ -76,6 +76,7 @@ func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *disc
 func (sActionSentinel *ActionSentinel) InitState() {
 	// sentinel role을 가지고 있는 유저들에게 능력사용 메세지 보낸 후 MessageID 저장
 	g := sActionSentinel.g
+	g.Session.ChannelMessageEdit(g.ChanID, g.GameStateMID, "플레이어들의 선택 기다리는 중...")
 	role := &Sentinel{}
 	rIdx := FindRoleIdx(role, sActionSentinel.g.RoleSeq)
 	if rIdx != -1 {
