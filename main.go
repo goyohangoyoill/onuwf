@@ -175,8 +175,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if g == nil {
 			return
 		}
-		// 게임시작 전에 prefix + "확인" 입력시 panic 방지
-		// ▶️ 버튼 누르기 전에는 직업배정이 되어있지 않음
 		if len(g.OriRoleIdxTable) == 0 {
 			return
 		}
@@ -194,7 +192,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.
 func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
-	//fmt.Println(r.UserID, r.MessageID, r.ChannelID, r.GuildID)
 	// 봇 자기자신의 리액션 무시.
 	if r.UserID == s.State.User.ID {
 		return
@@ -211,7 +208,6 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 			return
 		}
 	}
-	// 숫자 이모지 선택.
 	for i := 1; i < 10; i++ {
 		emjID := "n" + strconv.Itoa(i)
 		if r.Emoji.Name == emj[emjID] {
@@ -221,19 +217,19 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	}
 	switch r.Emoji.Name {
 	case emj["DISCARD"]:
-		// 쓰레기통 이모지 선택.
+		// 🚮
 		g.CurState.PressDisBtn(s, r.MessageReaction)
 	case emj["YES"]:
-		// O 이모지 선택.
+		// ⭕️
 		g.CurState.PressYesBtn(s, r.MessageReaction)
 	case emj["NO"]:
-		// X 이모지 선택.
+		// ❌
 		g.CurState.PressNoBtn(s, r.MessageReaction)
 	case emj["LEFT"]:
-		// 왼쪽 화살표 선택.
+		// ◀️
 		g.CurState.PressDirBtn(s, r.MessageReaction, -1)
 	case emj["RIGHT"]:
-		// 오른쪽 화살표 선택.
+		// ▶️
 		g.CurState.PressDirBtn(s, r.MessageReaction, 1)
 	}
 }

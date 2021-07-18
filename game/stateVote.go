@@ -22,7 +22,6 @@ func NewStateVote(g *Game) *StateVote {
 	ac.Voted_list = make([]int, len(g.UserList))
 	ac.User_num = len(g.UserList)
 	ac.Vote_count = 0
-
 	return ac
 }
 
@@ -30,7 +29,6 @@ func NewStateVote(g *Game) *StateVote {
 func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	//num를 받음
 	//해당 index list count +1
-
 	rUserNum := 9999
 	for i := 0; i < num; i++ {
 		if r.UserID == v.G.UserList[i].UserID {
@@ -38,7 +36,6 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 			break
 		}
 	}
-
 	if rUserNum < num {
 		num = num + 1
 	}
@@ -79,22 +76,18 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 state에서 하는 동작
 func (v *StateVote) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	//do nothing
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 state에서 하는 동작
 func (v *StateVote) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	//do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 state에서 하는 동작
 func (v *StateVote) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	//do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 state에서 하는 동작
 func (v *StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
-	//do nothing
 }
 
 // InitState 함수는 스테이트가 시작할 때 필요한 메세지를 생성하고 채널이나 개인DM으로 메세지를 보낸 후
@@ -127,7 +120,6 @@ func (v *StateVote) stateFinish() {
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
 func (v *StateVote) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
-	// do nothing
 	return false
 }
 
@@ -141,7 +133,6 @@ func VoteProcess(s *discordgo.Session, g *Game) {
 	for i := 0; i < num; i++ {
 		go SendVoteDM(s, g, i)
 	}
-
 }
 
 func SendVoteDM(s *discordgo.Session, g *Game, UserNum int) {
@@ -150,7 +141,6 @@ func SendVoteDM(s *discordgo.Session, g *Game, UserNum int) {
 	voteEmbed.SetDescription("늑대인간으로 의심되는 대상에게 투표해주세요")
 	num := len(g.UserList)
 	for i := 0; i < num-1; i++ {
-		//이후에 본인 빼도록 수정해야함
 		j := i
 		if j >= UserNum {
 			j = j + 1
@@ -170,9 +160,6 @@ func addNumAddEmoji(s *discordgo.Session, msg *discordgo.Message, g *Game) {
 	for i := 0; i < num-1; i++ {
 		s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n"+strconv.Itoa(i+1)])
 	}
-	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n2"])
-	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n3"])
-	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n4"])
 }
 
 // User.voteUserId에 누구에게 투표했는지 유저ID 저장

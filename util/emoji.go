@@ -14,7 +14,6 @@ func EmojiInit() map[string]string {
 		log.Fatal(err)
 	}
 	defer emjFile.Close()
-
 	var byteValue []byte
 	byteValue, err = ioutil.ReadAll(emjFile)
 	if err != nil {

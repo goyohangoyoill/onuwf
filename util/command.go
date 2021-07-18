@@ -31,7 +31,6 @@ func readCommandJSON(prefix string) {
 		return
 	}
 	defer cmdFile.Close()
-
 	var cmd command
 	byteValue, err := ioutil.ReadAll(cmdFile)
 	if err != nil {
@@ -39,7 +38,6 @@ func readCommandJSON(prefix string) {
 		return
 	}
 	json.Unmarshal(byteValue, &cmd)
-
 	commandTitle = "**" + cmd.Title + "**"
 	commandMsg = ""
 	for i := 0; i < len(cmd.List); i++ {

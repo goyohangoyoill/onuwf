@@ -1,9 +1,5 @@
 package game
 
-// TODO
-// 투표미구현으로 동작확인 안됨
-// 사냥꾼이 과반수 투표로 죽을 때, 사냥꾼이 늑대인간을 투표했을 때 동귀어진 가능
-
 // Hunter 는 한밤의 늑대인간 중 <사냥꾼> 에 대한 객체이다.
 type Hunter struct {
 	id int

@@ -28,7 +28,6 @@ func RoleGuideInit(rg *[]RoleGuide) {
 		log.Fatal(err)
 	}
 	defer rgFile.Close()
-
 	var byteValue []byte
 	byteValue, err = ioutil.ReadAll(rgFile)
 	if err != nil {

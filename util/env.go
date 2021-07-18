@@ -15,7 +15,6 @@ func EnvInit() map[string]string {
 		log.Fatal(err)
 	}
 	defer envFile.Close()
-
 	var byteValue []byte
 	byteValue, err = ioutil.ReadAll(envFile)
 	if err != nil {

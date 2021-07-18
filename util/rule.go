@@ -39,7 +39,6 @@ func readRuleJSON(prefix string) {
 		return
 	}
 	json.Unmarshal(byteValue, &rule)
-
 	ruleTitle = "**" + rule.Title + "**"
 	ruleMsg = ""
 	for i := 0; i < len(rule.Line); i++ {

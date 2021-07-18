@@ -12,12 +12,10 @@ func (v *Villager) SendUserSelectGuide(player *User, g *Game, pageNum int) strin
 
 // Action 함수는 <마을주민> 의 특수능력 사용에 대한 함수이다.
 func (v *Villager) Action(tar *TargetObject, player *User, g *Game) {
-	// Do Nothing
 }
 
 // GenLog 함수는 <마을주민> 의 특수능력 사용에 대한 함수이다.
 func (v *Villager) GenLog(tar *TargetObject, player *User, g *Game) {
-	// Do Nothing
 }
 
 // String 함수는 <마을주민> 문자열을 반환하는 함수이다.

@@ -20,13 +20,10 @@ func (tmp *Tanner) Action(tar *TargetObject, player *User, g *Game) {
 	//  2:   o     x        x	GetRole, setRole, SetPower
 	//  3:   x     x        o	GetDisRole, setDisRole, GetRoleUsers
 	// -1:   x     x        x	RotateAllUserRole, GetRoleUsers
-
-	// do nothing
 }
 
 // GenLog 함수는 <무두장이> 의 특수능력 사용에 대한 함수이다.
 func (tmp Tanner) GenLog(tar *TargetObject, player *User, g *Game) {
-	// do nothing
 }
 
 // String 함수는 <무두장이> 문자열을 반환하는 함수이다.

@@ -38,7 +38,6 @@ func readNoteJSON(rg []RoleGuide) {
 		return
 	}
 	json.Unmarshal(byteValue, &note)
-
 	noteTitle = "**" + note.Title + "**"
 	noteMsg = ""
 	for i := 0; i < len(note.Line); i++ {

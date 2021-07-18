@@ -15,27 +15,22 @@ type StartGame struct {
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 StartGame에서 하는 동작
 func (sStartGame *StartGame) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
-	// do nothing
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 StartGame에서 하는 동작
 func (sStartGame *StartGame) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	// do nothing
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 StartGame에서 하는 동작
 func (sStartGame *StartGame) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	// do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 StartGame에서 하는 동작
 func (sStartGame *StartGame) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	// do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 StartGame에서 하는 동작
 func (sStartGame *StartGame) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
-	// do nothing
 }
 
 // InitState 함수는 StartGame state가 시작할 때 진짜로 게임이 시작되므로
@@ -102,6 +97,5 @@ func (sStartGame *StartGame) stateFinish() {
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
 func (sStartGame *StartGame) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
-	// do nothing
 	return false
 }

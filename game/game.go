@@ -5,7 +5,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
-
 	"github.com/goyohangoyoill/ONUWF/util"
 )
 
@@ -15,7 +14,6 @@ type Game struct {
 	Ctx context.Context
 	// 게임을 강제 종료하기 위한 캔슬함수.
 	CanFunc context.CancelFunc
-
 	// 현재 게임이 진행중인 서버의 GID
 	GuildID string
 	// 현재 게임이 진행중인 채널의 CID
@@ -24,10 +22,8 @@ type Game struct {
 	MasterID string
 	// 게임 상태 표시 메시지의 mid
 	GameStateMID string
-
 	// 현재 게임의 진행시점
 	CurState State
-
 	// 현재 게임의 참가자들
 	UserList []*User
 	// 현재 게임에서 role_guide.json 순서대로(role ID 순서대로) 추가, 중복제거 된 직업들의 목록
@@ -41,10 +37,8 @@ type Game struct {
 	OriRoleIdxTable [][]int
 	// 게임에서 버려진 직업 목록
 	DisRole []Role
-
 	// 게임에서 사용하는 세션
 	Session *discordgo.Session
-
 	// 게임 진행 상황을 기록하는 로그 메시지 배열
 	LogMsg []string
 	// 이모지 정보
@@ -53,7 +47,6 @@ type Game struct {
 	config util.Config
 	// 직업의 대한 소개 및 정보
 	RG []util.RoleGuide
-
 	// 유저 입장, 퇴장 시 ID가 전달되는 채널
 	EnterUserIDChan, QuitUserIDChan chan string
 	// 게임이 시작되면 신호가 전달되는 채널
@@ -277,7 +270,6 @@ func (g *Game) setRole(uid string, item Role) {
 	userIdx := FindUserIdx(uid, g.UserList)
 	roleIdx := FindRoleIdx(item, g.RoleSeq)
 	loop := len(g.RoleSeq)
-
 	for i := 0; i < loop; i++ {
 		g.roleIdxTable[userIdx][i] = 0
 	}
@@ -289,7 +281,6 @@ func (g *Game) setDplRole(uid string, item Role) {
 	userIdx := FindUserIdx(uid, g.UserList)
 	roleIdx := FindRoleIdx(item, g.RoleSeq)
 	loop := len(g.RoleSeq)
-
 	for i := 0; i < loop; i++ {
 		g.OriRoleIdxTable[userIdx][i] = 0
 		g.roleIdxTable[userIdx][i] = 0

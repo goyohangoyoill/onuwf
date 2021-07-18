@@ -131,17 +131,15 @@ func (sActionInGameGroup *ActionInGameGroup) PressNoBtn(s *discordgo.Session, r 
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionInGameGroup에서 하는 동작
 func (sActionInGameGroup *ActionInGameGroup) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
-	// do nothing
 }
 
 // InitState 함수는 ActionInGameGroup state 가 시작되었을 때 호출되는 메소드이다.
 func (sActionInGameGroup *ActionInGameGroup) InitState() {
 	g := sActionInGameGroup.g
-	// 늑대인간2 부터 말썽쟁이까지
+	// 늑대인간부터 말썽쟁이까지
 	for i := 2; i < 8; i++ {
 		curInfo := &DMInfo{"", make(chan int), 0}
 		role := GenerateRole(i)
-		// role.go에 4 프리메이슨이 없어서 체크해야됨
 		if role == nil {
 			continue
 		}
@@ -165,7 +163,6 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 			}
 			curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
 		}
-
 	}
 	curInfo := sActionInGameGroup.Info
 	for i := 0; i < len(g.RoleSeq); i++ {
@@ -253,15 +250,8 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 
 // stateFinish 함수는 ActionInGameGroup state 가 종료될 때 호출되는 메소드이다.
 func (sActionInGameGroup *ActionInGameGroup) stateFinish() {
-
-	//voted_list := make([]int, len(sActionInGameGroup.g.UserList))
-	//sActionInGameGroup.g.CurState = &StateVote{sActionInGameGroup.g, voted_list, len(sActionInGameGroup.g.UserList), 0}
-	//guildChanToGameData[m.GuildID+m.ChannelID] = thisGame
-	//isUserIn[m.Author.ID] = true
-
 	sActionInGameGroup.g.CurState = NewStateBeforeVote(sActionInGameGroup.g)
 	sActionInGameGroup.g.CurState.InitState()
-	//wfGame.VoteProcess(s, thisGame)
 }
 
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
@@ -269,5 +259,4 @@ func (sActionInGameGroup *ActionInGameGroup) stateFinish() {
 // 메세지에 리액션 한 것을 지워주어야 한다.
 func (sActionInGameGroup *ActionInGameGroup) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
 	return false
-	// do nothing
 }

@@ -19,7 +19,6 @@ func ReadConfigJson() Config {
 		log.Fatal(err)
 	}
 	defer configFile.Close()
-
 	var byteValue []byte
 	byteValue, err = ioutil.ReadAll(configFile)
 	if err != nil {
@@ -27,7 +26,6 @@ func ReadConfigJson() Config {
 	}
 	var config Config
 	json.Unmarshal([]byte(byteValue), &config)
-
 	// 음수 시간 동안 기다릴 순 없으니
 	if config.VoteDelaySec < 0 {
 		config.VoteDelaySec = 0

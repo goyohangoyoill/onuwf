@@ -10,13 +10,10 @@ import (
 type Prepare struct {
 	// state에서 가지고 있는 game
 	g *Game
-
 	// roleAdd 메세지의 pageNum
 	pageNum int
-
 	// 직업추가 확인용 메세지
 	RoleAddMsg *discordgo.Message
-
 	// 게임입장 확인용 메세지
 	EnterGameMsg *discordgo.Message
 }
@@ -33,12 +30,10 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 	if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID != sPrepare.g.MasterID {
 		return
 	}
-
 	num = num + sPrepare.pageNum*pageMax - 1
 	if num >= len(sPrepare.g.RG) {
 		return
 	}
-
 	if num == 2 {
 		s.ChannelMessageSend(sPrepare.g.ChanID, "늑대인간은 2개 있어야 합니다")
 		return
@@ -52,7 +47,6 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
-	// do nothing
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 Prepare에서 하는 동작
@@ -115,14 +109,6 @@ func (sPrepare *Prepare) InitState() {
 	// 늑대인간 2개 추가
 	sPrepare.g.AddRole(2)
 	sPrepare.g.AddRole(2)
-
-	// <test code>
-	//sPrepare.g.AddRole(0)
-	//sPrepare.g.AddRole(1)
-	//sPrepare.g.AddRole(7)
-	//sPrepare.g.AddRole(8)
-	//sPrepare.g.AddRole(9)
-
 	enterEmbed := sPrepare.NewEnterEmbed()
 	roleEmbed := sPrepare.NewRoleAddEmbed()
 	s := sPrepare.g.Session

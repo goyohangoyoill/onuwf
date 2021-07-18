@@ -4,16 +4,12 @@ package game
 type User struct {
 	// 각 유저의 UID
 	UserID string
-
 	// 각 유저의 닉네임
 	nick string
-
 	// 각 유저가 속한 게임이 진행중인 채널 ID
 	chanID string
-
 	// 각 유저의 DM 채널 ID
 	dmChanID string
-
 	// 각 유저가 투표한 유저의 ID
 	voteUserId string
 }

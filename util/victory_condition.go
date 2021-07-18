@@ -38,7 +38,6 @@ func readVictoryConditionJSON() {
 		return
 	}
 	json.Unmarshal(byteValue, &vc)
-
 	vcTitle = "**" + vc.Title + "**"
 	vcMsg = ""
 	for i := 0; i < len(vc.Team); i++ {

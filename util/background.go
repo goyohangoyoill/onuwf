@@ -39,7 +39,6 @@ func readBackgroundJSON(prefix string) {
 		return
 	}
 	json.Unmarshal(byteValue, &bg)
-
 	backgroundTitle = "**" + bg.Title + "**"
 	backgroundMsg = ""
 	for i := 0; i < len(bg.Line); i++ {

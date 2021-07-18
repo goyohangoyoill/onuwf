@@ -25,7 +25,6 @@ func (sb *StateBeforeVote) PressNumBtn(s *discordgo.Session, r *discordgo.Messag
 	player := sb.G.FindUserByUID(r.UserID)
 	curInfo := sb.Info[player.UserID]
 	s.ChannelMessageDelete(r.ChannelID, curInfo.MsgID)
-
 	curInfo.Choice <- num
 }
 
@@ -51,7 +50,6 @@ func (sb *StateBeforeVote) PressDirBtn(s *discordgo.Session, r *discordgo.Messag
 func (sb *StateBeforeVote) InitState() {
 	//불면증, 주정뱅이 각각의 rolemsg는 이전 state에서 보내야함
 	//능력사용
-
 	// 불면증환자
 	role := GenerateRole(9)
 	rIdx := FindRoleIdx(role, sb.G.RoleSeq)
@@ -82,7 +80,6 @@ func (sb *StateBeforeVote) InitState() {
 			//curInfo := sb.Info
 			input := <-curInfo[DrunkUsers[i].UserID].Choice
 			tar := &TargetObject{1, DrunkUsers[i].UserID, "", input - 1}
-
 			role.Action(tar, DrunkUsers[i], sb.G)
 			role.GenLog(tar, DrunkUsers[i], sb.G)
 		}

@@ -14,6 +14,7 @@ type Role interface {
 	ID() int
 }
 
+// 해당 함수 수정시에 role_guide.json도 수정이 필요
 func GenerateRole(num int) (r Role) {
 	switch num {
 	case 0:

@@ -65,7 +65,6 @@ func (tm *TroubleMaker) GenLog(tar *TargetObject, player *User, g *Game) {
 		user2 := g.FindUserByUID(tar.uid2)
 		role1 := g.GetRole(tar.uid1)
 		role2 := g.GetRole(tar.uid2)
-
 		msg := "말썽쟁이 `" + player.nick + "` 는,\n"
 		msg += "(`" + role1.String() + "`) `" + user1.nick + "`, (`" + role2.String() + "`) `" + user2.nick + "`\n"
 		msg += "의 직업을 맞바꿨습니다."

@@ -7,10 +7,8 @@ import (
 type ActionSentinel struct {
 	// state 에서 가지고 있는 game
 	g *Game
-
 	// sentinel role을 가진 user들에게 보낸 능력사용 메세지ID
 	sentinelMsgsID map[string]string
-
 	// 센티넬의 선택을 기다릴 채널
 	UserChoice chan Choice
 }
@@ -50,7 +48,6 @@ func (sActionSentinel *ActionSentinel) PressYesBtn(s *discordgo.Session, r *disc
 	if sActionSentinel.filterReaction(s, r) {
 		return
 	}
-	// do nothing
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
@@ -59,7 +56,6 @@ func (sActionSentinel *ActionSentinel) PressNoBtn(s *discordgo.Session, r *disco
 	if sActionSentinel.filterReaction(s, r) {
 		return
 	}
-	// do nothing
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
@@ -68,7 +64,6 @@ func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *disc
 	if sActionSentinel.filterReaction(s, r) {
 		return
 	}
-	// do nothing
 }
 
 // InitState 함수는 ActionSentinel state가 시작할 때
