@@ -2,7 +2,6 @@ package game
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
@@ -12,8 +11,8 @@ type Prepare struct {
 	// state에서 가지고 있는 game
 	g *Game
 
-	// factory 에서 쓰이게 될 role index
-	roleIndex int
+	// roleAdd 메세지의 pageNum
+	pageNum int
 
 	// 직업추가 확인용 메세지
 	RoleAddMsg *discordgo.Message
@@ -22,9 +21,29 @@ type Prepare struct {
 	EnterGameMsg *discordgo.Message
 }
 
+const pageMax = 7
+
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
-	// do nothing
+	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
+	if sPrepare.filterReaction(s, r) {
+		return
+	}
+
+	num = num + sPrepare.pageNum*pageMax - 1
+	if num >= len(sPrepare.g.RG) {
+		return
+	}
+
+	if num == 2 {
+		s.ChannelMessageSend(sPrepare.g.ChanID, "늑대인간은 2개 있어야 합니다")
+		return
+	}
+	// role 생성해서 game의 RoleView와 RoleSeq에 추가
+	sPrepare.g.AddRole(num)
+	// 메세지 반영
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 Prepare에서 하는 동작
@@ -38,19 +57,11 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 	if sPrepare.filterReaction(s, r) {
 		return
 	}
-	// 입장 메세지에서 리액션한거라면
-	if r.MessageID == sPrepare.EnterGameMsg.ID {
-		//user 생성해서 append()
-		sPrepare.g.SetUserByID(r.UserID)
-		// 입장 확인 메세지 반영
-		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
-		// 직업추가 메세지에서 리액션한거라면
-	} else if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID == sPrepare.g.MasterID {
-		// role 생성해서 game의 RoleView와 RoleSeq에 추가
-		sPrepare.g.AddRole(sPrepare.roleIndex)
-	}
-	// 직업 추가 메세지 반영
-	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
+	//user 생성해서 append()
+	sPrepare.g.SetUserByID(r.UserID)
+	// 메세지 반영
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
 	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
@@ -60,23 +71,11 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 	if sPrepare.filterReaction(s, r) {
 		return
 	}
-	// 입장 메세지에서 리액션한거라면
-	if r.MessageID == sPrepare.EnterGameMsg.ID {
-		// userList에서 지우고
-		sPrepare.g.DelUserByID(r.UserID)
-		// 직업추가 메세지에서 리액션한거라면
-	} else if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID == sPrepare.g.MasterID {
-		if sPrepare.roleIndex == 2 {
-			s.ChannelMessageSend(sPrepare.g.ChanID, "늑대인간은 2개 있어야 합니다")
-			return
-		}
-		// role 생성해서 game의 RoleView와 RoleSeq에서 찾아 제거
-		sPrepare.g.DelRole(sPrepare.roleIndex)
-	}
-	// 입장 확인 메세지 반영
+	// userList에서 지우고
+	sPrepare.g.DelUserByID(r.UserID)
+	// 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
-	// 직업 추가 메세지 반영
-	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
 	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
@@ -94,15 +93,15 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 		}
 		// 직업추가 메세지에서 리액션한거라면
 	} else if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID == sPrepare.g.MasterID {
-		// roleindex 증감
-		sPrepare.roleIndex += dir
-		if sPrepare.roleIndex >= len(sPrepare.g.RG) {
-			sPrepare.roleIndex = 0
-		} else if sPrepare.roleIndex < 0 {
-			sPrepare.roleIndex = len(sPrepare.g.RG) - 1
+		// pageNum 증감
+		sPrepare.pageNum += dir
+		if sPrepare.pageNum > (len(sPrepare.g.RG) / pageMax) {
+			sPrepare.pageNum = 0
+		} else if sPrepare.pageNum < 0 {
+			sPrepare.pageNum = len(sPrepare.g.RG) / pageMax
 		}
 		// 직업 추가 메세지 반영
-		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
+		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
 	}
 	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
@@ -121,7 +120,7 @@ func (sPrepare *Prepare) InitState() {
 	//sPrepare.g.AddRole(9)
 
 	enterEmbed := sPrepare.NewEnterEmbed()
-	roleEmbed := sPrepare.NewRoleEmbed()
+	roleEmbed := sPrepare.NewRoleAddEmbed()
 	s := sPrepare.g.Session
 	sPrepare.EnterGameMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, enterEmbed.MessageEmbed)
 	// 게임 입장 메시지에 안내 버튼을 연결
@@ -130,10 +129,11 @@ func (sPrepare *Prepare) InitState() {
 	s.MessageReactionAdd(sPrepare.EnterGameMsg.ChannelID, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["RIGHT"])
 	sPrepare.RoleAddMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, roleEmbed.MessageEmbed)
 	// 직업 추가 메시지에 안내 버튼을 연결
-	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["YES"])
-	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["NO"])
-	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["LEFT"])
-	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
+	s.MessageReactionAdd(sPrepare.EnterGameMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["LEFT"])
+	s.MessageReactionAdd(sPrepare.EnterGameMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
+	for i := 0; i < pageMax; i++ {
+		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["n"+strconv.Itoa(i+1)])
+	}
 }
 
 func (sPrepare *Prepare) stateFinish() {
@@ -155,12 +155,23 @@ func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.Messa
 	return false
 }
 
-// newRoleEmbed 함수는 role guide와 현재 게임에 추가된 직업 / 게임의 참여중인 인원수 + 3 임베드를 만든다
-func (sPrepare *Prepare) NewRoleEmbed() *embed.Embed {
+// NewRoleAddEmbed 함수는 role guide와 현재 게임에 추가된 직업 / 게임의 참여중인 인원수 + 3 임베드를 만든다
+func (sPrepare *Prepare) NewRoleAddEmbed() *embed.Embed {
 	roleEmbed := embed.NewEmbed()
-	title := "직업 추가" + "（" + strconv.Itoa(sPrepare.roleIndex+1) + "／" + strconv.Itoa(len(sPrepare.g.RG)) + "）"
-	roleEmbed.SetTitle(title)
-	roleEmbed.AddField(sPrepare.g.RG[sPrepare.roleIndex].RoleName, strings.Join(sPrepare.g.RG[sPrepare.roleIndex].RoleGuide, "\n"))
+	lower := sPrepare.pageNum*pageMax + 1
+	upper := (sPrepare.pageNum + 1) * pageMax
+	if upper > len(sPrepare.g.RG) {
+		upper = len(sPrepare.g.RG)
+	}
+	roleEmbed.SetTitle("직업 추가" + "（" + strconv.Itoa(lower) + "~" + strconv.Itoa(upper) + "）")
+	msg := ""
+	for i := lower - 1; i < upper; i++ {
+		if (i)%(pageMax/2) == 0 {
+			msg += "\n"
+		}
+		msg += strconv.Itoa(i%pageMax+1) + sPrepare.g.RG[i].RoleName + " "
+	}
+	roleEmbed.AddField("직업목록", msg)
 	roleStr := ""
 	if len(sPrepare.g.RoleView) == 0 {
 		roleStr += "*추가된 직업이 없습니다.*"

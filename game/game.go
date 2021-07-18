@@ -188,8 +188,13 @@ func (g *Game) sortRole(list []Role) {
 func (g *Game) AddRole(roleIndex int) {
 	// roleFactory에서 현재 roleindex 위치 값을 받아 role 생성
 	roleToAdd := GenerateRole(roleIndex)
-	// RoleView에 추가된 role 개수가 max보다 작을 때만 추가
-	if g.RoleCount(roleToAdd, g.RoleView) < g.RG[roleIndex].Max {
+	// max 넘기면 초기화
+	if g.RoleCount(roleToAdd, g.RoleView) == g.RG[roleIndex].Max {
+		for i := 0; i < g.RG[roleIndex].Max; i++ {
+			g.DelRole(roleIndex)
+		}
+		// RoleView에 추가된 role 개수가 max보다 작을 때만 추가
+	} else {
 		// RoleView는 ununique unsorted니까 append
 		g.RoleView = append(g.RoleView, roleToAdd)
 		// RoleSeq는 unique sorted니까 RoleSeq에 없으면 추가
