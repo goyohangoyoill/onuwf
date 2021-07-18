@@ -40,13 +40,11 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 		num = num + 1
 	}
 	v.Voted_list[num-1]++
-	msg := ""
-	msg += v.G.GetRole(r.UserID).String() + " " + v.G.FindUserByUID(r.UserID).nick + " 는 "
-	msg += v.G.GetRole(v.G.UserList[num-1].UserID).String() + " " + v.G.UserList[num-1].nick + "에게 투표하였습니다"
-	v.G.AppendLog(msg)
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
 	// User.voteUserId에 누구에게 투표했는지 유저ID 저장
 	v.setVoteUserId(r.UserID, v.G.UserList[num-1].UserID)
+	// 각 유저별 투표내용 로그 작성
+	v.setUserVoteLog(v.G.FindUserByUID(r.UserID).nick, v.G.UserList[num-1].nick)
 	// 투표완료시 어떤 유저에게 투표했는지 DM으로 메시지를 보내는 함수
 	v.sendVoteCompleteMsgToDm(v.G.FindUserByUID(r.UserID), v.G.UserList[num-1].nick)
 	v.Vote_count++
@@ -105,6 +103,7 @@ func (v *StateVote) InitState() {
 	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "투표용지 전달중...")
 	VoteProcess(v.G.Session, v.G)
 	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "투표 진행중...")
+	v.G.AppendLog("**투표 결과**")
 }
 
 // stateFinish 함수는 현재 state가 끝나고 다음 state로 넘어갈 때 호출되는 함수입니다.
@@ -203,4 +202,9 @@ func (v *StateVote) sendVoteCompleteMsgToDm(voteUser *User, votedUserNick string
 	msg := "`" + votedUserNick + "`에게 투표하셨습니다"
 	v.G.Session.ChannelMessageSendEmbed(voteUser.dmChanID, embed.NewGenericEmbed(title, msg))
 	v.G.Session.ChannelMessageSend(v.G.ChanID, "`"+voteUser.nick+"` 님이 투표하셨습니다.")
+}
+
+func (v *StateVote) setUserVoteLog(from, to string) {
+	msg := "`" + from + "` -> `" + to + "`"
+	v.G.AppendLog(msg)
 }
