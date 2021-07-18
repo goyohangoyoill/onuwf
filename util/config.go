@@ -7,8 +7,13 @@ import (
 	"os"
 )
 
+type Config struct {
+	Prefix       string `json:"prefix"`
+	VoteDelaySec int    `json:"voteDelaySec"`
+}
+
 // ONUWF/asset/config.json 파일 읽어서 return하는 함수
-func ReadConfigJson() map[string]string {
+func ReadConfigJson() Config {
 	configFile, err := os.Open("asset/config.json")
 	if err != nil {
 		log.Fatal(err)
@@ -20,7 +25,12 @@ func ReadConfigJson() map[string]string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	config := make(map[string]string)
+	var config Config
 	json.Unmarshal([]byte(byteValue), &config)
+
+	// 음수 시간 동안 기다릴 순 없으니
+	if config.VoteDelaySec < 0 {
+		config.VoteDelaySec = 0
+	}
 	return config
 }

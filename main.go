@@ -25,7 +25,7 @@ var (
 	env    map[string]string
 	emj    map[string]string
 	rg     []util.RoleGuide
-	config map[string]string
+	config util.Config
 )
 
 func init() {
@@ -33,7 +33,7 @@ func init() {
 	emj = util.EmojiInit()
 	util.RoleGuideInit(&rg)
 	config = util.ReadConfigJson()
-	util.ReadJSON(rg, config["prefix"])
+	util.ReadJSON(rg, config.Prefix)
 	//util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)
@@ -67,7 +67,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	quitUserIDChan := make(chan string)
 	gameStartedChan := make(chan bool)
 	fqChanMap[m.GuildID+m.ChannelID] = make(chan bool, 1)
-	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, enterUserIDChan, quitUserIDChan, gameStartedChan)
+	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, config, enterUserIDChan, quitUserIDChan, gameStartedChan)
 	// Mutex 필요할 것으로 예상됨.
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
 	uidToGameData[m.Author.ID] = curGame
@@ -111,11 +111,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// 명령어모음
-	if util.PrintHelpList(s, m, rg, config["prefix"]) {
+	if util.PrintHelpList(s, m, rg, config.Prefix) {
 		return
 	}
 	switch m.Content {
-	case config["prefix"] + "시작":
+	case config.Prefix + "시작":
 		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
 			return
@@ -126,7 +126,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
-	case config["prefix"] + "강제종료":
+	case config.Prefix + "강제종료":
 		if isUserIn[m.Author.ID] {
 			curChan := fqChanMap[m.GuildID+m.ChannelID]
 			// Mutex Lock
@@ -156,7 +156,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			// Mutex Release
 			<-curChan
 		}
-	case config["prefix"] + "관전":
+	case config.Prefix + "관전":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g == nil {
 			return
@@ -170,7 +170,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		dmChan, _ := s.UserChannelCreate(m.Author.ID)
 		g.SendLogMsg(dmChan.ID)
-	case config["prefix"] + "확인":
+	case config.Prefix + "확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g == nil {
 			return

@@ -49,6 +49,8 @@ type Game struct {
 	LogMsg []string
 	// 이모지 정보
 	Emj map[string]string
+	// 환경설정 정보
+	config util.Config
 	// 직업의 대한 소개 및 정보
 	RG []util.RoleGuide
 
@@ -59,7 +61,7 @@ type Game struct {
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
-func NewGame(gid, cid, muid string, s *discordgo.Session, rg []util.RoleGuide, emj map[string]string, enterUserIDChan, quitUserIDChan chan string, gameStartedChan chan bool) (g *Game) {
+func NewGame(gid, cid, muid string, s *discordgo.Session, rg []util.RoleGuide, emj map[string]string, config util.Config, enterUserIDChan, quitUserIDChan chan string, gameStartedChan chan bool) (g *Game) {
 	g = &Game{}
 	g.GuildID = gid
 	g.ChanID = cid
@@ -71,6 +73,7 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []util.RoleGuide, e
 	g.CanFunc = cancel
 	g.RG = rg
 	g.Emj = emj
+	g.config = config
 	g.EnterUserIDChan = enterUserIDChan
 	g.QuitUserIDChan = quitUserIDChan
 	g.GameStartedChan = gameStartedChan

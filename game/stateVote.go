@@ -101,11 +101,12 @@ func (v *StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReacti
 // 메세지 객체를 스테이트의 멤버로 저장합니다.
 // 이 함수는 이전 스테이트가 끝나는 시점에 호출되어야 합니다.
 func (v *StateVote) InitState() {
-	//	v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "juhur", v.G.ChanID, v.G.ChanID))
-	//v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "kalee", v.G.ChanID, v.G.ChanID))
-	//v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "min-jo", v.G.ChanID, v.G.ChanID))
-	v.G.Session.ChannelMessageSend(v.G.ChanID, "10초 후에 투표가 시작됩니다.")
-	time.Sleep(10 * time.Second)
+	delaySec := v.G.config.VoteDelaySec
+	if delaySec > 0 {
+		msg := strconv.Itoa(delaySec) + "초 후에 투표가 시작됩니다"
+		v.G.Session.ChannelMessageSend(v.G.ChanID, msg)
+		time.Sleep(time.Duration(delaySec) * time.Second)
+	}
 	msg := ""
 	v.G.AppendLog(msg)
 	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "투표용지 전달중...")

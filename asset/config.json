@@ -1,3 +1,4 @@
 {
-	"prefix": "ㅁ"
+	"prefix": "ㅁ",
+	"voteDelaySec": 10
 }
