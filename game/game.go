@@ -22,6 +22,8 @@ type Game struct {
 	ChanID string
 	// 게임을 생성한 방장의 UID
 	MasterID string
+	// 게임 상태 표시 메시지의 mid
+	GameStateMID string
 
 	// 현재 게임의 진행시점
 	CurState State
@@ -83,6 +85,7 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []util.RoleGuide, e
 	g.LogMsg = make([]string, 0)
 	g.SetUserByID(muid)
 	g.CurState = &Prepare{g, 0, nil, nil}
+	g.GameStateMID = ""
 	g.CurState.InitState()
 	return
 }

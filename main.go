@@ -24,7 +24,7 @@ var (
 	isUserIn            map[string]bool
 	uidToGameData       map[string]*wfGame.Game
 	guildChanToGameData map[string]*wfGame.Game
-	fqChan              chan bool
+	fqChanMap           map[string]chan bool
 
 	env map[string]string
 	emj map[string]string
@@ -41,7 +41,7 @@ func init() {
 	isUserIn = make(map[string]bool)
 	guildChanToGameData = make(map[string]*wfGame.Game)
 	uidToGameData = make(map[string]*wfGame.Game)
-	fqChan = make(chan bool)
+	fqChanMap = make(map[string]chan bool)
 }
 
 func main() {
@@ -68,6 +68,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	enterUserIDChan := make(chan string, 1)
 	quitUserIDChan := make(chan string)
 	gameStartedChan := make(chan bool)
+	fqChanMap[m.GuildID+m.ChannelID] = make(chan bool, 1)
 	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, enterUserIDChan, quitUserIDChan, gameStartedChan)
 	// Mutex 필요할 것으로 예상됨.
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
@@ -85,6 +86,18 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 			break
 		}
 	}
+	<-curGame.GameStartedChan
+	fqChanMap[m.GuildID+m.ChannelID] <- true
+	isUserIn[m.Author.ID] = false
+	g := guildChanToGameData[m.GuildID+m.ChannelID]
+	for _, user := range g.UserList {
+		delete(isUserIn, user.UserID)
+		delete(uidToGameData, user.UserID)
+	}
+	delete(guildChanToGameData, m.GuildID+m.ChannelID)
+	g.CanFunc()
+	s.ChannelMessageSend(m.ChannelID, "게임이 종료 되었습니다.")
+	<-fqChanMap[m.GuildID+m.ChannelID]
 }
 
 // messageCreate() 입력한 메시지를 처리하는 함수
@@ -109,15 +122,24 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
 	case prefix + "강제종료":
-		// Mutex Lock
-		fqChan <- true
 		if isUserIn[m.Author.ID] {
-			s.ChannelMessageSend(m.ChannelID, "3초 후 게임을 강제종료합니다.")
-			isUserIn[m.Author.ID] = false
-			time.Sleep(3 * time.Second)
+			curChan := fqChanMap[m.GuildID+m.ChannelID]
+			// Mutex Lock
+			curChan <- true
 			g := guildChanToGameData[m.GuildID+m.ChannelID]
-			if m.Author.ID != g.MasterID {
+			if g == nil {
+				<-curChan
 				return
+			}
+			if m.Author.ID != g.MasterID {
+				<-curChan
+				return
+			}
+			s.ChannelMessageSend(m.ChannelID, "3초 후 게임을 강제종료합니다.")
+			time.Sleep(3 * time.Second)
+			g = guildChanToGameData[m.GuildID+m.ChannelID]
+			if g == nil {
+				<-curChan
 			}
 			for _, user := range g.UserList {
 				delete(isUserIn, user.UserID)
@@ -126,9 +148,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			delete(guildChanToGameData, m.GuildID+m.ChannelID)
 			g.CanFunc()
 			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
+			// Mutex Release
+			<-curChan
 		}
-		// Mutex Release
-		<-fqChan
 	case prefix + "관전":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g == nil {

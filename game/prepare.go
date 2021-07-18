@@ -138,7 +138,8 @@ func (sPrepare *Prepare) InitState() {
 
 func (sPrepare *Prepare) stateFinish() {
 	sPrepare.g.CurState = &StartGame{sPrepare.g}
-	sPrepare.g.Session.ChannelMessageSend(sPrepare.g.ChanID, "각자의 직업을 배정 중입니다...")
+	msg, _ := sPrepare.g.Session.ChannelMessageSend(sPrepare.g.ChanID, "각자의 직업을 배정 중입니다...")
+	sPrepare.g.GameStateMID = msg.ID
 	sPrepare.g.GameStartedChan <- true
 	sPrepare.g.CurState.InitState()
 }

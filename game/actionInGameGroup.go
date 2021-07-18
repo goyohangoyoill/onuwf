@@ -147,23 +147,25 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 		}
 		// 밑에서 getRoleUsers에서 nil나와서 검사 해야됨
 		rIdx := FindRoleIdx(role, g.RoleSeq)
-		if rIdx != -1 {
-			for _, user := range g.GetOriRoleUsersWithoutDpl(role) {
-				sActionInGameGroup.Info[user.UserID] = curInfo
-				if role.String() == (&Werewolf{}).String() {
-					wolves := g.GetOriRoleUsers(&Werewolf{})
-					//wolves = append(wolves, g.GetOriRoleUsers(&Misticwolf{})...)
-					//wolves = append(wolves, g.GetOriRoleUsers(&Alphawolf{})...)
-					//wolves = append(wolves, g.GetOriRoleUsers(&Dreamwolf{})...)
-					if len(wolves) == 1 {
-						(sActionInGameGroup.Info[user.UserID]).Code = 1
-						curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
-					}
-					continue
-				}
-				curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
-			}
+		if rIdx == -1 {
+			continue
 		}
+		for _, user := range g.GetOriRoleUsersWithoutDpl(role) {
+			sActionInGameGroup.Info[user.UserID] = curInfo
+			if role.String() == (&Werewolf{}).String() {
+				wolves := g.GetOriRoleUsers(&Werewolf{})
+				//wolves = append(wolves, g.GetOriRoleUsers(&Misticwolf{})...)
+				//wolves = append(wolves, g.GetOriRoleUsers(&Alphawolf{})...)
+				//wolves = append(wolves, g.GetOriRoleUsers(&Dreamwolf{})...)
+				if len(wolves) == 1 {
+					(sActionInGameGroup.Info[user.UserID]).Code = 1
+					curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
+				}
+				continue
+			}
+			curInfo.MsgID = role.SendUserSelectGuide(user, g, 0)
+		}
+
 	}
 	curInfo := sActionInGameGroup.Info
 	for i := 0; i < len(g.RoleSeq); i++ {

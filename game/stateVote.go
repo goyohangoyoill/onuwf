@@ -72,6 +72,7 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 		s.ChannelMessageSendEmbed(v.G.ChanID, voteResultEmbed.MessageEmbed)
 		// 헌터 능력 발동
 		v.hunterSkillMsg(s, max_value)
+		v.stateFinish()
 	}
 }
 
@@ -104,14 +105,18 @@ func (v *StateVote) InitState() {
 	//v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "min-jo", v.G.ChanID, v.G.ChanID))
 	msg := ""
 	v.G.AppendLog(msg)
+	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "투표용지 전달중...")
 	VoteProcess(v.G.Session, v.G)
+	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "투표 진행중...")
 }
 
 // stateFinish 함수는 현재 state가 끝나고 다음 state로 넘어갈 때 호출되는 함수입니다.
 // game의 CurState 변수에 다음 state를 생성해서 할당해준 다음
 // 다음 state의 InitState() 함수를 이 함수 안에서 호출해야 합니다
 func (v *StateVote) stateFinish() {
-
+	v.G.SendLogMsg(v.G.ChanID)
+	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "게임 종료.")
+	v.G.GameStartedChan <- false
 }
 
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
@@ -206,4 +211,5 @@ func (v *StateVote) sendVoteCompleteMsgToDm(voteUser *User, votedUserNick string
 	title := "투표 완료"
 	msg := "`" + votedUserNick + "`에게 투표하셨습니다"
 	v.G.Session.ChannelMessageSendEmbed(voteUser.dmChanID, embed.NewGenericEmbed(title, msg))
+	v.G.Session.ChannelMessageSend(v.G.ChanID, "`"+voteUser.nick+"` 님이 투표하셨습니다.")
 }
