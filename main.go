@@ -16,27 +16,24 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-const (
-	prefix = "ㅁ"
-	//prefix = "-"
-)
-
 var (
 	isUserIn            map[string]bool
 	uidToGameData       map[string]*wfGame.Game
 	guildChanToGameData map[string]*wfGame.Game
 	fqChanMap           map[string]chan bool
 
-	env map[string]string
-	emj map[string]string
-	rg  []util.RoleGuide
+	env    map[string]string
+	emj    map[string]string
+	rg     []util.RoleGuide
+	config map[string]string
 )
 
 func init() {
 	env = util.EnvInit()
 	emj = util.EmojiInit()
 	util.RoleGuideInit(&rg)
-	util.ReadJSON(rg, prefix)
+	config = util.ReadConfigJson()
+	util.ReadJSON(rg, config["prefix"])
 	//util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)
@@ -114,11 +111,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// 명령어모음
-	if util.PrintHelpList(s, m, rg, prefix) {
+	if util.PrintHelpList(s, m, rg, config["prefix"]) {
 		return
 	}
 	switch m.Content {
-	case prefix + "시작":
+	case config["prefix"] + "시작":
 		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
 			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
 			return
@@ -129,7 +126,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		isUserIn[m.Author.ID] = true
 		go startgame(s, m)
-	case prefix + "강제종료":
+	case config["prefix"] + "강제종료":
 		if isUserIn[m.Author.ID] {
 			curChan := fqChanMap[m.GuildID+m.ChannelID]
 			// Mutex Lock
@@ -159,7 +156,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			// Mutex Release
 			<-curChan
 		}
-	case prefix + "관전":
+	case config["prefix"] + "관전":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g == nil {
 			return
@@ -173,7 +170,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		dmChan, _ := s.UserChannelCreate(m.Author.ID)
 		g.SendLogMsg(dmChan.ID)
-	case prefix + "확인":
+	case config["prefix"] + "확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g == nil {
 			return
