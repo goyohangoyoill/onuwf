@@ -2,6 +2,7 @@ package game
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
@@ -103,6 +104,8 @@ func (v *StateVote) InitState() {
 	//	v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "juhur", v.G.ChanID, v.G.ChanID))
 	//v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "kalee", v.G.ChanID, v.G.ChanID))
 	//v.G.UserList = append(v.G.UserList, NewUser(v.G.MasterID, "min-jo", v.G.ChanID, v.G.ChanID))
+	v.G.Session.ChannelMessageSend(v.G.ChanID, "10초 후에 투표가 시작됩니다.")
+	time.Sleep(10 * time.Second)
 	msg := ""
 	v.G.AppendLog(msg)
 	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "투표용지 전달중...")
