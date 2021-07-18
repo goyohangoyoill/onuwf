@@ -18,6 +18,7 @@ import (
 
 const (
 	prefix = "ㅁ"
+	//prefix = "-"
 )
 
 var (
@@ -73,7 +74,11 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Mutex 필요할 것으로 예상됨.
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
 	uidToGameData[m.Author.ID] = curGame
+	flag := false
 	for {
+		if flag {
+			break
+		}
 		select {
 		case curUID := <-curGame.EnterUserIDChan:
 			isUserIn[curUID] = true
@@ -83,13 +88,16 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 			delete(isUserIn, curUID)
 			delete(uidToGameData, curUID)
 		case <-curGame.GameStartedChan:
-			break
+			flag = true
 		}
 	}
 	<-curGame.GameStartedChan
 	fqChanMap[m.GuildID+m.ChannelID] <- true
-	isUserIn[m.Author.ID] = false
 	g := guildChanToGameData[m.GuildID+m.ChannelID]
+	if g == nil {
+		<-fqChanMap[m.GuildID+m.ChannelID]
+		return
+	}
 	for _, user := range g.UserList {
 		delete(isUserIn, user.UserID)
 		delete(uidToGameData, user.UserID)
