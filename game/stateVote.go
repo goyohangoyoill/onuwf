@@ -48,9 +48,9 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	msg += v.G.GetRole(v.G.UserList[num-1].UserID).String() + " " + v.G.UserList[num-1].nick + "에게 투표하였습니다"
 	v.G.AppendLog(msg)
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
-	// 투표 내용 저장
-	v.setUserVoteId(r.UserID, v.G.UserList[num-1].UserID)
-	// 투표 완료 DM메시지
+	// User.voteUserId에 누구에게 투표했는지 유저ID 저장
+	v.setVoteUserId(r.UserID, v.G.UserList[num-1].UserID)
+	// 투표완료시 어떤 유저에게 투표했는지 DM으로 메시지를 보내는 함수
 	v.sendVoteCompleteMsgToDm(v.G.FindUserByUID(r.UserID), v.G.UserList[num-1].nick)
 	v.Vote_count++
 	if v.Vote_count == v.User_num {
@@ -71,7 +71,7 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 			}
 		}
 		s.ChannelMessageSendEmbed(v.G.ChanID, voteResultEmbed.MessageEmbed)
-		// 헌터 능력 발동
+		// 사냥꾼 능력발동 및 로그 작성하는 함수
 		v.hunterSkillMsg(s, max_value)
 		v.stateFinish()
 	}
@@ -175,8 +175,8 @@ func addNumAddEmoji(s *discordgo.Session, msg *discordgo.Message, g *Game) {
 	//s.MessageReactionAdd(msg.ChannelID, msg.ID, g.Emj["n4"])
 }
 
-// User.voteUserId에 투표내용 저장
-func (v *StateVote) setUserVoteId(voteUserId, votedUserId string) {
+// User.voteUserId에 누구에게 투표했는지 유저ID 저장
+func (v *StateVote) setVoteUserId(voteUserId, votedUserId string) {
 	for _, user := range v.G.UserList {
 		if user.UserID == voteUserId {
 			user.voteUserId = votedUserId
