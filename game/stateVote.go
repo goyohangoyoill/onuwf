@@ -178,7 +178,7 @@ func (v *StateVote) setVoteUserId(voteUserId, votedUserId string) {
 
 // 사냥꾼 능력발동 조건을 확인하는 함수
 func (v *StateVote) chkUseHunterSkill(i, max_value int) bool {
-	if max_value == v.Voted_list[i] {
+	if max_value == v.Voted_list[i] && max_value > 1 {
 		if v.G.GetRole(v.G.UserList[i].UserID).String() == "사냥꾼" {
 			return true
 		}
