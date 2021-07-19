@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/bwmarrin/discordgo"
@@ -104,6 +105,30 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
+// PressBmkBtn DB에 저장된 정보를 load 하는 동작
+func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+	if sPrepare.filterReaction(s, r) {
+		return
+	}
+	fmt.Println(sPrepare.g.FormerRole)
+	fmt.Println(sPrepare.g.MasterID)
+	if r.MessageID == sPrepare.RoleAddMsg.ID {
+		if r.UserID == sPrepare.g.MasterID && sPrepare.g.FormerRole != nil {
+			rLen := len(sPrepare.g.FormerRole)
+			for i := 0; i < rLen; i++ {
+				sPrepare.g.AddRole(sPrepare.g.FormerRole[i])
+			}
+		}
+	}
+
+	// 입장 확인 메세지 반영
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
+	// 직업 추가 메세지 반영
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
+
+}
+
 // InitState 함수는 prepare state가 시작할 때 입장, 직업추가 메세지를 보냅니다.
 func (sPrepare *Prepare) InitState() {
 	// 늑대인간 2개 추가
@@ -124,6 +149,15 @@ func (sPrepare *Prepare) InitState() {
 	for i := 0; i < pageMax; i++ {
 		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["n"+strconv.Itoa(i+1)])
 	}
+	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["BOOKMARK"])
+
+	/*
+		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["YES"])
+		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["NO"])
+		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["LEFT"])
+		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
+		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["BOOKMARK"])
+	*/
 }
 
 func (sPrepare *Prepare) stateFinish() {

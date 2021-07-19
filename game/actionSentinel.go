@@ -66,6 +66,11 @@ func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *disc
 	}
 }
 
+// PressBmkBtn DB에 저장된 정보를 load 하는 동작
+func (sActionSentinel *ActionSentinel) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+	//do nothing
+}
+
 // InitState 함수는 ActionSentinel state가 시작할 때
 // 센티넬 직업을 가진 유저에게 센티넬 동작 DM을 보내고 이를 ActionSentinel 멤버 변수로 저장합니다.
 func (sActionSentinel *ActionSentinel) InitState() {

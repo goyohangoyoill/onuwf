@@ -14,5 +14,6 @@
 	"DISCARD": "🚮",
 	"LEFT" : "◀️",
 	"RIGHT" : "▶️",
-	"OK" : "🆗"
+	"OK" : "🆗",
+	"BOOKMARK" : "🔖"
 }
