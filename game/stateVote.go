@@ -89,6 +89,11 @@ func (v *StateVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	//do nothing
 }
 
+// PressBmkBtn DB에 저장된 정보를 load 하는 동작
+func (v *StateVote) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+	//do nothing
+}
+
 // InitState 함수는 스테이트가 시작할 때 필요한 메세지를 생성하고 채널이나 개인DM으로 메세지를 보낸 후
 // 메세지 객체를 스테이트의 멤버로 저장합니다.
 // 이 함수는 이전 스테이트가 끝나는 시점에 호출되어야 합니다.
@@ -142,7 +147,7 @@ func SendVoteDM(s *discordgo.Session, g *Game, UserNum int) {
 		}
 		voteEmbed.AddField(strconv.Itoa(i+1)+"번 ", g.UserList[j].nick)
 	}
-	voteEmbed.SetAuthor(g.UserList[UserNum].nick)
+	voteEmbed.SetAuthor(g.UserList[UserNum].title + " " + g.UserList[UserNum].nick)
 	voteEmbed.InlineAllFields()
 	UserDM, _ := s.UserChannelCreate(g.UserList[UserNum].UserID) //g.UserList[0] -> g.UsrList[UserNum] change need(test용)
 	voteEmbed.InlineAllFields()

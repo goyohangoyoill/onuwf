@@ -52,6 +52,8 @@ type Game struct {
 	EnterUserIDChan, QuitUserIDChan chan string
 	// 게임이 시작되면 신호가 전달되는 채널
 	GameStartedChan chan bool
+
+	FormerRole []int
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
@@ -70,6 +72,7 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []RoleGuide, emj ma
 	g.EnterUserIDChan = enterUserIDChan
 	g.QuitUserIDChan = quitUserIDChan
 	g.GameStartedChan = gameStartedChan
+	g.FormerRole = nil
 	var maxrole int
 	for _, roleItem := range rg {
 		maxrole += roleItem.Max

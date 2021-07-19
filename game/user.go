@@ -8,6 +8,8 @@ type User struct {
 	// 각 유저의 닉네임
 	nick string
 
+	// 각 유저의 칭호
+	title string
 	// 각 유저가 속한 게임이 진행중인 채널 ID
 	chanID string
 
@@ -19,6 +21,10 @@ func (u User) Nick() string {
 	return u.nick
 }
 
+func (u User) Title() string {
+	return u.title
+}
+
 // NewUser make new user object
 func NewUser(uid, nick, chanID, dmChanID string) (u *User) {
 	u = &User{}
@@ -27,4 +33,10 @@ func NewUser(uid, nick, chanID, dmChanID string) (u *User) {
 	u.chanID = chanID
 	u.dmChanID = dmChanID
 	return
+}
+
+func UpdateUser(cu *User, nick, title string) (u *User) {
+	cu.nick = nick
+	cu.title = title
+	return cu
 }

@@ -130,6 +130,11 @@ func (sActionInGameGroup *ActionInGameGroup) PressDirBtn(s *discordgo.Session, r
 	// do nothing
 }
 
+// PressBmkBtn DB에 저장된 정보를 load 하는 동작
+func (sActionInGameGroup *ActionInGameGroup) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+	//do nothing
+}
+
 // InitState 함수는 ActionInGameGroup state 가 시작되었을 때 호출되는 메소드이다.
 func (sActionInGameGroup *ActionInGameGroup) InitState() {
 	g := sActionInGameGroup.g

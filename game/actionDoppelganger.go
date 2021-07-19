@@ -138,6 +138,11 @@ func (sdpl *ActionDoppelganger) PressDirBtn(s *discordgo.Session, r *discordgo.M
 	// do nothing
 }
 
+// PressBmkBtn DB에 저장된 정보를 load 하는 동작
+func (sdpl *ActionDoppelganger) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+	//do nothing
+}
+
 // InitState 함수는 ActionDoppelganger state 가 시작되었을 때 호출되는 메소드이다.
 func (sdpl *ActionDoppelganger) InitState() {
 	g := sdpl.g
