@@ -57,12 +57,18 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 		}
 		voteResultEmbed := embed.NewEmbed()
 		voteResultEmbed.SetTitle("투표 결과")
-		for i := 0; i < v.User_num; i++ {
-			rMsg := ""
-			if max_value == v.Voted_list[i] {
-				voteResultEmbed.AddField(v.G.UserList[i].nick, "`"+v.G.GetRole(v.G.UserList[i].UserID).String()+"` "+v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
-				rMsg += v.G.UserList[i].nick + "는 " + strconv.Itoa(max_value) + "회 지목당해 투표로 사망하였습니다"
-				v.G.AppendLog(rMsg)
+		switch max_value {
+		case 1:
+			rMsg := "모두 1표씩 투표받아 아무도 사망하지 않았습니다"
+			voteResultEmbed.AddField("전원 생존", rMsg)
+			v.G.AppendLog(rMsg)
+		default:
+			for i := 0; i < v.User_num; i++ {
+				if max_value == v.Voted_list[i] {
+					voteResultEmbed.AddField(v.G.UserList[i].nick, "`"+v.G.GetRole(v.G.UserList[i].UserID).String()+"` "+v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
+					rMsg := v.G.UserList[i].nick + "는 " + strconv.Itoa(max_value) + "회 지목당해 투표로 사망하였습니다"
+					v.G.AppendLog(rMsg)
+				}
 			}
 		}
 		s.ChannelMessageSendEmbed(v.G.ChanID, voteResultEmbed.MessageEmbed)
@@ -209,6 +215,7 @@ func (v *StateVote) sendVoteCompleteMsgToDm(voteUser *User, votedUserNick string
 	v.G.Session.ChannelMessageSend(v.G.ChanID, "`"+voteUser.nick+"` 님이 투표하셨습니다.")
 }
 
+// 각 유저별 투표 내용 작성
 func (v *StateVote) setUserVoteLog(from, to string) {
 	msg := "`" + from + "` -> `" + to + "`"
 	v.G.AppendLog(msg)
