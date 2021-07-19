@@ -31,6 +31,6 @@ type UserData struct {
 	RecentGameTime time.Time
 	CntPlay        int
 	CntWin         int
-	LastRoleList   []string
+	LastRoleList   []int
 	PlayedGameOID  []string
 }
