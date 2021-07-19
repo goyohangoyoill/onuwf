@@ -1,4 +1,4 @@
-module ONUWF_git/util/data
+module data
 
 go 1.16
 

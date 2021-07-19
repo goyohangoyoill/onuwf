@@ -5,15 +5,16 @@ import (
 )
 
 type GameData struct {
-	ObjectID           string
-	StartTime, EndTime time.Time
-	GuildID            string
-	ChanID             string
-	MasterID           string
-	RoleList           []string
-	UserList           []User
-	OriDisRole         []string
-	LastDisRole        []string
+	ObjectID    string
+	StartTime   time.Time
+	EndTime     time.Time
+	GuildID     string
+	ChanID      string
+	MasterID    string
+	RoleList    []string
+	UserList    []User
+	OriDisRole  []string
+	LastDisRole []string
 }
 
 type User struct {
