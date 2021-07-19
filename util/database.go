@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	//wfGame "github.com/goyohangoyoill/ONUWF/game"
+	wfGame "github.com/goyohangoyoill/ONUWF/game"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +19,7 @@ type LoadDBInfo struct {
 }
 
 type SaveDBInfo struct {
-	CurUserList []*InputUser
+	CurUserList []*wfGame.User
 	CurRoleSeq  []int
 	MUserID     string
 }
@@ -134,18 +134,18 @@ func SetStartUser(sDB SaveDBInfo, collection string, mongoDB *mongo.Database, ct
 		//User 정보 없을 시 db에 유저등록
 		if num == 0 {
 			if user.UserID == sDB.MUserID {
-				Input = InputUser{user.UserID, user.Nick, "BetaTester", t, 0, sDB.CurRoleSeq}
+				Input = InputUser{user.UserID, user.nick, "BetaTester", t, 0, sDB.CurRoleSeq}
 			} else {
-				Input = InputUser{user.UserID, user.Nick, "BetaTester", t, 0, nil}
+				Input = InputUser{user.UserID, user.nick, "BetaTester", t, 0, nil}
 			}
 			_, err := mongoDB.Collection(collection).InsertOne(ctx, Input)
 			CheckErr(err)
 		} else if num == 1 {
 			//master user 일 경
 			if user.UserID == sDB.MUserID {
-				update = bson.D{{"$set", bson.D{{"nick", user.Nick}, {"lastplayeddate", t}, {"lastrole", sDB.CurRoleSeq}}}}
+				update = bson.D{{"$set", bson.D{{"nick", user.nick}, {"lastplayeddate", t}, {"lastrole", sDB.CurRoleSeq}}}}
 			} else {
-				update = bson.D{{"$set", bson.D{{"nick", user.Nick}, {"lastplayeddate", t}}}}
+				update = bson.D{{"$set", bson.D{{"nick", user.nick}, {"lastplayeddate", t}}}}
 			}
 		} else {
 			fmt.Println("UserDB Overlapped")

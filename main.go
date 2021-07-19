@@ -32,11 +32,10 @@ type LoadDBInfo struct {
 	MatchedUserList []*wfGame.User
 	LastRoleSeq     []wfGame.Role //User로
 
-}
-
+}/
 type SaveDBInfo struct {
 	CurUserList []*wfGame.User
-	CurRoleSeq  []wfGame.Role
+	CurRoleSeq  []int
 	mUserID     string
 }
 */

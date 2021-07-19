@@ -124,7 +124,7 @@ func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageR
 	// 입장 확인 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 	// 직업 추가 메세지 반영
-	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleEmbed().MessageEmbed)
+	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
 	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 
 }
