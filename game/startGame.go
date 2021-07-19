@@ -33,6 +33,11 @@ func (sStartGame *StartGame) PressNoBtn(s *discordgo.Session, r *discordgo.Messa
 func (sStartGame *StartGame) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
 }
 
+// PressBmkBtn DB에 저장된 정보를 load 하는 동작
+func (sStartGame *StartGame) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+	//do nothing
+}
+
 // InitState 함수는 StartGame state가 시작할 때 진짜로 게임이 시작되므로
 // game에 UserList에 직업을 랜덤 할당해주고 각 유저에게 직업소개 개인 DM을 보낸 후 센티넬 state를 시작합니다.
 func (sStartGame *StartGame) InitState() {

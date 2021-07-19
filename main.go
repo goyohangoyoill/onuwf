@@ -27,6 +27,19 @@ var (
 	config              util.Config
 )
 
+/*
+type LoadDBInfo struct {
+	MatchedUserList []*wfGame.User
+	LastRoleSeq     []wfGame.Role //User로
+
+}
+
+type SaveDBInfo struct {
+	CurUserList []*wfGame.User
+	CurRoleSeq  []wfGame.Role
+	mUserID     string
+}
+*/
 func init() {
 	env = util.EnvInit()
 	emj = util.EmojiInit()
@@ -71,6 +84,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
 	uidToGameData[m.Author.ID] = curGame
 	flag := false
+	LoadEnterUser(curGame, m.Author.ID)
 	for {
 		if flag {
 			break
@@ -80,11 +94,14 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 			isUserIn[curUID] = true
 			guildChanToGameData[m.GuildID+curUID] = curGame
 			uidToGameData[curUID] = curGame
+			LoadEnterUser(curGame, curUID)
 		case curUID := <-curGame.QuitUserIDChan:
 			delete(isUserIn, curUID)
 			delete(uidToGameData, curUID)
 		case <-curGame.GameStartedChan:
 			flag = true
+			SaveStartDB(curGame)
+			return
 		}
 	}
 	<-curGame.GameStartedChan
@@ -103,6 +120,57 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	g.CanFunc()
 	s.ChannelMessageSend(m.ChannelID, "게임이 종료 되었습니다.")
 	<-fqChanMap[m.GuildID+m.ChannelID]
+}
+
+// 유저 입장시 유저별 data db에 요청
+func LoadEnterUser(g *wfGame.Game, uid string) {
+	conn, ctx := util.MongoConn(env)
+	// m은 master_user 식별 bool
+	m := false
+	if g.MasterID == uid {
+		m = true
+	}
+	// p는 database에 존재여부 식별 bool
+	lUser, p := util.LoadEachUser(uid, m, "User", conn.Database("ONUWF"), ctx)
+	cUser := g.FindUserByUID(uid)
+	if p == true {
+		wfGame.UpdateUser(cUser, lUser.Nick, lUser.Title)
+		if m == true {
+			g.FormerRole = lUser.LastRole
+		}
+	}
+	//fmt.Println(g.UserList[0].Nick(), g.UserList[0].Title())
+	//fmt.Println(g.FormerRole)
+}
+
+/*
+func LoadDB(g *wfGame.Game) {
+	conn, ctx := util.MongoConn(env)
+	uLen := len(g.UserList)
+	sDB := util.SaveDBInfo{g.UserList, RoleID, g.MasterID}
+	lDB := util.LoadUser(sDB, "User", conn.Database("ONUWF"), ctx)
+	mLen := len(lDB.LoadedUser)
+	for i := 0; i < uLen; i++ {
+		//	a := util.CreateUser(g.UserList[i], "User", conn.Database("ONUWF"), ctx)
+		for j := 0; j < mLen; j++ {
+
+		}
+	}
+
+}
+*/
+// 게임 시작 시 save (user nick, lastrole 정보 저장)
+func SaveStartDB(g *wfGame.Game) {
+	conn, ctx := util.MongoConn(env)
+	rLen := len(g.RoleView)
+	RoleID := make([]int, rLen)
+	// 게임 시작 시 설정 직업 정보를 가진 배열 초기
+	for i := 0; i < rLen; i++ {
+		RoleID[i] = g.RoleView[i].ID()
+	}
+	sDB := util.SaveDBInfo{g.UserList, RoleID, g.MasterID}
+	a := util.SetStartUser(sDB, "User", conn.Database("ONUWF"), ctx)
+	// fmt.Println(a)
 }
 
 // messageCreate() 입력한 메시지를 처리하는 함수
@@ -231,5 +299,7 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	case emj["RIGHT"]:
 		// ▶️
 		g.CurState.PressDirBtn(s, r.MessageReaction, 1)
+	case emj["BOOKMARK"]:
+		g.CurState.PressBmkBtn(s, r.MessageReaction)
 	}
 }
