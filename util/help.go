@@ -33,6 +33,8 @@ func PrintHelpList(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 		s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed(ruleTitle, ruleMsg))
 		s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed(commandTitle, commandMsg))
 	case prefix + "명령어":
+		fallthrough
+	case prefix + "help":
 		s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed(commandTitle, commandMsg))
 	case prefix + "게임배경":
 		s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed(backgroundTitle, backgroundMsg))
