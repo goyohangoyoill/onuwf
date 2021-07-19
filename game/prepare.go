@@ -95,6 +95,7 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	case sPrepare.EnterGameMsg.ID:
 		// 게임 시작
 		if dir == 1 && len(sPrepare.g.RoleView) == len(sPrepare.g.UserList)+3 {
+			s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 			sPrepare.stateFinish()
 		}
 	// 직업추가 메세지에서 리액션한거라면
