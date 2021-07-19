@@ -12,6 +12,7 @@ import (
 
 	wfGame "github.com/goyohangoyoill/ONUWF/game"
 	util "github.com/goyohangoyoill/ONUWF/util"
+	data "github.com/goyohangoyoill/ONUWF/util/data"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -167,8 +168,13 @@ func SaveStartDB(g *wfGame.Game) {
 	for i := 0; i < rLen; i++ {
 		RoleID[i] = g.RoleView[i].ID()
 	}
-	sDB := util.SaveDBInfo{g.UserList, RoleID, g.MasterID}
-	a := util.SetStartUser(sDB, "User", conn.Database("ONUWF"), ctx)
+	UserInfo := make([]*data.UserData, 0)
+	uLen := len(g.UserList)
+	for i := 0; i < uLen; i++ {
+		UserInfo = append(UserInfo, &data.UserData{g.UserList[i].UserID, g.UserList[i].Nick(), "", time.Time{}, 0, 0, nil, nil})
+	}
+	sDB := util.SaveDBInfo{UserInfo, RoleID, g.MasterID}
+	util.SetStartUser(sDB, "User", conn.Database("ONUWF"), ctx)
 	// fmt.Println(a)
 }
 
