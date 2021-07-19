@@ -40,6 +40,13 @@ func (sdpl *ActionDoppelganger) PressNumBtn(s *discordgo.Session, r *discordgo.M
 		}
 		s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
 		sdpl.info.Choice <- num
+	case (&Sentinel{}).String():
+		if g.UserList[num-1].UserID == r.UserID {
+			s.ChannelMessageSend(r.ChannelID, "자기 자신을 선택할 수 없습니다.")
+			return
+		}
+		sdpl.info.Choice <- num
+		s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
 	case (&Seer{}).String():
 		if sdpl.info.Code == 0 {
 			if g.UserList[num-1].UserID == r.UserID {
@@ -123,6 +130,12 @@ func (sdpl *ActionDoppelganger) PressDisBtn(s *discordgo.Session, r *discordgo.M
 			curInfo.Choice <- -1
 			curInfo.MsgID = role.SendUserSelectGuide(player, g, 1)
 		}
+	case (&Sentinel{}).String():
+		if sdpl.info.MsgID != r.MessageID {
+			return
+		}
+		s.ChannelMessageSend(r.ChannelID, "아무도 방패로 보호하지 않았습니다.")
+		sdpl.info.Choice <- -1
 	}
 }
 
@@ -204,6 +217,16 @@ func (sdpl *ActionDoppelganger) InitState() {
 		tar := &TargetObject{1, user.UserID, "", input - 1}
 		role.Action(tar, user, g)
 		role.GenLog(tar, user, g)
+	case (&Sentinel{}).String():
+		input := <-sdpl.info.Choice
+		if input == -1 {
+			tar := &TargetObject{2, "", "", -1}
+			role.GenLog(tar, user, g)
+		} else {
+			tar := &TargetObject{2, g.UserList[input-1].UserID, "", -1}
+			role.Action(tar, user, g)
+			role.GenLog(tar, user, g)
+		}
 	}
 	sdpl.stateFinish()
 }
