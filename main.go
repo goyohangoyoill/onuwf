@@ -94,6 +94,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 		<-fqChanMap[m.GuildID+m.ChannelID]
 		return
 	}
+	// 여기에 DB 갱신 넣으면 됨.
 	for _, user := range g.UserList {
 		delete(isUserIn, user.UserID)
 		delete(uidToGameData, user.UserID)
