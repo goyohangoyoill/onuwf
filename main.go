@@ -12,6 +12,7 @@ import (
 
 	wfGame "github.com/goyohangoyoill/ONUWF/game"
 	util "github.com/goyohangoyoill/ONUWF/util"
+	json "github.com/goyohangoyoill/ONUWF/util/json"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -23,8 +24,8 @@ var (
 	fqChanMap           map[string]chan bool
 	env                 map[string]string
 	emj                 map[string]string
-	rg                  []util.RoleGuide
-	config              util.Config
+	rg                  []json.RoleGuide
+	config              json.Config
 )
 
 /*
@@ -40,11 +41,11 @@ type SaveDBInfo struct {
 }
 */
 func init() {
-	env = util.EnvInit()
-	emj = util.EmojiInit()
-	util.RoleGuideInit(&rg)
-	config = util.ReadConfigJson()
-	util.ReadJSON(rg, config.Prefix)
+	env = json.EnvInit()
+	emj = json.EmojiInit()
+	json.RoleGuideInit(&rg)
+	config = json.ReadConfigJson()
+	json.ReadJSON(rg, config.Prefix)
 	//util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)
@@ -186,7 +187,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// 명령어모음
-	if util.PrintHelpList(s, m, rg, config.Prefix) {
+	if json.PrintHelpList(s, m, rg, config.Prefix) {
 		return
 	}
 	switch m.Content {
