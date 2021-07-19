@@ -29,6 +29,7 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 	}
 	// 직업추가 방장만 가능
 	if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID != sPrepare.g.MasterID {
+		s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 		return
 	}
 	num = num + sPrepare.pageNum*pageMax - 1
@@ -84,14 +85,20 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	if sPrepare.filterReaction(s, r) {
 		return
 	}
+	// 방장만 시작 및 직업추가 가능
+	if r.UserID != sPrepare.g.MasterID {
+		s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
+		return
+	}
+	switch r.MessageID {
 	// 입장 메세지에서 리액션한거라면
-	if r.MessageID == sPrepare.EnterGameMsg.ID {
+	case sPrepare.EnterGameMsg.ID:
 		// 게임 시작
 		if dir == 1 && len(sPrepare.g.RoleView) == len(sPrepare.g.UserList)+3 {
 			sPrepare.stateFinish()
 		}
-		// 직업추가 메세지에서 리액션한거라면
-	} else if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID == sPrepare.g.MasterID {
+	// 직업추가 메세지에서 리액션한거라면
+	case sPrepare.RoleAddMsg.ID:
 		// pageNum 증감
 		sPrepare.pageNum += dir
 		if sPrepare.pageNum > (len(sPrepare.g.RG) / pageMax) {
