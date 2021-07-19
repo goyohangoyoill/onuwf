@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	data "github.com/goyohangoyoill/ONUWF/util/data"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -18,7 +17,7 @@ type LoadDBInfo struct {
 }
 
 type SaveDBInfo struct {
-	CurUserList []*data.UserData
+	CurUserList []*UserData
 	CurRoleSeq  []int
 	MUserID     string
 }

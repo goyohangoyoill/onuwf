@@ -12,7 +12,6 @@ import (
 
 	wfGame "github.com/goyohangoyoill/ONUWF/game"
 	util "github.com/goyohangoyoill/ONUWF/util"
-	data "github.com/goyohangoyoill/ONUWF/util/data"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -84,7 +83,8 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
 	uidToGameData[m.Author.ID] = curGame
 	flag := false
-	LoadEnterUser(curGame, m.Author.ID)
+	// juhur comment out
+	//LoadEnterUser(curGame, m.Author.ID)
 	for {
 		if flag {
 			break
@@ -94,13 +94,15 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 			isUserIn[curUID] = true
 			guildChanToGameData[m.GuildID+curUID] = curGame
 			uidToGameData[curUID] = curGame
-			LoadEnterUser(curGame, curUID)
+			// juhur comment out
+			//LoadEnterUser(curGame, curUID)
 		case curUID := <-curGame.QuitUserIDChan:
 			delete(isUserIn, curUID)
 			delete(uidToGameData, curUID)
 		case <-curGame.GameStartedChan:
 			flag = true
-			SaveStartDB(curGame)
+			// juhur comment out
+			//SaveStartDB(curGame)
 			return
 		}
 	}
@@ -168,10 +170,10 @@ func SaveStartDB(g *wfGame.Game) {
 	for i := 0; i < rLen; i++ {
 		RoleID[i] = g.RoleView[i].ID()
 	}
-	UserInfo := make([]*data.UserData, 0)
+	UserInfo := make([]*util.UserData, 0)
 	uLen := len(g.UserList)
 	for i := 0; i < uLen; i++ {
-		UserInfo = append(UserInfo, &data.UserData{g.UserList[i].UserID, g.UserList[i].Nick(), "", time.Time{}, 0, 0, nil, nil})
+		UserInfo = append(UserInfo, &util.UserData{g.UserList[i].UserID, g.UserList[i].Nick(), "", time.Time{}, 0, 0, nil, nil})
 	}
 	sDB := util.SaveDBInfo{UserInfo, RoleID, g.MasterID}
 	util.SetStartUser(sDB, "User", conn.Database("ONUWF"), ctx)
