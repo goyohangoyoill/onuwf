@@ -27,9 +27,10 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 	if sPrepare.filterReaction(s, r) {
 		return
 	}
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 	// 직업추가 방장만 가능
 	if r.MessageID == sPrepare.RoleAddMsg.ID && r.UserID != sPrepare.g.MasterID {
-		s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
+		s.ChannelMessageSend(sPrepare.g.ChanID, "직업 설정은 방장만 가능합니다")
 		return
 	}
 	num = num + sPrepare.pageNum*pageMax - 1
@@ -44,7 +45,6 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 	sPrepare.g.AddRole(num)
 	// 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
-	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 Prepare에서 하는 동작
@@ -57,12 +57,12 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 	if sPrepare.filterReaction(s, r) {
 		return
 	}
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 	//user 생성해서 append()
 	sPrepare.g.SetUserByID(r.UserID)
 	// 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
-	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 Prepare에서 하는 동작
@@ -71,12 +71,12 @@ func (sPrepare *Prepare) PressNoBtn(s *discordgo.Session, r *discordgo.MessageRe
 	if sPrepare.filterReaction(s, r) {
 		return
 	}
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 	// userList에서 지우고
 	sPrepare.g.DelUserByID(r.UserID)
 	// 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
-	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 Prepare에서 하는 동작
@@ -85,9 +85,15 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	if sPrepare.filterReaction(s, r) {
 		return
 	}
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 	// 방장만 시작 및 직업추가 가능
 	if r.UserID != sPrepare.g.MasterID {
-		s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
+		switch r.MessageID {
+		case sPrepare.EnterGameMsg.ID:
+			s.ChannelMessageSend(sPrepare.g.ChanID, "게임 시작은 방장만 가능합니다")
+		case sPrepare.RoleAddMsg.ID:
+			s.ChannelMessageSend(sPrepare.g.ChanID, "직업 설정은 방장만 가능합니다")
+		}
 		return
 	}
 	switch r.MessageID {
@@ -95,7 +101,6 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 	case sPrepare.EnterGameMsg.ID:
 		// 게임 시작
 		if dir == 1 && len(sPrepare.g.RoleView) == len(sPrepare.g.UserList)+3 {
-			s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 			sPrepare.stateFinish()
 		}
 	// 직업추가 메세지에서 리액션한거라면
@@ -110,7 +115,6 @@ func (sPrepare *Prepare) PressDirBtn(s *discordgo.Session, r *discordgo.MessageR
 		// 직업 추가 메세지 반영
 		s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
 	}
-	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 }
 
 // PressBmkBtn DB에 저장된 정보를 load 하는 동작
@@ -118,6 +122,7 @@ func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageR
 	if sPrepare.filterReaction(s, r) {
 		return
 	}
+	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 	fmt.Println(sPrepare.g.FormerRole)
 	fmt.Println(sPrepare.g.MasterID)
 	if r.MessageID == sPrepare.RoleAddMsg.ID {
@@ -133,8 +138,6 @@ func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageR
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID, sPrepare.NewEnterEmbed().MessageEmbed)
 	// 직업 추가 메세지 반영
 	s.ChannelMessageEditEmbed(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID, sPrepare.NewRoleAddEmbed().MessageEmbed)
-	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
-
 }
 
 // InitState 함수는 prepare state가 시작할 때 입장, 직업추가 메세지를 보냅니다.
