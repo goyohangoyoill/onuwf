@@ -1,5 +1,5 @@
-// Package util is a package for json files and database.
-package util
+// Package json is a package for json files
+package json
 
 import (
 	"encoding/json"

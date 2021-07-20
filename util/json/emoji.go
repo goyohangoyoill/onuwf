@@ -1,4 +1,5 @@
-package util
+// Package json is a package for json files
+package json
 
 import (
 	"encoding/json"

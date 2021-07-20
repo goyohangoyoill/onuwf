@@ -10,18 +10,18 @@ import (
 
 // Prepare is test
 type StateVote struct {
-	G          *Game
-	Voted_list []int
-	User_num   int
-	Vote_count int
+	g         *Game
+	votedList []int
+	userNum   int
+	voteCount int
 }
 
 func NewStateVote(g *Game) *StateVote {
 	ac := &StateVote{}
-	ac.G = g
-	ac.Voted_list = make([]int, len(g.UserList))
-	ac.User_num = len(g.UserList)
-	ac.Vote_count = 0
+	ac.g = g
+	ac.votedList = make([]int, len(g.UserList))
+	ac.userNum = len(g.UserList)
+	ac.voteCount = 0
 	return ac
 }
 
@@ -31,7 +31,7 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	//해당 index list count +1
 	rUserNum := 9999
 	for i := 0; i < num; i++ {
-		if r.UserID == v.G.UserList[i].UserID {
+		if r.UserID == v.g.UserList[i].UserID {
 			rUserNum = i
 			break
 		}
@@ -39,33 +39,47 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	if rUserNum < num {
 		num = num + 1
 	}
-	v.Voted_list[num-1]++
+	v.votedList[num-1]++
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
 	// User.voteUserId에 누구에게 투표했는지 유저ID 저장
-	v.setVoteUserId(r.UserID, v.G.UserList[num-1].UserID)
+	v.setVoteUserId(r.UserID, v.g.UserList[num-1].UserID)
 	// 각 유저별 투표내용 로그 작성
-	v.setUserVoteLog(v.G.FindUserByUID(r.UserID).nick, v.G.UserList[num-1].nick)
+	v.setUserVoteLog(v.g.FindUserByUID(r.UserID).nick, v.g.UserList[num-1].nick)
 	// 투표완료시 어떤 유저에게 투표했는지 DM으로 메시지를 보내는 함수
-	v.sendVoteCompleteMsgToDm(v.G.FindUserByUID(r.UserID), v.G.UserList[num-1].nick)
-	v.Vote_count++
-	if v.Vote_count == v.User_num {
+	v.sendVoteCompleteMsgToDm(v.g.FindUserByUID(r.UserID), v.g.UserList[num-1].nick)
+	v.voteCount++
+	if v.voteCount == v.userNum {
 		max_value := 0
-		for i := 0; i < v.User_num; i++ {
-			if max_value < v.Voted_list[i] {
-				max_value = v.Voted_list[i]
+		for i := 0; i < v.userNum; i++ {
+			if max_value < v.votedList[i] {
+				max_value = v.votedList[i]
 			}
 		}
-		voteResultEmbed := embed.NewEmbed()
-		voteResultEmbed.SetTitle("투표 결과")
-		for i := 0; i < v.User_num; i++ {
+		switch max_value {
+		case 1:
+			rMsg := "모두 1표씩 투표받아 아무도 사망하지 않았습니다"
+			s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("전원 생존", rMsg))
+		default:
 			rMsg := ""
-			if max_value == v.Voted_list[i] {
-				voteResultEmbed.AddField(v.G.UserList[i].nick, "`"+v.G.GetRole(v.G.UserList[i].UserID).String()+"` "+v.G.UserList[i].nick+"는 투표로 사망하였습니다.")
-				rMsg += v.G.UserList[i].nick + "는 " + strconv.Itoa(max_value) + "회 지목당해 투표로 사망하였습니다"
-				v.G.AppendLog(rMsg)
+			for i, user := range v.g.UserList {
+				if max_value == v.votedList[i] {
+					if len(rMsg) > 0 {
+						s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", "투표 동점자가 있습니다 ..!"))
+					}
+					rMsg = user.nick + "님이 총 " + strconv.Itoa(max_value) + "표로 처형되었습니다"
+					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("투표 결과", rMsg))
+
+					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", "처형된 사람의 직업은...?"))
+					for j := 0; j < 3; j++ {
+						s.ChannelMessageSend(v.g.ChanID, "...")
+						time.Sleep(time.Second)
+					}
+					executeTitle := "**처형된 사람의 직업은**"
+					executeMsg := "`" + v.g.GetRole(v.g.UserList[i].voteUserId).String() + "`이었습니다!"
+					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed(executeTitle, executeMsg))
+				}
 			}
 		}
-		s.ChannelMessageSendEmbed(v.G.ChanID, voteResultEmbed.MessageEmbed)
 		// 사냥꾼 능력발동 및 로그 작성하는 함수
 		v.hunterSkillMsg(s, max_value)
 		v.stateFinish()
@@ -97,27 +111,27 @@ func (v *StateVote) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageReacti
 // 메세지 객체를 스테이트의 멤버로 저장합니다.
 // 이 함수는 이전 스테이트가 끝나는 시점에 호출되어야 합니다.
 func (v *StateVote) InitState() {
-	delaySec := v.G.config.VoteDelaySec
+	delaySec := v.g.config.VoteDelaySec
 	if delaySec > 0 {
 		msg := strconv.Itoa(delaySec) + "초 후에 투표가 시작됩니다"
-		v.G.Session.ChannelMessageSend(v.G.ChanID, msg)
+		v.g.Session.ChannelMessageSend(v.g.ChanID, msg)
 		time.Sleep(time.Duration(delaySec) * time.Second)
 	}
 	msg := ""
-	v.G.AppendLog(msg)
-	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "투표용지 전달중...")
-	VoteProcess(v.G.Session, v.G)
-	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "투표 진행중...")
-	v.G.AppendLog("**투표 결과**")
+	v.g.AppendLog(msg)
+	v.g.Session.ChannelMessageEdit(v.g.ChanID, v.g.GameStateMID, "투표용지 전달중...")
+	VoteProcess(v.g.Session, v.g)
+	v.g.Session.ChannelMessageEdit(v.g.ChanID, v.g.GameStateMID, "투표 진행중...")
+	v.g.AppendLog("투표 결과")
 }
 
 // stateFinish 함수는 현재 state가 끝나고 다음 state로 넘어갈 때 호출되는 함수입니다.
 // game의 CurState 변수에 다음 state를 생성해서 할당해준 다음
 // 다음 state의 InitState() 함수를 이 함수 안에서 호출해야 합니다
 func (v *StateVote) stateFinish() {
-	v.G.SendLogMsg(v.G.ChanID)
-	v.G.Session.ChannelMessageEdit(v.G.ChanID, v.G.GameStateMID, "게임 종료.")
-	v.G.GameStartedChan <- false
+	v.g.SendLogMsg(v.g.ChanID)
+	v.g.Session.ChannelMessageEdit(v.g.ChanID, v.g.GameStateMID, "게임 종료.")
+	v.g.GameStartedChan <- false
 }
 
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
@@ -168,7 +182,7 @@ func addNumAddEmoji(s *discordgo.Session, msg *discordgo.Message, g *Game) {
 
 // User.voteUserId에 누구에게 투표했는지 유저ID 저장
 func (v *StateVote) setVoteUserId(voteUserId, votedUserId string) {
-	for _, user := range v.G.UserList {
+	for _, user := range v.g.UserList {
 		if user.UserID == voteUserId {
 			user.voteUserId = votedUserId
 			break
@@ -178,8 +192,8 @@ func (v *StateVote) setVoteUserId(voteUserId, votedUserId string) {
 
 // 사냥꾼 능력발동 조건을 확인하는 함수
 func (v *StateVote) chkUseHunterSkill(i, max_value int) bool {
-	if max_value == v.Voted_list[i] {
-		if v.G.GetRole(v.G.UserList[i].UserID).String() == "사냥꾼" {
+	if max_value == v.votedList[i] && max_value > 1 {
+		if v.g.GetRole(v.g.UserList[i].UserID).String() == "사냥꾼" {
 			return true
 		}
 	}
@@ -188,14 +202,16 @@ func (v *StateVote) chkUseHunterSkill(i, max_value int) bool {
 
 // 사냥꾼 능력발동 및 로그 작성하는 함수
 func (v *StateVote) hunterSkillMsg(s *discordgo.Session, max_value int) {
-	for i, user := range v.G.UserList {
+	for i, user := range v.g.UserList {
 		if v.chkUseHunterSkill(i, max_value) {
-			hunterTitle := "사냥꾼 능력발동!"
-			hunterMsg := "`사냥꾼` `" + user.nick + "`이 "
-			hunterMsg += "`" + v.G.GetRole(user.voteUserId).String() + "` "
-			hunterMsg += "`" + v.G.FindUserByUID(user.voteUserId).nick + "`를 지목하여 사냥에 성공했습니다!"
-			s.ChannelMessageSendEmbed(v.G.ChanID, embed.NewGenericEmbed(hunterTitle, hunterMsg))
-			v.G.AppendLog(hunterMsg)
+			hunterMsg := "`" + user.Nick() + "`가 `" + v.g.FindUserByUID(user.voteUserId).nick + "` 사냥에 성공했습니다..!\n이 사람의 직업은..?"
+			s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("사냥꾼 능력발동!", hunterMsg))
+			for j := 0; j < 3; j++ {
+				s.ChannelMessageSend(v.g.ChanID, "...")
+				time.Sleep(time.Second)
+			}
+			hunterMsg = "`" + v.g.GetRole(user.voteUserId).String() + "`이었습니다!"
+			s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", hunterMsg))
 			break
 		}
 	}
@@ -205,11 +221,12 @@ func (v *StateVote) hunterSkillMsg(s *discordgo.Session, max_value int) {
 func (v *StateVote) sendVoteCompleteMsgToDm(voteUser *User, votedUserNick string) {
 	title := "투표 완료"
 	msg := "`" + votedUserNick + "`에게 투표하셨습니다"
-	v.G.Session.ChannelMessageSendEmbed(voteUser.dmChanID, embed.NewGenericEmbed(title, msg))
-	v.G.Session.ChannelMessageSend(v.G.ChanID, "`"+voteUser.nick+"` 님이 투표하셨습니다.")
+	v.g.Session.ChannelMessageSendEmbed(voteUser.dmChanID, embed.NewGenericEmbed(title, msg))
+	v.g.Session.ChannelMessageSend(v.g.ChanID, "`"+voteUser.nick+"` 님이 투표하셨습니다.")
 }
 
+// 각 유저별 투표 내용 작성
 func (v *StateVote) setUserVoteLog(from, to string) {
 	msg := "`" + from + "` -> `" + to + "`"
-	v.G.AppendLog(msg)
+	v.g.AppendLog(msg)
 }
