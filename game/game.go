@@ -437,12 +437,13 @@ func (g *Game) SendLogMsg(cid string) {
 	s := g.Session
 	tmpEmbed := embed.NewEmbed()
 	tmpEmbed.SetTitle("직업 배정")
+	roleListMsg := ""
 	for _, user := range g.UserList {
-		tmpEmbed.AddField(
-			"`"+user.nick+"`",
-			"원래직업 : `"+g.GetOriRole(user.UserID).String()+"`\n"+
-				"현재직업 : `"+g.GetRole(user.UserID).String()+"`",
-		)
+		roleListMsg = "원래직업 : `" + g.GetOriRole(user.UserID).String() + "`"
+		roleListMsg += g.getTeamMark(g.GetOriRole(user.UserID).String()) + "\n"
+		roleListMsg += "현재직업 : `" + g.GetRole(user.UserID).String() + "`"
+		roleListMsg += g.getTeamMark(g.GetRole(user.UserID).String())
+		tmpEmbed.AddField("`"+user.nick+"`", roleListMsg)
 	}
 	tmpEmbed.InlineAllFields()
 	disMsg := ""
@@ -479,4 +480,24 @@ func (g *Game) userExistsOfThisTeam(team string) bool {
 		}
 	}
 	return false
+}
+
+func (g *Game) getTeamMark(role string) string {
+	team := ""
+	for i := 0; i < len(g.RG); i++ {
+		if role == g.RG[i].RoleName {
+			team = g.RG[i].Faction
+			break
+		}
+	}
+	mark := ""
+	switch team {
+	case "Villager":
+		mark = ":house:"
+	case "Werewolf":
+		mark = ":wolf:"
+	case "Tanner":
+		mark = ":coffin:"
+	}
+	return mark
 }

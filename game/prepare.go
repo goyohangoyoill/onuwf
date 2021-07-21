@@ -162,13 +162,6 @@ func (sPrepare *Prepare) InitState() {
 	s.MessageReactionAdd(nowChan, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["YES"])
 	s.MessageReactionAdd(nowChan, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["NO"])
 	s.MessageReactionAdd(nowChan, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["RIGHT"])
-	/*
-		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["YES"])
-		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["NO"])
-		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["LEFT"])
-		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
-		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["BOOKMARK"])
-	*/
 }
 
 func (sPrepare *Prepare) stateFinish() {
@@ -208,7 +201,8 @@ func (sPrepare *Prepare) NewRoleAddEmbed() *embed.Embed {
 		if (i)%(pageMax/2) == 0 {
 			msg += "\n"
 		}
-		msg += strconv.Itoa(i%pageMax+1) + sPrepare.g.RG[i].RoleName + " "
+		msg += sPrepare.g.Emj["n"+strconv.Itoa(i%pageMax+1)] + " `" + sPrepare.g.RG[i].RoleName + "`"
+		msg += sPrepare.g.getTeamMark(sPrepare.g.RG[i].RoleName)
 	}
 	roleEmbed.AddField("직업목록", msg)
 	roleStr := ""
