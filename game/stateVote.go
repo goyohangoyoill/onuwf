@@ -12,8 +12,6 @@ import (
 type StateVote struct {
 	g         *Game
 	votedList []int
-	userNum   int
-	voteCount int
 	mostVotes int
 }
 
@@ -21,8 +19,6 @@ func NewStateVote(g *Game) *StateVote {
 	ac := &StateVote{}
 	ac.g = g
 	ac.votedList = make([]int, len(g.UserList))
-	ac.userNum = len(g.UserList)
-	ac.voteCount = 0
 	return ac
 }
 
@@ -48,10 +44,9 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	v.setUserVoteLog(v.g.FindUserByUID(r.UserID).nick, v.g.UserList[num-1].nick)
 	// 투표완료시 어떤 유저에게 투표했는지 DM으로 메시지를 보내는 함수
 	v.sendVoteCompleteMsgToDm(v.g.FindUserByUID(r.UserID), v.g.UserList[num-1].nick)
-	v.voteCount++
-	if v.voteCount == v.userNum {
+	if v.votedAllUsers() {
 		v.mostVotes = 0
-		for i := 0; i < v.userNum; i++ {
+		for i := 0; i < len(v.g.UserList); i++ {
 			if v.mostVotes < v.votedList[i] {
 				v.mostVotes = v.votedList[i]
 			}
@@ -230,4 +225,14 @@ func (v *StateVote) sendVoteCompleteMsgToDm(voteUser *User, votedUserNick string
 func (v *StateVote) setUserVoteLog(from, to string) {
 	msg := "`" + from + "` -> `" + to + "`"
 	v.g.AppendLog(msg)
+}
+
+// 모든 유저가 투표했는지 확인
+func (v *StateVote) votedAllUsers() bool {
+	for _, user := range v.g.UserList {
+		if len(user.voteUserId) == 0 {
+			return false
+		}
+	}
+	return true
 }
