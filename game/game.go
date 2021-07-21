@@ -448,9 +448,10 @@ func (g *Game) SendLogMsg(cid string) {
 	tmpEmbed.InlineAllFields()
 	disMsg := ""
 	for i := 0; i < 3; i++ {
-		disMsg += "`" + g.DisRole[i].String() + "` "
+		disMsg += "`" + g.DisRole[i].String() + "`"
+		disMsg += g.getTeamMark(g.DisRole[i].String()) + " "
 	}
-	tmpEmbed.AddField("버려진 직업들 :", disMsg)
+	tmpEmbed.AddField("버려진 직업들", disMsg)
 	logMsg := ""
 	for _, line := range g.LogMsg {
 		logMsg += line + "\n"
