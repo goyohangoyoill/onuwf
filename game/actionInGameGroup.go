@@ -1,6 +1,8 @@
 package game
 
 import (
+	"time"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -255,6 +257,7 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 
 // stateFinish 함수는 ActionInGameGroup state 가 종료될 때 호출되는 메소드이다.
 func (sActionInGameGroup *ActionInGameGroup) stateFinish() {
+	time.Sleep(time.Second * 3)
 	sActionInGameGroup.g.CurState = NewStateBeforeVote(sActionInGameGroup.g)
 	sActionInGameGroup.g.CurState.InitState()
 }

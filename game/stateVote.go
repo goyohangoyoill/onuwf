@@ -12,16 +12,13 @@ import (
 type StateVote struct {
 	g         *Game
 	votedList []int
-	userNum   int
-	voteCount int
+	mostVotes int
 }
 
 func NewStateVote(g *Game) *StateVote {
 	ac := &StateVote{}
 	ac.g = g
 	ac.votedList = make([]int, len(g.UserList))
-	ac.userNum = len(g.UserList)
-	ac.voteCount = 0
 	return ac
 }
 
@@ -47,43 +44,45 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	v.setUserVoteLog(v.g.FindUserByUID(r.UserID).nick, v.g.UserList[num-1].nick)
 	// 투표완료시 어떤 유저에게 투표했는지 DM으로 메시지를 보내는 함수
 	v.sendVoteCompleteMsgToDm(v.g.FindUserByUID(r.UserID), v.g.UserList[num-1].nick)
-	v.voteCount++
-	if v.voteCount == v.userNum {
-		max_value := 0
-		for i := 0; i < v.userNum; i++ {
-			if max_value < v.votedList[i] {
-				max_value = v.votedList[i]
-			}
-		}
-		switch max_value {
-		case 1:
-			rMsg := "모두 1표씩 투표받아 아무도 사망하지 않았습니다"
-			s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("전원 생존", rMsg))
-		default:
-			rMsg := ""
-			for i, user := range v.g.UserList {
-				if max_value == v.votedList[i] {
-					if len(rMsg) > 0 {
-						s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", "투표 동점자가 있습니다 ..!"))
-					}
-					rMsg = user.nick + "님이 총 " + strconv.Itoa(max_value) + "표로 처형되었습니다"
-					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("투표 결과", rMsg))
-
-					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", "처형된 사람의 직업은...?"))
-					for j := 0; j < 3; j++ {
-						s.ChannelMessageSend(v.g.ChanID, "...")
-						time.Sleep(time.Second)
-					}
-					executeTitle := "**처형된 사람의 직업은**"
-					executeMsg := "`" + v.g.GetRole(v.g.UserList[i].UserID).String() + "`이었습니다!"
-					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed(executeTitle, executeMsg))
-				}
-			}
-		}
-		// 사냥꾼 능력발동 및 로그 작성하는 함수
-		v.hunterSkillMsg(s, max_value)
-		v.stateFinish()
+	if !v.votedAllUsers() {
+		return
 	}
+	v.mostVotes = 0
+	for i := 0; i < len(v.g.UserList); i++ {
+		if v.mostVotes < v.votedList[i] {
+			v.mostVotes = v.votedList[i]
+		}
+	}
+	switch v.mostVotes {
+	case 1:
+		rMsg := "모두 1표씩 투표받아 아무도 사망하지 않았습니다"
+		s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("전원 생존", rMsg))
+	default:
+		rMsg := ""
+		for i, user := range v.g.UserList {
+			if v.mostVotes == v.votedList[i] {
+				if len(rMsg) > 0 {
+					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", "투표 동점자가 있습니다 ..!"))
+				}
+				rMsg = user.nick + "님이 총 " + strconv.Itoa(v.mostVotes) + "표로 처형되었습니다"
+				s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("투표 결과", rMsg))
+
+				s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", "처형된 사람의 직업은...?"))
+				for j := 0; j < 3; j++ {
+					s.ChannelMessageSend(v.g.ChanID, "...")
+					time.Sleep(time.Second)
+				}
+				executeTitle := "**처형된 사람의 직업은**"
+				executeMsg := "`" + v.g.GetRole(v.g.UserList[i].UserID).String() + "`이었습니다!"
+				s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed(executeTitle, executeMsg))
+			}
+		}
+	}
+	// 사냥꾼 능력발동 및 로그 작성하는 함수
+	v.hunterSkillMsg(s)
+	// 각 팀별 승패여부 확인 후 표시
+	v.gameResult(s)
+	v.stateFinish()
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 state에서 하는 동작
@@ -190,10 +189,10 @@ func (v *StateVote) setVoteUserId(voteUserId, votedUserId string) {
 	}
 }
 
-// 사냥꾼 능력발동 조건을 확인하는 함수
-func (v *StateVote) chkUseHunterSkill(i, max_value int) bool {
-	if max_value == v.votedList[i] && max_value > 1 {
-		if v.g.GetRole(v.g.UserList[i].UserID).String() == "사냥꾼" {
+// 해당 직업이 처형되었는지 확인하는 함수
+func (v *StateVote) isExecutedRole(i int, role string) bool {
+	if v.mostVotes == v.votedList[i] && v.mostVotes > 1 {
+		if v.g.GetRole(v.g.UserList[i].UserID).String() == role {
 			return true
 		}
 	}
@@ -201,9 +200,9 @@ func (v *StateVote) chkUseHunterSkill(i, max_value int) bool {
 }
 
 // 사냥꾼 능력발동 및 로그 작성하는 함수
-func (v *StateVote) hunterSkillMsg(s *discordgo.Session, max_value int) {
+func (v *StateVote) hunterSkillMsg(s *discordgo.Session) {
 	for i, user := range v.g.UserList {
-		if v.chkUseHunterSkill(i, max_value) {
+		if v.isExecutedRole(i, "사냥꾼") {
 			hunterMsg := "`" + user.Nick() + "`가 `" + v.g.FindUserByUID(user.voteUserId).nick + "` 사냥에 성공했습니다..!\n이 사람의 직업은..?"
 			s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("사냥꾼 능력발동!", hunterMsg))
 			for j := 0; j < 3; j++ {
@@ -229,4 +228,102 @@ func (v *StateVote) sendVoteCompleteMsgToDm(voteUser *User, votedUserNick string
 func (v *StateVote) setUserVoteLog(from, to string) {
 	msg := "`" + from + "` -> `" + to + "`"
 	v.g.AppendLog(msg)
+}
+
+// 모든 유저가 투표했는지 확인
+func (v *StateVote) votedAllUsers() bool {
+	for _, user := range v.g.UserList {
+		if len(user.voteUserId) == 0 {
+			return false
+		}
+	}
+	return true
+}
+
+// 각 팀별 승패여부 확인 후 표시
+func (v *StateVote) gameResult(s *discordgo.Session) {
+	voteResultEmbed := embed.NewEmbed()
+	voteResultEmbed.SetTitle("게임 결과")
+	// 마을주민팀 승패여부
+	if v.g.userExistsOfThisTeam("Villager") {
+		v.g.villagerTeamWin = false
+		switch len(v.g.GetRoleUsers(&Werewolf{})) {
+		case 0:
+			switch v.mostVotes {
+			case 1:
+				v.g.villagerTeamWin = true
+				voteResultEmbed.AddField("마을주민팀 승리", "모두 1표씩 투표받아 아무도 사망하지 않았습니다.")
+			default:
+				voteResultEmbed.AddField("마을주민팀 패배", "누군가 사망했습니다.")
+			}
+		default:
+			for i := 0; i < len(v.g.UserList); i++ {
+				if v.isExecutedRole(i, "늑대인간") {
+					v.g.villagerTeamWin = true
+					voteResultEmbed.AddField("마을주민팀 승리", "늑대인간이 처형되었습니다.")
+				}
+			}
+			if !v.g.villagerTeamWin {
+				voteResultEmbed.AddField("마을주민팀 패배", "늑대인간이 처형되지 않았습니다.")
+			}
+		}
+	}
+	// 늑대인간팀 승패여부
+	if v.g.userExistsOfThisTeam("Werewolf") {
+		v.g.werewolfTeamWin = true
+		switch len(v.g.GetRoleUsers(&Werewolf{})) {
+		case 0:
+			if v.mostVotes == 1 {
+				v.g.werewolfTeamWin = false
+				voteResultEmbed.AddField("늑대인간팀 패배", "아무도 사망하지 않았습니다.")
+			}
+			if v.g.userExistsOfThisTeam("Tanner") {
+				for i := 0; i < len(v.g.UserList); i++ {
+					if v.isExecutedRole(i, "무두장이") {
+						v.g.werewolfTeamWin = false
+						voteResultEmbed.AddField("늑대인간팀 패배", "무두장이가 처형되었습니다.")
+						break
+					}
+				}
+			}
+			if v.g.werewolfTeamWin {
+				voteResultEmbed.AddField("늑대인간팀 승리", "하수인, 무두장이가 살아남았습니다.")
+			}
+		default:
+			for i := 0; i < len(v.g.UserList); i++ {
+				if v.isExecutedRole(i, "늑대인간") {
+					v.g.werewolfTeamWin = false
+					voteResultEmbed.AddField("늑대인간팀 패배", "늑대인간이 처형되었습니다.")
+					break
+				}
+			}
+			if v.g.userExistsOfThisTeam("Tanner") && v.g.werewolfTeamWin {
+				for i := 0; i < len(v.g.UserList); i++ {
+					if v.isExecutedRole(i, "무두장이") {
+						v.g.werewolfTeamWin = false
+						voteResultEmbed.AddField("늑대인간팀 패배", "무두장이가 처형되었습니다.")
+						break
+					}
+				}
+			}
+			if v.g.werewolfTeamWin {
+				voteResultEmbed.AddField("늑대인간팀 승리", "늑대인간이 살아남았습니다.")
+			}
+		}
+	}
+	// 무두장이팀 승패여부
+	if v.g.userExistsOfThisTeam("Tanner") {
+		v.g.tannerTeamWin = false
+		for i := 0; i < len(v.g.UserList); i++ {
+			if v.isExecutedRole(i, "무두장이") {
+				v.g.tannerTeamWin = true
+				voteResultEmbed.AddField("무두장이팀 승리", "늑대인간이 처형되었습니다.")
+				break
+			}
+		}
+		if !v.g.tannerTeamWin {
+			voteResultEmbed.AddField("무두장이팀 패배", "무두장이가 살아남았습니다.")
+		}
+	}
+	s.ChannelMessageSendEmbed(v.g.ChanID, voteResultEmbed.MessageEmbed)
 }

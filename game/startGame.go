@@ -52,7 +52,8 @@ func (sStartGame *StartGame) InitState() {
 	startEmbed.AddField("유저 목록", userListMsg)
 	roleListMsg := ""
 	for _, role := range g.RoleView {
-		roleListMsg += "`" + role.String() + "`\n"
+		roleListMsg += "`" + role.String() + "`"
+		roleListMsg += sStartGame.g.getTeamMark(role.String()) + "\n"
 	}
 	startEmbed.AddField("설정된 직업 목록", roleListMsg)
 	startEmbed.InlineAllFields()

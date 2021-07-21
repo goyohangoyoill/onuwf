@@ -43,7 +43,7 @@ func (r *Sentinel) GenLog(tar *TargetObject, player *User, g *Game) {
 	var msg string
 	// 항상 tar.actionType == 2
 	tarUser := g.FindUserByUID(tar.uid1)
-	msg = "수호자 `" + player.nick + "` 은(는)"
+	msg = "수호자 `" + player.nick + "` 은(는) "
 	if tarUser == nil {
 		msg += "아무도 수호하지 않았습니다"
 	} else {

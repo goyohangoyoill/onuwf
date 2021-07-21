@@ -53,6 +53,12 @@ type Game struct {
 	GameStartedChan chan bool
 
 	FormerRole []int
+	// 마을주민팀 승패여부
+	villagerTeamWin bool
+	// 늑대인간팀 승패여부
+	werewolfTeamWin bool
+	// 무두장이 승패여부
+	tannerTeamWin bool
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
@@ -431,19 +437,21 @@ func (g *Game) SendLogMsg(cid string) {
 	s := g.Session
 	tmpEmbed := embed.NewEmbed()
 	tmpEmbed.SetTitle("직업 배정")
+	roleListMsg := ""
 	for _, user := range g.UserList {
-		tmpEmbed.AddField(
-			"`"+user.nick+"`",
-			"원래직업 : `"+g.GetOriRole(user.UserID).String()+"`\n"+
-				"현재직업 : `"+g.GetRole(user.UserID).String()+"`",
-		)
+		roleListMsg = "원래직업 : `" + g.GetOriRole(user.UserID).String() + "`"
+		roleListMsg += g.getTeamMark(g.GetOriRole(user.UserID).String()) + "\n"
+		roleListMsg += "현재직업 : `" + g.GetRole(user.UserID).String() + "`"
+		roleListMsg += g.getTeamMark(g.GetRole(user.UserID).String())
+		tmpEmbed.AddField("`"+user.nick+"`", roleListMsg)
 	}
 	tmpEmbed.InlineAllFields()
 	disMsg := ""
 	for i := 0; i < 3; i++ {
-		disMsg += "`" + g.DisRole[i].String() + "` "
+		disMsg += "`" + g.DisRole[i].String() + "`"
+		disMsg += g.getTeamMark(g.DisRole[i].String()) + " "
 	}
-	tmpEmbed.AddField("버려진 직업들 :", disMsg)
+	tmpEmbed.AddField("버려진 직업들", disMsg)
 	logMsg := ""
 	for _, line := range g.LogMsg {
 		logMsg += line + "\n"
@@ -452,4 +460,45 @@ func (g *Game) SendLogMsg(cid string) {
 		tmpEmbed.AddField("게임 로그", logMsg)
 	}
 	s.ChannelMessageSendEmbed(cid, tmpEmbed.MessageEmbed)
+}
+
+// 유저의 진영을 반환하는 함수
+func (g *Game) getUserTeam(uId string) string {
+	roleName := g.GetRole(uId).String()
+	for i := 0; i < len(g.RG); i++ {
+		if roleName == g.RG[i].RoleName {
+			return g.RG[i].Faction
+		}
+	}
+	return ""
+}
+
+// 입력받은 진영에 해당하는 유저가 있는지 확인하는 함수
+func (g *Game) userExistsOfThisTeam(team string) bool {
+	for _, user := range g.UserList {
+		if g.getUserTeam(user.UserID) == team {
+			return true
+		}
+	}
+	return false
+}
+
+func (g *Game) getTeamMark(role string) string {
+	team := ""
+	for i := 0; i < len(g.RG); i++ {
+		if role == g.RG[i].RoleName {
+			team = g.RG[i].Faction
+			break
+		}
+	}
+	mark := ""
+	switch team {
+	case "Villager":
+		mark = ":house:"
+	case "Werewolf":
+		mark = ":wolf:"
+	case "Tanner":
+		mark = ":coffin:"
+	}
+	return mark
 }

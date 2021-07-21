@@ -62,7 +62,7 @@ func (wf *Werewolf) GenLog(tar *TargetObject, player *User, g *Game) {
 	switch tar.actionType {
 	case 3:
 		recvRole := g.DisRole[tar.disRoleIdx]
-		logMsg := "유일한 늑대인간 `" + player.nick + "` 은(는)\n"
+		logMsg := "유일한 늑대인간 `" + player.nick + "` 은(는)"
 		logMsg += "버려진 직업 `" + recvRole.String() + "`를 확인했습니다."
 		g.AppendLog(logMsg)
 	case -1:
@@ -79,9 +79,9 @@ func (wf *Werewolf) GenLog(tar *TargetObject, player *User, g *Game) {
 		//	dreamlist += "`" + item.nick + "` "
 		//}
 		//wolflist += dreamlist
-		logMsg := "늑대인간인 플레이어들\n"
+		logMsg := "늑대인간인 플레이어들"
 		logMsg += wolflist
-		logMsg += "\n는 서로를 확인하였습니다."
+		logMsg += "은(는) 서로를 확인하였습니다."
 		//if len(dreams) == 0 {
 		//	dreamLogMsg += "\n\n"
 		//	dreamLogMsg += dreamlist + "는 서로를 확인하지 못하였지만,"
