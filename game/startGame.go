@@ -43,6 +43,20 @@ func (sStartGame *StartGame) PressBmkBtn(s *discordgo.Session, r *discordgo.Mess
 func (sStartGame *StartGame) InitState() {
 	g := sStartGame.g
 	lenuser := len(g.UserList)
+	startEmbed := embed.NewEmbed()
+	startEmbed.SetTitle("게임 시작!")
+	userListMsg := ""
+	for _, user := range g.UserList {
+		userListMsg += "`" + user.nick + "`\n"
+	}
+	startEmbed.AddField("유저 목록", userListMsg)
+	roleListMsg := ""
+	for _, role := range g.RoleView {
+		roleListMsg += "`" + role.String() + "`\n"
+	}
+	startEmbed.AddField("설정된 직업 목록", roleListMsg)
+	startEmbed.InlineAllFields()
+	go g.Session.ChannelMessageSendEmbed(g.ChanID, startEmbed.MessageEmbed)
 	// game의 RoleView는 unsorted이기 때문에 섞여도 된다.
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(g.RoleView), func(i, j int) {

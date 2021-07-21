@@ -19,7 +19,7 @@ type Prepare struct {
 	EnterGameMsg *discordgo.Message
 }
 
-const pageMax = 7
+const pageMax = 3
 
 // PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 Prepare에서 하는 동작
 func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
@@ -148,20 +148,20 @@ func (sPrepare *Prepare) InitState() {
 	enterEmbed := sPrepare.NewEnterEmbed()
 	roleEmbed := sPrepare.NewRoleAddEmbed()
 	s := sPrepare.g.Session
-	sPrepare.EnterGameMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, enterEmbed.MessageEmbed)
-	// 게임 입장 메시지에 안내 버튼을 연결
-	s.MessageReactionAdd(sPrepare.EnterGameMsg.ChannelID, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["YES"])
-	s.MessageReactionAdd(sPrepare.EnterGameMsg.ChannelID, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["NO"])
-	s.MessageReactionAdd(sPrepare.EnterGameMsg.ChannelID, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["RIGHT"])
 	sPrepare.RoleAddMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, roleEmbed.MessageEmbed)
+	nowChan := sPrepare.g.ChanID
 	// 직업 추가 메시지에 안내 버튼을 연결
-	s.MessageReactionAdd(sPrepare.EnterGameMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["LEFT"])
-	s.MessageReactionAdd(sPrepare.EnterGameMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
+	s.MessageReactionAdd(nowChan, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["LEFT"])
+	s.MessageReactionAdd(nowChan, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["RIGHT"])
 	for i := 0; i < pageMax; i++ {
 		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["n"+strconv.Itoa(i+1)])
 	}
 	s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["BOOKMARK"])
-
+	sPrepare.EnterGameMsg, _ = s.ChannelMessageSendEmbed(sPrepare.g.ChanID, enterEmbed.MessageEmbed)
+	// 게임 입장 메시지에 안내 버튼을 연결
+	s.MessageReactionAdd(nowChan, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["YES"])
+	s.MessageReactionAdd(nowChan, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["NO"])
+	s.MessageReactionAdd(nowChan, sPrepare.EnterGameMsg.ID, sPrepare.g.Emj["RIGHT"])
 	/*
 		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["YES"])
 		s.MessageReactionAdd(sPrepare.RoleAddMsg.ChannelID, sPrepare.RoleAddMsg.ID, sPrepare.g.Emj["NO"])
@@ -176,6 +176,9 @@ func (sPrepare *Prepare) stateFinish() {
 	msg, _ := sPrepare.g.Session.ChannelMessageSend(sPrepare.g.ChanID, "각자의 직업을 배정 중입니다...")
 	sPrepare.g.GameStateMID = msg.ID
 	sPrepare.g.GameStartedChan <- true
+	s := sPrepare.g.Session
+	s.ChannelMessageDelete(sPrepare.g.ChanID, sPrepare.EnterGameMsg.ID)
+	s.ChannelMessageDelete(sPrepare.g.ChanID, sPrepare.RoleAddMsg.ID)
 	sPrepare.g.CurState.InitState()
 }
 
@@ -199,7 +202,7 @@ func (sPrepare *Prepare) NewRoleAddEmbed() *embed.Embed {
 	if upper > len(sPrepare.g.RG) {
 		upper = len(sPrepare.g.RG)
 	}
-	roleEmbed.SetTitle("직업 추가" + "（" + strconv.Itoa(lower) + "~" + strconv.Itoa(upper) + "）")
+	roleEmbed.SetTitle("직업 추가" + "（" + strconv.Itoa(sPrepare.pageNum+1) + "/" + strconv.Itoa(len(sPrepare.g.RG)/pageMax+1) + "）")
 	msg := ""
 	for i := lower - 1; i < upper; i++ {
 		if (i)%(pageMax/2) == 0 {

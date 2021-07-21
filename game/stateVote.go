@@ -75,7 +75,7 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 						time.Sleep(time.Second)
 					}
 					executeTitle := "**처형된 사람의 직업은**"
-					executeMsg := "`" + v.g.GetRole(v.g.UserList[i].voteUserId).String() + "`이었습니다!"
+					executeMsg := "`" + v.g.GetRole(v.g.UserList[i].UserID).String() + "`이었습니다!"
 					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed(executeTitle, executeMsg))
 				}
 			}
