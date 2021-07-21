@@ -14,6 +14,7 @@ type StateVote struct {
 	votedList []int
 	userNum   int
 	voteCount int
+	mostVotes int
 }
 
 func NewStateVote(g *Game) *StateVote {
@@ -49,24 +50,24 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	v.sendVoteCompleteMsgToDm(v.g.FindUserByUID(r.UserID), v.g.UserList[num-1].nick)
 	v.voteCount++
 	if v.voteCount == v.userNum {
-		max_value := 0
+		v.mostVotes = 0
 		for i := 0; i < v.userNum; i++ {
-			if max_value < v.votedList[i] {
-				max_value = v.votedList[i]
+			if v.mostVotes < v.votedList[i] {
+				v.mostVotes = v.votedList[i]
 			}
 		}
-		switch max_value {
+		switch v.mostVotes {
 		case 1:
 			rMsg := "모두 1표씩 투표받아 아무도 사망하지 않았습니다"
 			s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("전원 생존", rMsg))
 		default:
 			rMsg := ""
 			for i, user := range v.g.UserList {
-				if max_value == v.votedList[i] {
+				if v.mostVotes == v.votedList[i] {
 					if len(rMsg) > 0 {
 						s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", "투표 동점자가 있습니다 ..!"))
 					}
-					rMsg = user.nick + "님이 총 " + strconv.Itoa(max_value) + "표로 처형되었습니다"
+					rMsg = user.nick + "님이 총 " + strconv.Itoa(v.mostVotes) + "표로 처형되었습니다"
 					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("투표 결과", rMsg))
 
 					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", "처형된 사람의 직업은...?"))
@@ -81,7 +82,7 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 			}
 		}
 		// 사냥꾼 능력발동 및 로그 작성하는 함수
-		v.hunterSkillMsg(s, max_value)
+		v.hunterSkillMsg(s)
 		v.stateFinish()
 	}
 }
@@ -190,10 +191,10 @@ func (v *StateVote) setVoteUserId(voteUserId, votedUserId string) {
 	}
 }
 
-// 사냥꾼 능력발동 조건을 확인하는 함수
-func (v *StateVote) chkUseHunterSkill(i, max_value int) bool {
-	if max_value == v.votedList[i] && max_value > 1 {
-		if v.g.GetRole(v.g.UserList[i].UserID).String() == "사냥꾼" {
+// 해당 직업이 처형되었는지 확인하는 함수
+func (v *StateVote) isExecutedRole(i int, role string) bool {
+	if v.mostVotes == v.votedList[i] && v.mostVotes > 1 {
+		if v.g.GetRole(v.g.UserList[i].UserID).String() == role {
 			return true
 		}
 	}
@@ -201,9 +202,9 @@ func (v *StateVote) chkUseHunterSkill(i, max_value int) bool {
 }
 
 // 사냥꾼 능력발동 및 로그 작성하는 함수
-func (v *StateVote) hunterSkillMsg(s *discordgo.Session, max_value int) {
+func (v *StateVote) hunterSkillMsg(s *discordgo.Session) {
 	for i, user := range v.g.UserList {
-		if v.chkUseHunterSkill(i, max_value) {
+		if v.isExecutedRole(i, "사냥꾼") {
 			hunterMsg := "`" + user.Nick() + "`가 `" + v.g.FindUserByUID(user.voteUserId).nick + "` 사냥에 성공했습니다..!\n이 사람의 직업은..?"
 			s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("사냥꾼 능력발동!", hunterMsg))
 			for j := 0; j < 3; j++ {
