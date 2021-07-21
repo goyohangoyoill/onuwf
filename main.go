@@ -100,11 +100,10 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 		case curUID := <-curGame.QuitUserIDChan:
 			delete(isUserIn, curUID)
 			delete(uidToGameData, curUID)
-		case <-curGame.GameStartedChan:
+		case _ = <-curGame.GameStartedChan:
 			flag = true
 			// juhur comment out
 			//SaveStartDB(curGame)
-			return
 		}
 	}
 	<-curGame.GameStartedChan

@@ -54,11 +54,11 @@ func (min Minion) GenLog(tar *TargetObject, player *User, g *Game) {
 		// wfList = append(wfList, g.GetRoleUsers(&AlphaWolf{})
 		// wfList = append(wfList, g.GetRoleUsers(&MisticWolf{})
 		// wfList = append(wfList, g.GetRoleUsers(&DreamWolf{})
-		msg = "하수인 `" + player.nick + "` 은(는) 동료 늑대인간\n"
+		msg = "하수인 `" + player.nick + "` 은(는) 동료 늑대인간"
 		for _, wfUser := range wfList {
 			msg += "`" + wfUser.nick + "` "
 		}
-		msg += "\n을(를) 확인하였습니다."
+		msg += "을(를) 확인하였습니다."
 		if len(wfList) == 0 {
 			msg = "하수인 `" + player.nick + "` 은(는) 늑대인간이 없음을 확인했습니다."
 		}

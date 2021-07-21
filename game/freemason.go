@@ -50,7 +50,7 @@ func (frm *Freemason) GenLog(tar *TargetObject, player *User, g *Game) {
 	case -1:
 		frList := g.GetOriRoleUsers(frm)
 		if len(frList) == 1 {
-			frmMsg = "프리메이슨 `" + frList[0].nick + "`은(는)\n"
+			frmMsg = "프리메이슨 `" + frList[0].nick + "`은(는)"
 			frmMsg += "자신이 유일한 프리메이슨임을 확인했습니다."
 		} else {
 			frmMsg = "프리메이슨 "

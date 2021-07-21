@@ -44,10 +44,7 @@ func (dr *Drunk) GenLog(tar *TargetObject, player *User, g *Game) {
 	msg := ""
 	switch tar.actionType {
 	case 1:
-		Orirole := g.GetOriRole(tar.uid1)
-		if Orirole.String() == (&Doppelganger{}).String() {
-			Orirole = &Drunk{}
-		}
+		Orirole := g.GetDisRole(tar.disRoleIdx)
 		role := g.GetRole(tar.uid1)
 		msg += "주정뱅이 `" + player.nick + "` 는 "
 		msg += "자신의 직업 `" + Orirole.String() + "`을(를) 버려진 카드`" + role.String() + "`와(과) 교환했습니다."

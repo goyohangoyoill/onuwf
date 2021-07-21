@@ -60,7 +60,7 @@ func (rb *Robber) GenLog(tar *TargetObject, player *User, g *Game) {
 	case 2:
 		tarRole := g.GetRole(tar.uid1)
 		tarUser := g.FindUserByUID(tar.uid1)
-		msg = "강도 `" + player.nick + "` 은(는) `" + tarUser.nick + "` 의 직업 `" + tarRole.String() + "` 을(를) 확인하고\n자신의 직업과 맞바꾸었습니다."
+		msg = "강도 `" + player.nick + "` 은(는) `" + tarUser.nick + "` 의 직업 `" + tarRole.String() + "` 을(를) 확인하고 자신의 직업과 맞바꾸었습니다."
 	}
 	g.AppendLog(msg)
 }
