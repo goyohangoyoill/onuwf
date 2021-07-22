@@ -92,10 +92,12 @@ func (sActionSentinel *ActionSentinel) InitState() {
 				if input.num == -1 {
 					tar := &TargetObject{2, "", "", -1}
 					role.GenLog(tar, input.user, g)
+					g.Session.ChannelMessageSend(g.ChanID, "수호자가 아무도 수호하지 않았습니다.")
 				} else {
 					tar := &TargetObject{2, g.UserList[input.num-1].UserID, "", -1}
 					role.Action(tar, input.user, g)
 					role.GenLog(tar, input.user, g)
+					g.Session.ChannelMessageSend(g.ChanID, "수호자가 `"+g.FindUserByUID(tar.uid1).nick+"` 을(를) 방패로 수호하였습니다")
 				}
 				cnt++
 				if cnt == len(users) {
