@@ -32,6 +32,6 @@ type UserData struct {
 	RecentGameTime time.Time
 	CntPlay        int
 	CntWin         int
-	LastRoleList   []int
+	LastRoleList   []int `bson: "LastRoleList"`
 	PlayedGameOID  []string
 }

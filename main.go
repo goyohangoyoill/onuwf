@@ -85,7 +85,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	uidToGameData[m.Author.ID] = curGame
 	flag := false
 	// juhur comment out
-	//LoadEnterUser(curGame, m.Author.ID)
+	LoadEnterUser(curGame, m.Author.ID)
 	for {
 		if flag {
 			break
@@ -96,14 +96,15 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 			guildChanToGameData[m.GuildID+curUID] = curGame
 			uidToGameData[curUID] = curGame
 			// juhur comment out
-			//LoadEnterUser(curGame, curUID)
+			LoadEnterUser(curGame, curUID)
 		case curUID := <-curGame.QuitUserIDChan:
 			delete(isUserIn, curUID)
 			delete(uidToGameData, curUID)
 		case _ = <-curGame.GameStartedChan:
 			flag = true
 			// juhur comment out
-			//SaveStartDB(curGame)
+			SaveStartDB(curGame)
+			//SaveEndDB(curGame)
 		}
 	}
 	<-curGame.GameStartedChan
@@ -114,6 +115,7 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// 여기에 DB 갱신 넣으면 됨.
+	SaveEndDB(curGame)
 	for _, user := range g.UserList {
 		delete(isUserIn, user.UserID)
 		delete(uidToGameData, user.UserID)
@@ -135,14 +137,15 @@ func LoadEnterUser(g *wfGame.Game, uid string) {
 	// p는 database에 존재여부 식별 bool
 	lUser, p := util.LoadEachUser(uid, m, "User", conn.Database("ONUWF"), ctx)
 	cUser := g.FindUserByUID(uid)
+	fmt.Println(p, m)
 	if p == true {
 		wfGame.UpdateUser(cUser, lUser.Nick, lUser.Title)
 		if m == true {
-			g.FormerRole = lUser.LastRole
+			g.FormerRole = lUser.LastRoleList
 		}
 	}
-	//fmt.Println(g.UserList[0].Nick(), g.UserList[0].Title())
-	//fmt.Println(g.FormerRole)
+	fmt.Println(g.UserList[0].Nick(), g.UserList[0].Title())
+	fmt.Println(g.FormerRole)
 }
 
 /*
@@ -178,6 +181,24 @@ func SaveStartDB(g *wfGame.Game) {
 	sDB := util.SaveDBInfo{UserInfo, RoleID, g.MasterID}
 	util.SetStartUser(sDB, "User", conn.Database("ONUWF"), ctx)
 	// fmt.Println(a)
+}
+
+func SaveEndDB(g *wfGame.Game) {
+	conn, ctx := util.MongoConn(env)
+	uLen := len(g.UserList)
+	curGameOID := "test1"
+	win := false
+	for i := 0; i < uLen; i++ {
+		if (g.GetRole(g.UserList[i].UserID) == &wfGame.Werewolf{}) {
+			win = g.WerewolfTeamWin
+		} else if (g.GetRole(g.UserList[i].UserID) == &wfGame.Tanner{}) {
+			win = g.TannerTeamWin
+		} else {
+			win = g.VillagerTeamWin
+		}
+		lUser, _ := util.LoadEachUser(g.UserList[i].UserID, true, "User", conn.Database("ONUWF"), ctx)
+		util.SaveEachUser(&lUser, curGameOID, win, "User", conn.Database("ONUWF"), ctx)
+	}
 }
 
 // messageCreate() 입력한 메시지를 처리하는 함수

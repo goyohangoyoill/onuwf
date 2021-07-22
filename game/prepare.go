@@ -132,8 +132,26 @@ func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageR
 	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
 	fmt.Println(sPrepare.g.FormerRole)
 	fmt.Println(sPrepare.g.MasterID)
+
 	if r.MessageID == sPrepare.RoleAddMsg.ID {
 		if r.UserID == sPrepare.g.MasterID && sPrepare.g.FormerRole != nil {
+			/*
+				var maxrole int
+				for _, roleItem := range g.RG {
+					maxrole += roleItem.Max
+				}
+				sPrepare.g.RoleSeq = make([]Role, 0, len(g.RG))
+				sPrepare.g.RoleView = make([]Role, 0, maxrole)
+			*/
+
+			l := len(sPrepare.g.RoleSeq)
+			for i := 0; i < l; i++ {
+				sPrepare.g.DelRole(sPrepare.g.RoleSeq[i].ID())
+				if len(sPrepare.g.RoleSeq) == 0 {
+					break
+				}
+			}
+
 			rLen := len(sPrepare.g.FormerRole)
 			for i := 0; i < rLen; i++ {
 				sPrepare.g.AddRole(sPrepare.g.FormerRole[i])

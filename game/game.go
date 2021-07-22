@@ -54,11 +54,11 @@ type Game struct {
 
 	FormerRole []int
 	// 마을주민팀 승패여부
-	villagerTeamWin bool
+	VillagerTeamWin bool
 	// 늑대인간팀 승패여부
-	werewolfTeamWin bool
+	WerewolfTeamWin bool
 	// 무두장이 승패여부
-	tannerTeamWin bool
+	TannerTeamWin bool
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,

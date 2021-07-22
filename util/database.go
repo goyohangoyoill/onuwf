@@ -79,21 +79,24 @@ type InputUser struct {
 	LastRole       []int  `bson: "LastRole"`
 }
 
-func LoadEachUser(uid string, m bool, collection string, mongoDB *mongo.Database, ctx context.Context) (LoadedUser, bool) {
+func LoadEachUser(uid string, m bool, collection string, mongoDB *mongo.Database, ctx context.Context) (UserData, bool) {
 	//var result bson.M
-	result := InputUser{}
-	filter := bson.D{{"userid", uid}}
+	result := UserData{}
+	filter := bson.D{{"uid", uid}}
+	fmt.Println(filter)
 	err := mongoDB.Collection(collection).FindOne(ctx, filter).Decode(&result)
-	fResult := LoadedUser{}
+	fmt.Println(err)
+	//fResult := LoadedUser{}
 	if err == nil {
-		fResult = LoadedUser{result.UserID, result.Nick, result.Title, result.LastRole}
+		//fResult = LoadedUser{result.UserID, result.Nick, result.Title, result.LastRole}
 		if m == false {
-			fResult.LastRole = nil
+			result.LastRoleList = nil
 		}
 	} else {
-		return fResult, false
+		return result, false
 	}
-	return fResult, true
+	fmt.Println(result)
+	return result, true
 }
 
 /*
@@ -121,29 +124,29 @@ func LoadUser(sDB SaveDBInfo, collection string, mongoDB *mongo.Database, ctx co
 
 func SetStartUser(sDB SaveDBInfo, collection string, mongoDB *mongo.Database, ctx context.Context) string {
 	uLen := len(sDB.CurUserList)
-	t := time.Now().Format(time.ANSIC)
+	t := time.Now()
 	for i := 0; i < uLen; i++ {
-		Input := InputUser{}
+		Input := UserData{}
 		user := sDB.CurUserList[i]
-		filter := bson.D{{"userid", user.UID}}
+		filter := bson.D{{"uid", user.UID}}
 		update := bson.D{}
 		num, err := mongoDB.Collection(collection).CountDocuments(ctx, filter)
 		CheckErr(err)
 		//User 정보 없을 시 db에 유저등록
 		if num == 0 {
 			if user.UID == sDB.MUserID {
-				Input = InputUser{user.UID, user.Nick, "BetaTester", t, 0, sDB.CurRoleSeq}
+				Input = UserData{user.UID, user.Nick, "", t, 0, 0, sDB.CurRoleSeq, nil}
 			} else {
-				Input = InputUser{user.UID, user.Nick, "BetaTester", t, 0, nil}
+				Input = UserData{user.UID, user.Nick, "", t, 0, 0, nil, nil}
 			}
 			_, err := mongoDB.Collection(collection).InsertOne(ctx, Input)
 			CheckErr(err)
 		} else if num == 1 {
 			//master user 일 경
 			if user.UID == sDB.MUserID {
-				update = bson.D{{"$set", bson.D{{"nick", user.Nick}, {"lastplayeddate", t}, {"lastrole", sDB.CurRoleSeq}}}}
+				update = bson.D{{"$set", bson.D{{"nick", user.Nick}, {"recentgametime", t}, {"lastrolelist", sDB.CurRoleSeq}}}}
 			} else {
-				update = bson.D{{"$set", bson.D{{"nick", user.Nick}, {"lastplayeddate", t}}}}
+				update = bson.D{{"$set", bson.D{{"nick", user.Nick}, {"recentgametime", t}}}}
 			}
 		} else {
 			fmt.Println("UserDB Overlapped")
@@ -153,6 +156,19 @@ func SetStartUser(sDB SaveDBInfo, collection string, mongoDB *mongo.Database, ct
 		CheckErr(err)
 	}
 	return "create!"
+}
+
+func SaveEachUser(user *UserData, curGameOID string, win bool, collection string, mongoDB *mongo.Database, ctx context.Context) {
+	t := time.Now()
+	filter := bson.D{{"uid", user.UID}}
+	update := bson.D{}
+	if win == true {
+		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"curplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"PlayedGameOID", append(user.PlayedGameOID, curGameOID)}}}}
+	} else {
+		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
+	}
+	_, err := mongoDB.Collection(collection).UpdateOne(ctx, filter, update)
+	CheckErr(err)
 }
 
 // DB에 값이 존재하는지 확인
