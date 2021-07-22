@@ -17,6 +17,8 @@ type Prepare struct {
 	RoleAddMsg *discordgo.Message
 	// 게임입장 확인용 메세지
 	EnterGameMsg *discordgo.Message
+	// 늑대인간과 관련된 경고 메세지를 보냈는지 여부
+	wfWarning bool
 }
 
 const pageMax = 3
@@ -38,8 +40,13 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 		return
 	}
 	if num == 2 {
-		s.ChannelMessageSend(sPrepare.g.ChanID, "늑대인간은 2개 있어야 합니다")
-		return
+		if sPrepare.g.RoleCount(&Werewolf{}, sPrepare.g.RoleView) == 2 && !sPrepare.wfWarning {
+			sPrepare.wfWarning = true
+			sPrepare.g.AddRole(num)
+			s.ChannelMessageSend(sPrepare.g.ChanID, "늑대인간은 1개 이상 있어야 합니다")
+		} else if sPrepare.g.RoleCount(&Werewolf{}, sPrepare.g.RoleView) == 2 {
+			sPrepare.g.AddRole(num)
+		}
 	}
 	// role 생성해서 game의 RoleView와 RoleSeq에 추가
 	sPrepare.g.AddRole(num)
@@ -142,8 +149,7 @@ func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageR
 
 // InitState 함수는 prepare state가 시작할 때 입장, 직업추가 메세지를 보냅니다.
 func (sPrepare *Prepare) InitState() {
-	// 늑대인간 2개 추가
-	sPrepare.g.AddRole(2)
+	// 늑대인간 1개 추가
 	sPrepare.g.AddRole(2)
 	enterEmbed := sPrepare.NewEnterEmbed()
 	roleEmbed := sPrepare.NewRoleAddEmbed()
