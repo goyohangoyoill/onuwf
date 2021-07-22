@@ -325,6 +325,7 @@ func (g *Game) SwapRoleFromDiscard(uid string, disRoleIdx int) {
 }
 
 // GetRoleUsers 특정 직업의 유저 목록 반환.
+// ※ FindRoleIdx()에서 -1을 반환할 경우 panic 발생 (늑대인간을 제외한 직업을 사용할 때는 수정이 필요)
 func (g *Game) GetRoleUsers(find Role) (users []*User) {
 	result := make([]*User, 0)
 	loop := len(g.UserList)
