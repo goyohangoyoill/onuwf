@@ -162,8 +162,9 @@ func SaveEachUser(user *UserData, curGameOID string, win bool, collection string
 	t := time.Now()
 	filter := bson.D{{"uid", user.UID}}
 	update := bson.D{}
+	fmt.Println("in db", win)
 	if win == true {
-		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"curplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"PlayedGameOID", append(user.PlayedGameOID, curGameOID)}}}}
+		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"PlayedGameOID", append(user.PlayedGameOID, curGameOID)}}}}
 	} else {
 		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
 	}

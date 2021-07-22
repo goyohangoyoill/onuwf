@@ -104,7 +104,6 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 			flag = true
 			// juhur comment out
 			SaveStartDB(curGame)
-			//SaveEndDB(curGame)
 		}
 	}
 	<-curGame.GameStartedChan
@@ -189,9 +188,9 @@ func SaveEndDB(g *wfGame.Game) {
 	curGameOID := "test1"
 	win := false
 	for i := 0; i < uLen; i++ {
-		if (g.GetRole(g.UserList[i].UserID) == &wfGame.Werewolf{}) {
+		if (g.GetRole(g.UserList[i].UserID).String()) == (&wfGame.Werewolf{}).String() {
 			win = g.WerewolfTeamWin
-		} else if (g.GetRole(g.UserList[i].UserID) == &wfGame.Tanner{}) {
+		} else if (g.GetRole(g.UserList[i].UserID).String()) == (&wfGame.Tanner{}).String() {
 			win = g.TannerTeamWin
 		} else {
 			win = g.VillagerTeamWin
