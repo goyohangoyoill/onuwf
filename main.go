@@ -188,7 +188,7 @@ func SaveEndDB(g *wfGame.Game) {
 	curGameOID := "test1"
 	win := false
 	for i := 0; i < uLen; i++ {
-		if (g.GetRole(g.UserList[i].UserID).String()) == (&wfGame.Werewolf{}).String() {
+		if (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Werewolf{}).String()) || (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Minion{}).String()) {
 			win = g.WerewolfTeamWin
 		} else if (g.GetRole(g.UserList[i].UserID).String()) == (&wfGame.Tanner{}).String() {
 			win = g.TannerTeamWin
