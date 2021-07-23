@@ -484,6 +484,8 @@ func (g *Game) userExistsOfThisTeam(team string) bool {
 	return false
 }
 
+// 각 직업 옆에 표시할 팀마크를 생성하는 함수
+// `(backtick) 안에 팀마크를 생성할 경우 제대로 표시되지 않으니 주의 필요
 func (g *Game) getTeamMark(role string) string {
 	team := ""
 	for i := 0; i < len(g.RG); i++ {
