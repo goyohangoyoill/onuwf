@@ -240,6 +240,16 @@ func (v *StateVote) votedAllUsers() bool {
 	return true
 }
 
+// 처형당한 직업이 있는지 확인
+func (v *StateVote) existsExecutedRole(roleName string) bool {
+	for i := 0; i < len(v.g.UserList); i++ {
+		if v.isExecutedRole(i, roleName) {
+			return true
+		}
+	}
+	return false
+}
+
 // 각 팀별 승패여부 확인 후 표시
 func (v *StateVote) gameResult(s *discordgo.Session) {
 	voteResultEmbed := embed.NewEmbed()
@@ -257,13 +267,11 @@ func (v *StateVote) gameResult(s *discordgo.Session) {
 				voteResultEmbed.AddField("마을주민팀 패배", "누군가 사망했습니다.")
 			}
 		default:
-			for i := 0; i < len(v.g.UserList); i++ {
-				if v.isExecutedRole(i, "늑대인간") {
-					v.g.VillagerTeamWin = true
-					voteResultEmbed.AddField("마을주민팀 승리", "늑대인간이 처형되었습니다.")
-				}
-			}
-			if !v.g.VillagerTeamWin {
+			switch v.existsExecutedRole("늑대인간") {
+			case true:
+				v.g.VillagerTeamWin = true
+				voteResultEmbed.AddField("마을주민팀 승리", "늑대인간이 처형되었습니다.")
+			case false:
 				voteResultEmbed.AddField("마을주민팀 패배", "늑대인간이 처형되지 않았습니다.")
 			}
 		}
@@ -273,40 +281,28 @@ func (v *StateVote) gameResult(s *discordgo.Session) {
 		v.g.WerewolfTeamWin = true
 		switch len(v.g.GetRoleUsers(&Werewolf{})) {
 		case 0:
-			if v.mostVotes == 1 {
+			switch {
+			case v.mostVotes == 1:
 				v.g.WerewolfTeamWin = false
 				voteResultEmbed.AddField("늑대인간팀 패배", "아무도 사망하지 않았습니다.")
-			}
-			if v.g.userExistsOfThisTeam("Tanner") {
-				for i := 0; i < len(v.g.UserList); i++ {
-					if v.isExecutedRole(i, "무두장이") {
-						v.g.WerewolfTeamWin = false
-						voteResultEmbed.AddField("늑대인간팀 패배", "무두장이가 처형되었습니다.")
-						break
-					}
-				}
-			}
-			if v.g.WerewolfTeamWin {
+			case v.existsExecutedRole("하수인"):
+				v.g.WerewolfTeamWin = false
+				voteResultEmbed.AddField("늑대인간팀 패배", "하수인이 처형되었습니다.")
+			case v.g.userExistsOfThisTeam("Tanner") && v.existsExecutedRole("무두장이"):
+				v.g.WerewolfTeamWin = false
+				voteResultEmbed.AddField("늑대인간팀 패배", "무두장이가 처형되었습니다.")
+			default:
 				voteResultEmbed.AddField("늑대인간팀 승리", "하수인, 무두장이가 살아남았습니다.")
 			}
 		default:
-			for i := 0; i < len(v.g.UserList); i++ {
-				if v.isExecutedRole(i, "늑대인간") {
-					v.g.WerewolfTeamWin = false
-					voteResultEmbed.AddField("늑대인간팀 패배", "늑대인간이 처형되었습니다.")
-					break
-				}
-			}
-			if v.g.userExistsOfThisTeam("Tanner") && v.g.WerewolfTeamWin {
-				for i := 0; i < len(v.g.UserList); i++ {
-					if v.isExecutedRole(i, "무두장이") {
-						v.g.WerewolfTeamWin = false
-						voteResultEmbed.AddField("늑대인간팀 패배", "무두장이가 처형되었습니다.")
-						break
-					}
-				}
-			}
-			if v.g.WerewolfTeamWin {
+			switch {
+			case v.existsExecutedRole("늑대인간"):
+				v.g.WerewolfTeamWin = false
+				voteResultEmbed.AddField("늑대인간팀 패배", "늑대인간이 처형되었습니다.")
+			case v.g.userExistsOfThisTeam("Tanner") && v.existsExecutedRole("무두장이"):
+				v.g.WerewolfTeamWin = false
+				voteResultEmbed.AddField("늑대인간팀 패배", "무두장이가 처형되었습니다.")
+			default:
 				voteResultEmbed.AddField("늑대인간팀 승리", "늑대인간이 살아남았습니다.")
 			}
 		}
@@ -314,14 +310,11 @@ func (v *StateVote) gameResult(s *discordgo.Session) {
 	// 무두장이팀 승패여부
 	if v.g.userExistsOfThisTeam("Tanner") {
 		v.g.TannerTeamWin = false
-		for i := 0; i < len(v.g.UserList); i++ {
-			if v.isExecutedRole(i, "무두장이") {
-				v.g.TannerTeamWin = true
-				voteResultEmbed.AddField("무두장이팀 승리", "늑대인간이 처형되었습니다.")
-				break
-			}
-		}
-		if !v.g.TannerTeamWin {
+		switch v.existsExecutedRole("무두장이") {
+		case true:
+			v.g.TannerTeamWin = true
+			voteResultEmbed.AddField("무두장이팀 승리", "무두장이가 처형되었습니다.")
+		case false:
 			voteResultEmbed.AddField("무두장이팀 패배", "무두장이가 살아남았습니다.")
 		}
 	}
