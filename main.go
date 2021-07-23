@@ -136,33 +136,14 @@ func LoadEnterUser(g *wfGame.Game, uid string) {
 	// p는 database에 존재여부 식별 bool
 	lUser, p := util.LoadEachUser(uid, m, "User", conn.Database("ONUWF"), ctx)
 	cUser := g.FindUserByUID(uid)
-	fmt.Println(p, m)
 	if p == true {
 		wfGame.UpdateUser(cUser, lUser.Nick, lUser.Title)
 		if m == true {
 			g.FormerRole = lUser.LastRoleList
 		}
 	}
-	fmt.Println(g.UserList[0].Nick(), g.UserList[0].Title())
-	fmt.Println(g.FormerRole)
 }
 
-/*
-func LoadDB(g *wfGame.Game) {
-	conn, ctx := util.MongoConn(env)
-	uLen := len(g.UserList)
-	sDB := util.SaveDBInfo{g.UserList, RoleID, g.MasterID}
-	lDB := util.LoadUser(sDB, "User", conn.Database("ONUWF"), ctx)
-	mLen := len(lDB.LoadedUser)
-	for i := 0; i < uLen; i++ {
-		//	a := util.CreateUser(g.UserList[i], "User", conn.Database("ONUWF"), ctx)
-		for j := 0; j < mLen; j++ {
-
-		}
-	}
-
-}
-*/
 // 게임 시작 시 save (user nick, lastrole 정보 저장)
 func SaveStartDB(g *wfGame.Game) {
 	conn, ctx := util.MongoConn(env)
@@ -179,13 +160,58 @@ func SaveStartDB(g *wfGame.Game) {
 	}
 	sDB := util.SaveDBInfo{UserInfo, RoleID, g.MasterID}
 	util.SetStartUser(sDB, "User", conn.Database("ONUWF"), ctx)
-	// fmt.Println(a)
+}
+
+func SaveUserInit(g *wfGame.Game) []util.User {
+	uLen := len(g.UserList)
+	users := make([]util.User, 0, uLen)
+	win := false
+	for i := 0; i < uLen; i++ {
+		user := util.User{}
+		user.UID = g.UserList[i].UserID
+		user.Nick = g.UserList[i].Nick()
+		user.OriRole = g.GetOriRole(g.UserList[i].UserID).String()
+		user.LastRole = g.GetRole(g.UserList[i].UserID).String()
+		if (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Werewolf{}).String()) || (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Minion{}).String()) {
+			win = g.WerewolfTeamWin
+		} else if (g.GetRole(g.UserList[i].UserID).String()) == (&wfGame.Tanner{}).String() {
+			win = g.TannerTeamWin
+		} else {
+			win = g.VillagerTeamWin
+		}
+		user.IsWin = win
+		users = append(users, user)
+	}
+	return users
+}
+
+func SaveGameInit(g *wfGame.Game) util.GameData {
+	sGame := util.GameData{}
+	sGame.GuildID = g.GuildID
+	sGame.ChanID = g.ChanID
+	sGame.MasterID = g.MasterID
+	RoleList := make([]string, 0, len(g.RoleView))
+	for i := 0; i < len(g.RoleView); i++ {
+		RoleList = append(RoleList, g.RoleView[i].String())
+	}
+	sGame.RoleList = RoleList
+	sGame.UserList = SaveUserInit(g)
+	disRole := make([]string, 0, len(g.DisRole))
+	for i := 0; i < len(g.DisRole); i++ {
+		disRole = append(disRole, g.DisRole[i].String())
+	}
+	sGame.OriDisRole = disRole
+	sGame.LastDisRole = disRole
+
+	return sGame
 }
 
 func SaveEndDB(g *wfGame.Game) {
 	conn, ctx := util.MongoConn(env)
+	sGame := SaveGameInit(g)
+	t := time.Now()
+	curGameOID := util.SaveGame(sGame, t, "Game", conn.Database("ONUWF"), ctx)
 	uLen := len(g.UserList)
-	curGameOID := "test1"
 	win := false
 	for i := 0; i < uLen; i++ {
 		if (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Werewolf{}).String()) || (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Minion{}).String()) {
@@ -196,7 +222,7 @@ func SaveEndDB(g *wfGame.Game) {
 			win = g.VillagerTeamWin
 		}
 		lUser, _ := util.LoadEachUser(g.UserList[i].UserID, true, "User", conn.Database("ONUWF"), ctx)
-		util.SaveEachUser(&lUser, curGameOID, win, "User", conn.Database("ONUWF"), ctx)
+		util.SaveEachUser(&lUser, curGameOID, win, t, "User", conn.Database("ONUWF"), ctx)
 	}
 }
 

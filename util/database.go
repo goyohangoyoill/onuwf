@@ -6,16 +6,19 @@ import (
 	"log"
 	"time"
 
+	"github.com/mitchellh/mapstructure"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+/*
 type LoadDBInfo struct {
 	MatchedUserList []*LoadedUser
 	LastRoleSeq     []int //User로
 }
-
+*/
 type SaveDBInfo struct {
 	CurUserList []*UserData
 	CurRoleSeq  []int
@@ -56,13 +59,6 @@ func MongoConn(env map[string]string) (client *mongo.Client, ctx context.Context
 }
 
 /*
-dbName := "ONUWF"
-colName := "User"
-
-func GetCollection(client *mongo.Client, colName string) *mongdo.Collection {
-	return client.Database(dbNmae).Collection(colName)
-}
-*/
 type LoadedUser struct {
 	UserID   string
 	Nick     string
@@ -78,49 +74,20 @@ type InputUser struct {
 	Played         int    `bson: "Played"`
 	LastRole       []int  `bson: "LastRole"`
 }
-
+*/
 func LoadEachUser(uid string, m bool, collection string, mongoDB *mongo.Database, ctx context.Context) (UserData, bool) {
-	//var result bson.M
 	result := UserData{}
 	filter := bson.D{{"uid", uid}}
-	fmt.Println(filter)
 	err := mongoDB.Collection(collection).FindOne(ctx, filter).Decode(&result)
-	fmt.Println(err)
-	//fResult := LoadedUser{}
 	if err == nil {
-		//fResult = LoadedUser{result.UserID, result.Nick, result.Title, result.LastRole}
 		if m == false {
 			result.LastRoleList = nil
 		}
 	} else {
 		return result, false
 	}
-	fmt.Println(result)
 	return result, true
 }
-
-/*
-func LoadUser(sDB SaveDBInfo, collection string, mongoDB *mongo.Database, ctx context.Context) LoadDBinfo {
-	var result bson.M
-	uLen = len(sDB.CurUserList)
-	lUsers = make([]LoadedUser, uLen)
-	lRole := nil
-	for i := 0; i < uLen; i++ {
-		filter := bson.D{"userid": sDB.CurUserList[i].UserID}
-		err := mongoDB.Collection(collection).FindOne(ctx, filter).Decode(&result)
-		if err != nil {
-			fResult := LoadedUser{result.userid, result.nick, result.title, nil}
-			if sDB.CurUserList[i].UserID == sDB.MUserID {
-				lRole = result.lastrole
-			}
-			lUsers.append(fResult)
-		}
-	}
-	return LoadDBinfo{lUsers, lRole}
-}
-*/
-
-//func LoadUser
 
 func SetStartUser(sDB SaveDBInfo, collection string, mongoDB *mongo.Database, ctx context.Context) string {
 	uLen := len(sDB.CurUserList)
@@ -158,35 +125,32 @@ func SetStartUser(sDB SaveDBInfo, collection string, mongoDB *mongo.Database, ct
 	return "create!"
 }
 
-func SaveEachUser(user *UserData, curGameOID string, win bool, collection string, mongoDB *mongo.Database, ctx context.Context) {
-	t := time.Now()
+func SaveGame(sGame GameData, t time.Time, collection string, mongoDB *mongo.Database, ctx context.Context) string {
+	//시간은 이전 시간을 db에서 가져오고 현재 시간을 입력으로 받아서 저장해야함
+	//User collection에서 game start time 을 load (별도로 저장?)
+	filter := bson.D{{"uid", sGame.UserList[0].UID}}
+	result := UserData{}
+	err := mongoDB.Collection("User").FindOne(ctx, filter).Decode(&result)
+	CheckErr(err)
+	sGame.StartTime = result.RecentGameTime // 대소문자 확인해야함
+	sGame.EndTime = t
+	var OID primitive.ObjectID
+	ret, err := mongoDB.Collection(collection).InsertOne(ctx, sGame)
+	CheckErr(err)
+	mapstructure.Decode(ret.InsertedID, &OID) // interface assertion
+	fmt.Println(ret)
+	fmt.Println(OID.String())
+	return OID.String()
+}
+func SaveEachUser(user *UserData, curGameOID string, win bool, t time.Time, collection string, mongoDB *mongo.Database, ctx context.Context) {
 	filter := bson.D{{"uid", user.UID}}
 	update := bson.D{}
-	fmt.Println("in db", win)
 	if win == true {
-		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"PlayedGameOID", append(user.PlayedGameOID, curGameOID)}}}}
+		//t := time.Now()
+		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
 	} else {
 		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
 	}
 	_, err := mongoDB.Collection(collection).UpdateOne(ctx, filter, update)
 	CheckErr(err)
 }
-
-// DB에 값이 존재하는지 확인
-
-// 새로 넣을 데이터 정의
-/*
-	newData := bson.M{
-		"UserID": user.UserID,
-		"nick":   user.Nick(),
-	}
-*/
-// DB값이 존재하지 않으면
-
-//func UpdateUser
-
-/*
-func VoteData(collection string, mongoDB *mongo.Database, ctx contxt.Context) string {
-
-}
-*/

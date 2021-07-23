@@ -5,7 +5,6 @@ import (
 )
 
 type GameData struct {
-	ObjectID    string
 	StartTime   time.Time
 	EndTime     time.Time
 	GuildID     string
@@ -22,7 +21,7 @@ type User struct {
 	Nick     string
 	OriRole  string
 	LastRole string
-	isWin    bool
+	IsWin    bool
 }
 
 type UserData struct {
@@ -32,6 +31,6 @@ type UserData struct {
 	RecentGameTime time.Time
 	CntPlay        int
 	CntWin         int
-	LastRoleList   []int `bson: "LastRoleList"`
+	LastRoleList   []int
 	PlayedGameOID  []string
 }

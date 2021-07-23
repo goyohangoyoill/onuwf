@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/bwmarrin/discordgo"
@@ -130,9 +129,6 @@ func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageR
 		return
 	}
 	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
-	fmt.Println(sPrepare.g.FormerRole)
-	fmt.Println(sPrepare.g.MasterID)
-
 	if r.MessageID == sPrepare.RoleAddMsg.ID {
 		if r.UserID == sPrepare.g.MasterID && sPrepare.g.FormerRole != nil {
 			/*
