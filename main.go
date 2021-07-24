@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	embed "github.com/clinet/discordgo-embed"
 	wfGame "github.com/goyohangoyoill/ONUWF/game"
 	util "github.com/goyohangoyoill/ONUWF/util"
 	json "github.com/goyohangoyoill/ONUWF/util/json"
@@ -308,6 +309,23 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		msg += "----------------------------------------------------\n"
 		s.ChannelMessageSend(m.ChannelID, msg)
 		g.SendLogMsg(m.ChannelID)
+	case config.Prefix + "내정보":
+		conn, ctx := util.MongoConn(env)
+		user, _ := util.LoadEachUser(m.Author.ID, false, "User", conn.Database("ONUWF"), ctx)
+		if len(user.Nick) == 0 {
+			return
+		}
+		myInfoEmbed := embed.NewEmbed()
+		myInfoEmbed.SetTitle("한밤의 늑대인간 유저정보")
+		myInfoEmbed.AddField("닉네임", user.Nick)
+		if len(user.Title) > 0 {
+			myInfoEmbed.AddField("칭호", user.Title)
+		}
+		myInfoEmbed.AddField("게임횟수", strconv.Itoa(user.CntPlay)+"회")
+		myInfoEmbed.AddField("승리횟수", strconv.Itoa(user.CntWin)+"회(승률:"+strconv.Itoa(user.CntWin*100/user.CntPlay)+"%)")
+		myInfoEmbed.AddField("최근게임시간", user.RecentGameTime.String())
+		dmChan, _ := s.UserChannelCreate(m.Author.ID)
+		s.ChannelMessageSendEmbed(dmChan.ID, myInfoEmbed.MessageEmbed)
 	}
 }
 
