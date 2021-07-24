@@ -33,9 +33,3 @@ func NewUser(uid, nick, chanID, dmChanID string) (u *User) {
 	u.dmChanID = dmChanID
 	return
 }
-
-func UpdateUser(cu *User, nick, title string) (u *User) {
-	cu.nick = nick
-	cu.title = title
-	return cu
-}

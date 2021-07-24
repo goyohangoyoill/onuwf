@@ -5,6 +5,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
+	util "github.com/goyohangoyoill/ONUWF/util"
 	json "github.com/goyohangoyoill/ONUWF/util/json"
 )
 
@@ -59,10 +60,12 @@ type Game struct {
 	WerewolfTeamWin bool
 	// 무두장이 승패여부
 	TannerTeamWin bool
+	// 게임에서 db에 접근해야할 경우 사용하는 환경변수
+	env map[string]string
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
-func NewGame(gid, cid, muid string, s *discordgo.Session, rg []json.RoleGuide, emj map[string]string, config json.Config, enterUserIDChan, quitUserIDChan chan string, gameStartedChan chan bool) (g *Game) {
+func NewGame(gid, cid, muid string, s *discordgo.Session, rg []json.RoleGuide, emj map[string]string, config json.Config, enterUserIDChan, quitUserIDChan chan string, gameStartedChan chan bool, env map[string]string) (g *Game) {
 	g = &Game{}
 	g.GuildID = gid
 	g.ChanID = cid
@@ -74,6 +77,7 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []json.RoleGuide, e
 	g.CanFunc = cancel
 	g.RG = rg
 	g.Emj = emj
+	g.env = env
 	g.config = config
 	g.EnterUserIDChan = enterUserIDChan
 	g.QuitUserIDChan = quitUserIDChan
@@ -155,8 +159,25 @@ func (g *Game) SetUserByID(uid string) {
 	newOne.chanID = g.ChanID
 	uChan, _ := g.Session.UserChannelCreate(uid)
 	newOne.dmChanID = uChan.ID
+
+	conn, ctx := util.MongoConn(g.env)
+	// m은 master_user 식별 bool
+	m := false
+	if g.MasterID == uid {
+		m = true
+	}
+	// p는 database에 존재여부 식별 bool
+	lUser, p := util.LoadEachUser(uid, m, "User", conn.Database("ONUWF"), ctx)
+	if p {
+		newOne.nick, newOne.title = lUser.Nick, lUser.Title
+		if m {
+			g.FormerRole = lUser.LastRoleList
+		}
+	}
+
 	g.EnterUserIDChan <- uid
 	g.UserList = append(g.UserList, newOne)
+
 }
 
 // DelUserByID 는 입장되어 있는 유저의 정보를 모두 삭제해주는 함수입니다.

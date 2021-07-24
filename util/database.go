@@ -142,6 +142,7 @@ func SaveGame(sGame GameData, t time.Time, collection string, mongoDB *mongo.Dat
 	fmt.Println(OID.String())
 	return OID.String()
 }
+
 func SaveEachUser(user *UserData, curGameOID string, win bool, t time.Time, collection string, mongoDB *mongo.Database, ctx context.Context) {
 	filter := bson.D{{"uid", user.UID}}
 	update := bson.D{}
@@ -154,3 +155,17 @@ func SaveEachUser(user *UserData, curGameOID string, win bool, t time.Time, coll
 	_, err := mongoDB.Collection(collection).UpdateOne(ctx, filter, update)
 	CheckErr(err)
 }
+
+func SetUserNick(user *UserData, nick string, mongoDB *mongo.Database, ctx context.Context) {
+	filter := bson.D{{"uid", user.UID}}
+	update := bson.D{{"$set", bson.D{{"nick", nick}}}}
+	_, err := mongoDB.Collection("User").UpdateOne(ctx, filter, update)
+	CheckErr(err)
+}
+
+// func SetUserTitle(user *UserData, title string, mongoDB *mongo.Database, ctx context.Context) {
+// 	filter := bson.D{{"uid", user.UID}}
+// 	update := bson.D{{"$set", bson.D{{"title", title}}}}
+// 	_, err := mongoDB.Collection("User").UpdateOne(ctx, filter, update)
+// 	CheckErr(err)
+// }

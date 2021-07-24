@@ -27,6 +27,8 @@ var (
 	emj                 map[string]string
 	rg                  []json.RoleGuide
 	config              json.Config
+	isNickChange        map[string]bool
+	chNick              map[string]chan string
 )
 
 /*
@@ -53,6 +55,8 @@ func init() {
 	guildChanToGameData = make(map[string]*wfGame.Game)
 	uidToGameData = make(map[string]*wfGame.Game)
 	fqChanMap = make(map[string]chan bool)
+	isNickChange = make(map[string]bool)
+	chNick = make(map[string]chan string)
 }
 
 func main() {
@@ -80,13 +84,12 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	quitUserIDChan := make(chan string)
 	gameStartedChan := make(chan bool)
 	fqChanMap[m.GuildID+m.ChannelID] = make(chan bool, 1)
-	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, config, enterUserIDChan, quitUserIDChan, gameStartedChan)
+	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, config, enterUserIDChan, quitUserIDChan, gameStartedChan, env)
 	// Mutex 필요할 것으로 예상됨.
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
 	uidToGameData[m.Author.ID] = curGame
 	flag := false
 	// juhur comment out
-	LoadEnterUser(curGame, m.Author.ID)
 	for {
 		if flag {
 			break
@@ -97,7 +100,6 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 			guildChanToGameData[m.GuildID+curUID] = curGame
 			uidToGameData[curUID] = curGame
 			// juhur comment out
-			LoadEnterUser(curGame, curUID)
 		case curUID := <-curGame.QuitUserIDChan:
 			delete(isUserIn, curUID)
 			delete(uidToGameData, curUID)
@@ -124,25 +126,6 @@ func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
 	g.CanFunc()
 	s.ChannelMessageSend(m.ChannelID, "게임이 종료 되었습니다.")
 	<-fqChanMap[m.GuildID+m.ChannelID]
-}
-
-// 유저 입장시 유저별 data db에 요청
-func LoadEnterUser(g *wfGame.Game, uid string) {
-	conn, ctx := util.MongoConn(env)
-	// m은 master_user 식별 bool
-	m := false
-	if g.MasterID == uid {
-		m = true
-	}
-	// p는 database에 존재여부 식별 bool
-	lUser, p := util.LoadEachUser(uid, m, "User", conn.Database("ONUWF"), ctx)
-	cUser := g.FindUserByUID(uid)
-	if p == true {
-		wfGame.UpdateUser(cUser, lUser.Nick, lUser.Title)
-		if m == true {
-			g.FormerRole = lUser.LastRoleList
-		}
-	}
 }
 
 // 게임 시작 시 save (user nick, lastrole 정보 저장)
@@ -236,6 +219,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if json.PrintHelpList(s, m, rg, config.Prefix) {
 		return
 	}
+	if isNickChange[m.Author.ID] {
+		chNick[m.Author.ID] <- m.Content
+		return
+	}
 	switch m.Content {
 	case config.Prefix + "시작":
 		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
@@ -310,8 +297,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, msg)
 		g.SendLogMsg(m.ChannelID)
 	case config.Prefix + "내정보":
-		conn, ctx := util.MongoConn(env)
-		user, _ := util.LoadEachUser(m.Author.ID, false, "User", conn.Database("ONUWF"), ctx)
+		conn, mgctx := util.MongoConn(env)
+		user, _ := util.LoadEachUser(m.Author.ID, false, "User", conn.Database("ONUWF"), mgctx)
 		if len(user.Nick) == 0 {
 			return
 		}
@@ -324,8 +311,32 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		myInfoEmbed.AddField("게임횟수", strconv.Itoa(user.CntPlay)+"회")
 		myInfoEmbed.AddField("승리횟수", strconv.Itoa(user.CntWin)+"회(승률:"+strconv.Itoa(user.CntWin*100/user.CntPlay)+"%)")
 		myInfoEmbed.AddField("최근게임시간", user.RecentGameTime.String())
+		myInfoEmbed.AddField("명령어", "ㅁ닉네임변경")
 		dmChan, _ := s.UserChannelCreate(m.Author.ID)
 		s.ChannelMessageSendEmbed(dmChan.ID, myInfoEmbed.MessageEmbed)
+	case config.Prefix + "닉네임변경":
+		isNickChange[m.Author.ID] = true
+		chNick[m.Author.ID] = make(chan string)
+		chTimeout := make(chan bool)
+		dmChan, _ := s.UserChannelCreate(m.Author.ID)
+		s.ChannelMessageSend(dmChan.ID, "닉네임을 변경하려면 5초 안에 입력해주세요.")
+		go func(chan bool) {
+			time.Sleep(5 * time.Second)
+			chTimeout <- true
+		}(chTimeout)
+		select {
+		case nick := <-chNick[m.Author.ID]:
+			conn, mgctx := util.MongoConn(env)
+			user, _ := util.LoadEachUser(m.Author.ID, false, "User", conn.Database("ONUWF"), mgctx)
+			util.SetUserNick(&user, nick, conn.Database("ONUWF"), mgctx)
+			s.ChannelMessageSend(dmChan.ID, "닉네임을 "+nick+"으로 변경했습니다.")
+			delete(chNick, m.Author.ID)
+			isNickChange[m.Author.ID] = false
+		case _ = <-chTimeout:
+			s.ChannelMessageSend(dmChan.ID, "닉네임을 변경하지 않았습니다.")
+			delete(chNick, m.Author.ID)
+			isNickChange[m.Author.ID] = false
+		}
 	}
 }
 
