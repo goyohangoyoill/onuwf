@@ -249,7 +249,7 @@ func (sPrepare *Prepare) NewEnterEmbed() *embed.Embed {
 	enterEmbed.SetTitle("게임 참가")
 	enterStr := ""
 	for _, item := range sPrepare.g.UserList {
-		enterStr += item.title + "`" + item.nick + "`\n"
+		enterStr += "<" + item.title + "> " + "`" + item.nick + "`\n"
 	}
 	enterEmbed.AddField("참가자 목록", "현재 참가 인원: "+strconv.Itoa(len(sPrepare.g.UserList))+"명\n"+enterStr)
 	enterEmbed.SetFooter("(최대 10명, 방장은 나갈 수 없음)\n⭕: 입장 ❌: 퇴장 ▶️: 시작")
