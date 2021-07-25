@@ -102,9 +102,9 @@ func SetStartUser(sDB SaveDBInfo, collection string, mongoDB *mongo.Database, ct
 		//User 정보 없을 시 db에 유저등록
 		if num == 0 {
 			if user.UID == sDB.MUserID {
-				Input = UserData{user.UID, user.Nick, "", t, 0, 0, sDB.CurRoleSeq, nil}
+				Input = UserData{user.UID, user.Nick, "", t, 0, 0, 0, sDB.CurRoleSeq, nil}
 			} else {
-				Input = UserData{user.UID, user.Nick, "", t, 0, 0, nil, nil}
+				Input = UserData{user.UID, user.Nick, "", t, 0, 0, 0, nil, nil}
 			}
 			_, err := mongoDB.Collection(collection).InsertOne(ctx, Input)
 			CheckErr(err)
@@ -138,17 +138,19 @@ func SaveGame(sGame GameData, t time.Time, collection string, mongoDB *mongo.Dat
 	ret, err := mongoDB.Collection(collection).InsertOne(ctx, sGame)
 	CheckErr(err)
 	mapstructure.Decode(ret.InsertedID, &OID) // interface assertion
-	fmt.Println(ret)
-	fmt.Println(OID.String())
 	return OID.String()
 }
 
-func SaveEachUser(user *UserData, curGameOID string, win bool, t time.Time, collection string, mongoDB *mongo.Database, ctx context.Context) {
+func SaveEachUser(user *UserData, curGameOID string, win bool, most_v bool, t time.Time, collection string, mongoDB *mongo.Database, ctx context.Context) {
 	filter := bson.D{{"uid", user.UID}}
 	update := bson.D{}
 	if win == true {
 		//t := time.Now()
-		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
+		if most_v == true {
+			update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"mostvoted", user.MostVoted + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
+		} else {
+			update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
+		}
 	} else {
 		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
 	}

@@ -140,7 +140,7 @@ func SaveStartDB(g *wfGame.Game) {
 	UserInfo := make([]*util.UserData, 0)
 	uLen := len(g.UserList)
 	for i := 0; i < uLen; i++ {
-		UserInfo = append(UserInfo, &util.UserData{g.UserList[i].UserID, g.UserList[i].Nick(), "", time.Time{}, 0, 0, nil, nil})
+		UserInfo = append(UserInfo, &util.UserData{g.UserList[i].UserID, g.UserList[i].Nick(), "", time.Time{}, 0, 0, 0, nil, nil})
 	}
 	sDB := util.SaveDBInfo{UserInfo, RoleID, g.MasterID}
 	util.SetStartUser(sDB, "User", conn.Database("ONUWF"), ctx)
@@ -181,10 +181,12 @@ func SaveGameInit(g *wfGame.Game) util.GameData {
 	sGame.RoleList = RoleList
 	sGame.UserList = SaveUserInit(g)
 	disRole := make([]string, 0, len(g.DisRole))
+	oriDisRole := make([]string, 0, len(g.OriDisRole))
 	for i := 0; i < len(g.DisRole); i++ {
 		disRole = append(disRole, g.DisRole[i].String())
+		oriDisRole = append(oriDisRole, g.OriDisRole[i].String())
 	}
-	sGame.OriDisRole = disRole
+	sGame.OriDisRole = oriDisRole
 	sGame.LastDisRole = disRole
 
 	return sGame
@@ -196,8 +198,9 @@ func SaveEndDB(g *wfGame.Game) {
 	t := time.Now()
 	curGameOID := util.SaveGame(sGame, t, "Game", conn.Database("ONUWF"), ctx)
 	uLen := len(g.UserList)
-	win := false
 	for i := 0; i < uLen; i++ {
+		win := false
+		most_voted := false
 		if (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Werewolf{}).String()) || (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Minion{}).String()) {
 			win = g.WerewolfTeamWin
 		} else if (g.GetRole(g.UserList[i].UserID).String()) == (&wfGame.Tanner{}).String() {
@@ -205,8 +208,13 @@ func SaveEndDB(g *wfGame.Game) {
 		} else {
 			win = g.VillagerTeamWin
 		}
+		if g.MostVoted != nil {
+			if g.UserList[i].UserID == g.MostVoted.UserID {
+				most_voted = true
+			}
+		}
 		lUser, _ := util.LoadEachUser(g.UserList[i].UserID, true, "User", conn.Database("ONUWF"), ctx)
-		util.SaveEachUser(&lUser, curGameOID, win, t, "User", conn.Database("ONUWF"), ctx)
+		util.SaveEachUser(&lUser, curGameOID, win, most_voted, t, "User", conn.Database("ONUWF"), ctx)
 	}
 }
 

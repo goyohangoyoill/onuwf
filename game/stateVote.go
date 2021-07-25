@@ -64,6 +64,7 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 				if len(rMsg) > 0 {
 					s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("", "투표 동점자가 있습니다 ..!"))
 				}
+				v.g.MostVoted = v.g.UserList[i]
 				rMsg = user.nick + "님이 총 " + strconv.Itoa(v.mostVotes) + "표로 처형되었습니다"
 				s.ChannelMessageSendEmbed(v.g.ChanID, embed.NewGenericEmbed("투표 결과", rMsg))
 

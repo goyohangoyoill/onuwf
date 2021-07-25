@@ -37,7 +37,8 @@ type Game struct {
 	roleIdxTable    [][]int
 	OriRoleIdxTable [][]int
 	// 게임에서 버려진 직업 목록
-	DisRole []Role
+	DisRole    []Role
+	OriDisRole []Role
 	// 게임에서 사용하는 세션
 	Session *discordgo.Session
 	// 게임 진행 상황을 기록하는 로그 메시지 배열
@@ -62,6 +63,8 @@ type Game struct {
 	TannerTeamWin bool
 	// 게임에서 db에 접근해야할 경우 사용하는 환경변수
 	env map[string]string
+
+	MostVoted *User
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
@@ -82,7 +85,6 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []json.RoleGuide, e
 	g.EnterUserIDChan = enterUserIDChan
 	g.QuitUserIDChan = quitUserIDChan
 	g.GameStartedChan = gameStartedChan
-	g.FormerRole = nil
 	var maxrole int
 	for _, roleItem := range rg {
 		maxrole += roleItem.Max
@@ -91,6 +93,7 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []json.RoleGuide, e
 	g.RoleSeq = make([]Role, 0, len(rg))
 	g.RoleView = make([]Role, 0, maxrole)
 	g.DisRole = make([]Role, 3)
+	g.OriDisRole = make([]Role, 3)
 	g.LogMsg = make([]string, 0)
 	g.SetUserByID(muid)
 	g.CurState = &Prepare{g, 0, nil, nil, false}

@@ -83,6 +83,7 @@ func (sStartGame *StartGame) InitState() {
 	// lenuser 만큼 할당하고 남은 3개는 DisRole에 들어가야 함
 	for i := 0; i < 3; i++ {
 		g.DisRole[i] = g.RoleView[lenuser+i]
+		g.OriDisRole[i] = g.DisRole[i]
 	}
 	ch := make(chan bool, len(g.UserList))
 	g.Session.ChannelMessageEdit(g.ChanID, g.GameStateMID, "각 직업별 선택지 전송중입니다...")
