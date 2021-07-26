@@ -155,8 +155,10 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 		if rIdx == -1 {
 			continue
 		}
-		for _, user := range g.GetOriRoleUsersWithoutDpl(role) {
+		for _, user := range g.GetOriRoleUsers(role) {
 			sActionInGameGroup.Info[user.UserID] = curInfo
+		}
+		for _, user := range g.GetOriRoleUsersWithoutDpl(role) {
 			if role.String() == (&Werewolf{}).String() {
 				wolves := g.GetOriRoleUsers(&Werewolf{})
 				//wolves = append(wolves, g.GetOriRoleUsers(&Misticwolf{})...)

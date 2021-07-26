@@ -11,6 +11,8 @@ import (
 
 // Game 구조체는 게임 진행을 위한 정보를 담고 있는 스트럭처
 type Game struct {
+	// 게임이 테스트중인지 체크하는 변수
+	IsTest bool
 	// 게임을 강제 종료하기 위한 컨텍스트.
 	Ctx context.Context
 	// 게임을 강제 종료하기 위한 캔슬함수.
@@ -68,7 +70,7 @@ type Game struct {
 }
 
 // NewGame : Game 스트럭처를 생성하는 생성자,
-func NewGame(gid, cid, muid string, s *discordgo.Session, rg []json.RoleGuide, emj map[string]string, config json.Config, enterUserIDChan, quitUserIDChan chan string, gameStartedChan chan bool, env map[string]string) (g *Game) {
+func NewGame(gid, cid, muid string, s *discordgo.Session, rg []json.RoleGuide, emj map[string]string, config json.Config, enterUserIDChan, quitUserIDChan chan string, gameStartedChan chan bool, env map[string]string, isTest bool) (g *Game) {
 	g = &Game{}
 	g.GuildID = gid
 	g.ChanID = cid
@@ -98,6 +100,7 @@ func NewGame(gid, cid, muid string, s *discordgo.Session, rg []json.RoleGuide, e
 	g.SetUserByID(muid)
 	g.CurState = &Prepare{g, 0, nil, nil, false}
 	g.GameStateMID = ""
+	g.IsTest = isTest
 	g.CurState.InitState()
 	return
 }
