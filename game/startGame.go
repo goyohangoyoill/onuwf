@@ -58,11 +58,13 @@ func (sStartGame *StartGame) InitState() {
 	startEmbed.AddField("설정된 직업 목록", roleListMsg)
 	startEmbed.InlineAllFields()
 	go g.Session.ChannelMessageSendEmbed(g.ChanID, startEmbed.MessageEmbed)
-	// game의 RoleView는 unsorted이기 때문에 섞여도 된다.
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(g.RoleView), func(i, j int) {
-		g.RoleView[i], g.RoleView[j] = g.RoleView[j], g.RoleView[i]
-	})
+	if !g.IsTest {
+		// game의 RoleView는 unsorted이기 때문에 섞여도 된다.
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(g.RoleView), func(i, j int) {
+			g.RoleView[i], g.RoleView[j] = g.RoleView[j], g.RoleView[i]
+		})
+	}
 	// indexTable은 [len(UserList)][len(RoleSeq)] 만큼의 크기를 갖는다.
 	// role이 중복되지 않음에 주의, len(RoleView) > len(RoleSeq)
 	g.roleIdxTable = make([][]int, lenuser)

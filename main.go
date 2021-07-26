@@ -79,12 +79,12 @@ func main() {
 	dg.Close()
 }
 
-func startgame(s *discordgo.Session, m *discordgo.MessageCreate) {
+func startgame(s *discordgo.Session, m *discordgo.MessageCreate, isTest bool) {
 	enterUserIDChan := make(chan string, 1)
 	quitUserIDChan := make(chan string)
 	gameStartedChan := make(chan bool)
 	fqChanMap[m.GuildID+m.ChannelID] = make(chan bool, 1)
-	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, config, enterUserIDChan, quitUserIDChan, gameStartedChan, env)
+	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, config, enterUserIDChan, quitUserIDChan, gameStartedChan, env, isTest)
 	// Mutex 필요할 것으로 예상됨.
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
 	uidToGameData[m.Author.ID] = curGame
@@ -242,7 +242,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		isUserIn[m.Author.ID] = true
-		go startgame(s, m)
+		go startgame(s, m, false)
 	case config.Prefix + "강제종료":
 		if isUserIn[m.Author.ID] {
 			curChan := fqChanMap[m.GuildID+m.ChannelID]
@@ -287,9 +287,27 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		dmChan, _ := s.UserChannelCreate(m.Author.ID)
 		g.SendLogMsg(dmChan.ID)
+	case config.Prefix + "테스트":
+		if !(m.Author.ID == "318743234601811969" || m.Author.ID == "837620336937533451" || m.Author.ID == "750596255255625759" || m.Author.ID == "383847223504666626") {
+			return
+		}
+		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
+			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
+			return
+		}
+		if isUserIn[m.Author.ID] {
+			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 사용자입니다.")
+			return
+		}
+		isUserIn[m.Author.ID] = true
+		s.ChannelMessageSend(m.ChannelID, "테스트 모드로 시작합니다.")
+		go startgame(s, m, true)
 	case config.Prefix + "확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g == nil {
+			return
+		}
+		if !g.IsTest {
 			return
 		}
 		if len(g.OriRoleIdxTable) == 0 {
@@ -307,7 +325,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	case config.Prefix + "내정보":
 		conn, mgctx := util.MongoConn(env)
 		user, _ := util.LoadEachUser(m.Author.ID, false, "User", conn.Database("ONUWF"), mgctx)
-		if len(user.Nick) == 0 {
+		if user.CntPlay == 0 {
 			return
 		}
 		myInfoEmbed := embed.NewEmbed()

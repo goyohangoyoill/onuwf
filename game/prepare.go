@@ -163,8 +163,10 @@ func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageR
 
 // InitState 함수는 prepare state가 시작할 때 입장, 직업추가 메세지를 보냅니다.
 func (sPrepare *Prepare) InitState() {
-	// 늑대인간 1개 추가
-	sPrepare.g.AddRole(2)
+	// 테스트 모드가 아닐경우 늑대인간 1개 추가
+	if !sPrepare.g.IsTest {
+		sPrepare.g.AddRole(2)
+	}
 	enterEmbed := sPrepare.NewEnterEmbed()
 	roleEmbed := sPrepare.NewRoleAddEmbed()
 	s := sPrepare.g.Session
