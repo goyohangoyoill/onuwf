@@ -152,7 +152,12 @@ func SaveEachUser(user *UserData, curGameOID string, win bool, most_v bool, t ti
 			update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
 		}
 	} else {
-		update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
+		if most_v == true {
+			update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"mostvoted", user.MostVoted + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
+		} else {
+			update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
+
+		}
 	}
 	_, err := mongoDB.Collection(collection).UpdateOne(ctx, filter, update)
 	CheckErr(err)
