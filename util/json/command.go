@@ -40,13 +40,12 @@ func readCommandJSON(prefix string) {
 	json.Unmarshal(byteValue, &cmd)
 	commandTitle = "**" + cmd.Title + "**"
 	commandMsg = ""
-	for i := 0; i < len(cmd.List); i++ {
-		commandMsg += "`" + prefix + cmd.List[i].Name + "` : "
-		for j := 0; j < len(cmd.List[i].Guide); j++ {
-			commandMsg += cmd.List[i].Guide[j] + "\n"
+	for _, list := range cmd.List {
+		if len(list.Name) > 0 {
+			commandMsg += "`" + prefix + list.Name + "` : "
 		}
-		if i == 4 || i == 7 || i == 10 {
-			commandMsg += "\n"
+		for _, guide := range list.Guide {
+			commandMsg += guide + "\n"
 		}
 	}
 }
