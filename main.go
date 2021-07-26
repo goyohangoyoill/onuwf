@@ -357,7 +357,6 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// 게임 참가중이 아닌 사용자의 리액션 무시.
 	// 단, 참가자가 아니면 참가 가능해야 함. 무시해버리면 참가 못 함.
 	if !(isUserIn[r.UserID] || (!isUserIn[r.UserID] && r.Emoji.Name == emj["YES"])) {
-		s.MessageReactionRemove(r.ChannelID, r.MessageID, r.Emoji.Name, r.UserID)
 		return
 	}
 	g := uidToGameData[r.UserID]
