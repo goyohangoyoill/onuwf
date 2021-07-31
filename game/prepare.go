@@ -140,14 +140,17 @@ func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageR
 				sPrepare.g.RoleView = make([]Role, 0, maxrole)
 			*/
 
-			l := len(sPrepare.g.RoleSeq)
+			l := len(sPrepare.g.RoleView)
 			for i := 0; i < l; i++ {
-				sPrepare.g.DelRole(sPrepare.g.RoleSeq[i].ID())
-				if len(sPrepare.g.RoleSeq) == 0 {
+				sPrepare.g.DelRole(sPrepare.g.RoleView[0].ID())
+				if len(sPrepare.g.RoleView) == 0 {
 					break
 				}
 			}
-
+			/*
+				sPrepare.g.RoleView = make([]Role, 0)
+				sPrepare.g.RoleSeq = make([]Role, 0)
+			*/
 			rLen := len(sPrepare.g.FormerRole)
 			for i := 0; i < rLen; i++ {
 				sPrepare.g.AddRole(sPrepare.g.FormerRole[i])

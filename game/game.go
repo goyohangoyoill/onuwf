@@ -2,6 +2,7 @@ package game
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
@@ -247,11 +248,25 @@ func (g *Game) DelRole(roleIndex int) {
 	roleToRemove := GenerateRole(roleIndex)
 	// RoleView는 ununique sorted니까 첫번째로 나오는거 찾아서 지우기
 	if i := FindRoleIdx(roleToRemove, g.RoleView); i != -1 {
+		/* i + 1 이 인덱스 범위를 벗어나는가에 대한 고민이 필요함
+		if i+1 == len(g.RoleView) {
+			g.RoleView = g.RoleView[:i]
+		} else {
+			g.RoleView = append(g.RoleView[:i], g.RoleView[i+1:]...)
+		}
+		*/
 		g.RoleView = append(g.RoleView[:i], g.RoleView[i+1:]...)
 	}
 	// RoleSeq는 unique unsorted니까 방금 지운 RoleView에 없으면 지우기
 	if g.RoleCount(roleToRemove, g.RoleView) == 0 {
 		if i := FindRoleIdx(roleToRemove, g.RoleSeq); i != -1 {
+			/* 위 주석과 비슷한 문제로 범위 벗어나는지 확인해야함
+			if i+1 == len(g.RoleView) {
+				g.RoleSeq = g.RoleSeq[:i]
+			} else {
+				g.RoleSeq = append(g.RoleSeq[:i], g.RoleSeq[i+1:]...)
+			}
+			*/
 			g.RoleSeq = append(g.RoleSeq[:i], g.RoleSeq[i+1:]...)
 		}
 	}
@@ -278,6 +293,10 @@ func (g *Game) AppendLog(msg string) {
 // GetRole 유저의 직업을 반환
 func (g *Game) GetRole(uid string) Role {
 	idx := FindUserIdx(uid, g.UserList)
+	if idx == -1 {
+		fmt.Println("user idx is -1")
+		return nil
+	}
 	for i := 0; i < len(g.RoleSeq); i++ {
 		if g.roleIdxTable[idx][i] > 0 {
 			return g.RoleSeq[i]
@@ -290,6 +309,10 @@ func (g *Game) GetRole(uid string) Role {
 // 원래 직업이 도플갱어였다면 값이 2
 func (g *Game) GetOriRole(uid string) Role {
 	idx := FindUserIdx(uid, g.UserList)
+	if idx == -1 {
+		fmt.Println("user idx is -1")
+		return nil
+	}
 	for i := 0; i < len(g.RoleSeq); i++ {
 		if g.OriRoleIdxTable[idx][i] > 0 {
 			if g.OriRoleIdxTable[idx][i] == 2 {
@@ -305,6 +328,10 @@ func (g *Game) GetOriRole(uid string) Role {
 func (g *Game) setRole(uid string, item Role) {
 	userIdx := FindUserIdx(uid, g.UserList)
 	roleIdx := FindRoleIdx(item, g.RoleSeq)
+	if userIdx == -1 || roleIdx == -1 {
+		fmt.Println("table idx is -1")
+		return
+	}
 	loop := len(g.RoleSeq)
 	for i := 0; i < loop; i++ {
 		g.roleIdxTable[userIdx][i] = 0
@@ -316,6 +343,10 @@ func (g *Game) setRole(uid string, item Role) {
 func (g *Game) setDplRole(uid string, item Role) {
 	userIdx := FindUserIdx(uid, g.UserList)
 	roleIdx := FindRoleIdx(item, g.RoleSeq)
+	if userIdx == -1 || roleIdx == -1 {
+		fmt.Println("table idx is -1")
+		return
+	}
 	loop := len(g.RoleSeq)
 	for i := 0; i < loop; i++ {
 		g.OriRoleIdxTable[userIdx][i] = 0
@@ -353,10 +384,13 @@ func (g *Game) SwapRoleFromDiscard(uid string, disRoleIdx int) {
 
 // GetRoleUsers 특정 직업의 유저 목록 반환.
 // ※ FindRoleIdx()에서 -1을 반환할 경우 panic 발생 (늑대인간을 제외한 직업을 사용할 때는 수정이 필요)
-func (g *Game) GetRoleUsers(find Role) (users []*User) {
-	result := make([]*User, 0)
+func (g *Game) GetRoleUsers(find Role) (result []*User) {
+	result = make([]*User, 0)
 	loop := len(g.UserList)
 	idx := FindRoleIdx(find, g.RoleSeq)
+	if idx == -1 {
+		return result
+	}
 	for i := 0; i < loop; i++ {
 		if g.roleIdxTable[i][idx] > 0 {
 			result = append(result, g.UserList[i])
@@ -366,10 +400,13 @@ func (g *Game) GetRoleUsers(find Role) (users []*User) {
 }
 
 // GetOriRoleUsers 특정 원래 직업의 유저 목록 반환.
-func (g *Game) GetOriRoleUsers(find Role) (users []*User) {
-	result := make([]*User, 0)
+func (g *Game) GetOriRoleUsers(find Role) (result []*User) {
+	result = make([]*User, 0)
 	loop := len(g.UserList)
 	idx := FindRoleIdx(find, g.RoleSeq)
+	if idx == -1 {
+		return result
+	}
 	for i := 0; i < loop; i++ {
 		if g.OriRoleIdxTable[i][idx] > 0 {
 			result = append(result, g.UserList[i])
@@ -421,6 +458,10 @@ func (g *Game) RotateAllUserRole() {
 // SetProtect 유저에게 특수권한 부여
 func (g *Game) SetProtect(uid string) {
 	uIdx := FindUserIdx(uid, g.UserList)
+	if uIdx == -1 {
+		fmt.Println("user idx is -1")
+		return
+	}
 	for i := 0; i < len(g.RoleSeq); i++ {
 		if g.roleIdxTable[uIdx][i] == 1 {
 			g.roleIdxTable[uIdx][i] = 2
