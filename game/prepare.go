@@ -64,6 +64,19 @@ func (sPrepare *Prepare) PressYesBtn(s *discordgo.Session, r *discordgo.MessageR
 		return
 	}
 	s.MessageReactionRemove(sPrepare.g.ChanID, r.MessageID, r.Emoji.Name, r.UserID)
+	if len(sPrepare.g.UserList) == 10 {
+		flag := false
+		for _, user := range sPrepare.g.UserList {
+			if r.UserID == user.UserID {
+				flag = true
+				break
+			}
+		}
+		if !flag {
+			sPrepare.g.Session.ChannelMessageSend(sPrepare.g.ChanID, "인원이 가득 찼습니다.")
+		}
+		return
+	}
 	//user 생성해서 append()
 	sPrepare.g.SetUserByID(r.UserID)
 	// 메세지 반영

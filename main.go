@@ -386,7 +386,7 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	for i := 1; i < 10; i++ {
 		emjID := "n" + strconv.Itoa(i)
 		if r.Emoji.Name == emj[emjID] {
-			go g.CurState.PressNumBtn(s, r.MessageReaction, i)
+			g.CurState.PressNumBtn(s, r.MessageReaction, i)
 			break
 		}
 	}
