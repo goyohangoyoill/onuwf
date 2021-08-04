@@ -14,65 +14,52 @@ type Role interface {
 	ID() int
 }
 
+const (
+	sentinel = iota
+	doppelganger
+	werewolf
+	minion
+	freemason
+	seer
+	robber
+	troublemaker
+	drunk
+	insomniac
+	hunter
+	villager
+	tanner
+	roleMax
+)
+
 // 해당 함수 수정시에 role_guide.json도 수정이 필요
 func GenerateRole(num int) (r Role) {
 	switch num {
-	case 0:
+	case sentinel:
 		r = &Sentinel{num}
-	case 1:
+	case doppelganger:
 		r = &Doppelganger{num}
-	case 2:
+	case werewolf:
 		r = &Werewolf{num}
-		/*
-			case 3:
-				r = &Alphawolf{num}
-			case 4:
-				r = &Misticwolf{num}
-		*/
-	case 3:
+	case minion:
 		r = &Minion{num}
-	case 4:
+	case freemason:
 		r = &Freemason{num}
-	case 5:
+	case seer:
 		r = &Seer{num}
-		/*
-			case 8:
-				r = &Apprenticeseer{num}
-			case 9:
-				r = &Paranormalinvestigator{num}
-		*/
-	case 6:
+	case robber:
 		r = &Robber{num}
-		/*
-			case 11:
-				r = &Witch{num}
-		*/
-	case 7:
+	case troublemaker:
 		r = &TroubleMaker{num}
-		/*
-			case 15:
-				r = &Idiot{num}
-		*/
-	case 8:
+	case drunk:
 		r = &Drunk{num}
-	case 9:
+	case insomniac:
 		r = &Insomniac{num}
-		/*
-			case 10:
-				r = &Revealer{num}
-		*/
-	case 10:
+	case hunter:
 		r = &Hunter{num}
-	case 11:
+	case villager:
 		r = &Villager{num}
-	case 12:
+	case tanner:
 		r = &Tanner{num}
-		/*
-			case 19:
-				r = &Bodygaurd{num}
-			case 21:
-				r = &Dreamwolf{num}
-		*/
 	}
 	return r
 }

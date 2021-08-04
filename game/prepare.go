@@ -38,7 +38,7 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 	if num >= len(sPrepare.g.RG) {
 		return
 	}
-	if num == 2 {
+	if num == werewolf {
 		if sPrepare.g.RoleCount(&Werewolf{}, sPrepare.g.RoleView) == 2 && !sPrepare.wfWarning {
 			sPrepare.wfWarning = true
 			sPrepare.g.AddRole(num)
@@ -181,7 +181,7 @@ func (sPrepare *Prepare) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageR
 func (sPrepare *Prepare) InitState() {
 	// 테스트 모드가 아닐경우 늑대인간 1개 추가
 	if !sPrepare.g.IsTest {
-		sPrepare.g.AddRole(2)
+		sPrepare.g.AddRole(werewolf)
 	}
 	enterEmbed := sPrepare.NewEnterEmbed()
 	roleEmbed := sPrepare.NewRoleAddEmbed()

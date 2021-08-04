@@ -56,12 +56,11 @@ func (sb *StateBeforeVote) InitState() {
 	//불면증, 주정뱅이 각각의 rolemsg는 이전 state에서 보내야함
 	//능력사용
 	// 불면증환자
-	role := GenerateRole(9)
+	role := GenerateRole(insomniac)
 	rIdx := FindRoleIdx(role, sb.G.RoleSeq)
 	if rIdx != -1 {
 		InsomUsers := sb.G.GetOriRoleUsers(role)
 		for i := 0; i < len(InsomUsers); i++ {
-			//role := GenerateRole(15)
 			tar := &TargetObject{2, InsomUsers[i].UserID, "", 0}
 			role.SendUserSelectGuide(InsomUsers[i], sb.G, 0)
 			role.Action(tar, InsomUsers[i], sb.G)
@@ -69,7 +68,7 @@ func (sb *StateBeforeVote) InitState() {
 		}
 	}
 	// 주정뱅이
-	role = GenerateRole(8)
+	role = GenerateRole(drunk)
 	rIdx = FindRoleIdx(role, sb.G.RoleSeq)
 	if rIdx != -1 {
 		DrunkUsers := sb.G.GetOriRoleUsersWithoutDpl(role)
