@@ -144,7 +144,7 @@ func (sActionInGameGroup *ActionInGameGroup) PressBmkBtn(s *discordgo.Session, r
 func (sActionInGameGroup *ActionInGameGroup) InitState() {
 	g := sActionInGameGroup.g
 	// 늑대인간부터 말썽쟁이까지
-	for i := 2; i < 8; i++ {
+	for i := werewolf; i <= troublemaker; i++ {
 		curInfo := &DMInfo{"", make(chan int), 0}
 		role := GenerateRole(i)
 		if role == nil {
