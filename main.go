@@ -344,9 +344,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		chNick[m.Author.ID] = make(chan string)
 		chTimeout := make(chan bool)
 		dmChan, _ := s.UserChannelCreate(m.Author.ID)
-		s.ChannelMessageSend(dmChan.ID, "닉네임을 변경하려면 5초 안에 입력해주세요.")
+		msg := "닉네임을 변경하려면 " + strconv.Itoa(config.NickChangeSec) + "초 안에 입력해주세요."
+		s.ChannelMessageSend(dmChan.ID, msg)
 		go func(chan bool) {
-			time.Sleep(5 * time.Second)
+			time.Sleep(time.Duration(config.NickChangeSec) * time.Second)
 			chTimeout <- true
 		}(chTimeout)
 		select {
