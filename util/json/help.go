@@ -46,7 +46,7 @@ func PrintHelpList(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 		s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed(vcTitle, vcMsg))
 	case prefix + "직업목록":
 		printRoleList(s, m, rg, prefix)
-	case prefix + "능력순서":
+	case prefix + "직업순서", prefix + "순서", prefix + "능력순서":
 		printSkillOrder(s, m, rg, prefix)
 	default:
 		return false
