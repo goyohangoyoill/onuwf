@@ -499,13 +499,18 @@ func (g *Game) SendLogMsg(cid string) {
 	s := g.Session
 	tmpEmbed := embed.NewEmbed()
 	tmpEmbed.SetTitle("직업 배정")
+	roleListTitle := ""
 	roleListMsg := ""
 	for _, user := range g.UserList {
+		roleListTitle = "`" + user.nick + "`"
+		if g.IsProtected(user.UserID) {
+			roleListTitle += " " + g.Emj["SHIELD"]
+		}
 		roleListMsg = "원래직업 : `" + g.GetOriRole(user.UserID).String() + "`"
 		roleListMsg += g.getTeamMark(g.GetOriRole(user.UserID).String()) + "\n"
 		roleListMsg += "현재직업 : `" + g.GetRole(user.UserID).String() + "`"
 		roleListMsg += g.getTeamMark(g.GetRole(user.UserID).String())
-		tmpEmbed.AddField("`"+user.nick+"`", roleListMsg)
+		tmpEmbed.AddField(roleListTitle, roleListMsg)
 	}
 	tmpEmbed.InlineAllFields()
 	disMsg := ""
