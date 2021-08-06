@@ -139,16 +139,13 @@ func (g *Game) IsDoppel(uid string) (res bool) {
 }
 
 // IsProtected 는 센티넬에 의해 보호받는 상태인지 확인하는 메소드입니다.
-func (g *Game) IsProtected(uid string) (res bool) {
-	res = false
-	uIdx := FindUserIdx(uid, g.UserList)
-	for i := 0; i < len(g.RoleSeq); i++ {
-		if g.roleIdxTable[uIdx][i] == 2 {
-			res = true
-			break
+func (g *Game) IsProtected(uid string) bool {
+	for _, user := range g.UserList {
+		if uid == user.UserID && user.protected {
+			return true
 		}
 	}
-	return res
+	return false
 }
 
 // SetUserByID 는 게임에 입장한 유저의 정보를 게임 데이터에 추가하는 함수입니다.
@@ -457,14 +454,10 @@ func (g *Game) RotateAllUserRole() {
 
 // SetProtect 유저에게 특수권한 부여
 func (g *Game) SetProtect(uid string) {
-	uIdx := FindUserIdx(uid, g.UserList)
-	if uIdx == -1 {
-		fmt.Println("user idx is -1")
-		return
-	}
-	for i := 0; i < len(g.RoleSeq); i++ {
-		if g.roleIdxTable[uIdx][i] == 1 {
-			g.roleIdxTable[uIdx][i] = 2
+	for _, user := range g.UserList {
+		if uid == user.UserID {
+			user.protected = true
+			break
 		}
 	}
 }
