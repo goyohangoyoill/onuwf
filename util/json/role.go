@@ -119,9 +119,6 @@ func printRoleList(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 
 // "ㅁ능력순서" 명령어 입력시 실행되는 함수
 func printSkillOrder(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGuide, prefix string) {
-	if m.Content != prefix+"능력순서" {
-		return
-	}
 	printMsg := ""
 	roleList := roleList(rg)
 	for i, item := range roleList {

@@ -47,6 +47,9 @@ func (sStartGame *StartGame) InitState() {
 	startEmbed.SetTitle("게임 시작!")
 	userListMsg := ""
 	for _, user := range g.UserList {
+		if len(user.title) > 0 {
+			userListMsg += "<" + user.title + "> "
+		}
 		userListMsg += "`" + user.nick + "`\n"
 	}
 	startEmbed.AddField("유저 목록", userListMsg)

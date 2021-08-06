@@ -1,4 +1,6 @@
 {
 	"prefix": "!",
-	"voteDelaySec": 10
+	"voteDelaySec": 10,
+	"nickChangeSec": 15,
+	"disRoleDelaySec": 15
 }
