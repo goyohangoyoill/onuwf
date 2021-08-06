@@ -573,3 +573,11 @@ func (g *Game) getTeamMark(role string) string {
 	}
 	return mark
 }
+
+// 게임시작시 버려진 직업인지 확인하는 함수
+func (g *Game) isOriDisRole(role Role) bool {
+	if FindRoleIdx(role, g.RoleSeq) != -1 && len(g.GetOriRoleUsers(role)) == 0 {
+		return true
+	}
+	return false
+}

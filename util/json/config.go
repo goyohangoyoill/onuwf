@@ -9,9 +9,10 @@ import (
 )
 
 type Config struct {
-	Prefix        string `json:"prefix"`
-	VoteDelaySec  int    `json:"voteDelaySec"`
-	NickChangeSec int    `json:"nickChangeSec"`
+	Prefix          string `json:"prefix"`
+	VoteDelaySec    int    `json:"voteDelaySec"`
+	NickChangeSec   int    `json:"nickChangeSec"`
+	DisRoleDelaySec int    `json:"disRoleDelaySec"`
 }
 
 // ONUWF/asset/config.json 파일 읽어서 return하는 함수

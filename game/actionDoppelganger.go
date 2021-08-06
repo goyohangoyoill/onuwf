@@ -242,9 +242,9 @@ func (sdpl *ActionDoppelganger) InitState() {
 func (sdpl *ActionDoppelganger) stateFinish() {
 	// 도플갱어카드가 처음에 버려졌을 경우 다음 스테이트 넘어가기전 딜레이를 걸어줌
 	// DM 날라오는 타이밍을 통해 도플갱어인 유저가 있는지 유추하지 못하도록 하기 위함
-	role := &Doppelganger{}
-	if FindRoleIdx(role, sdpl.g.RoleSeq) != -1 && len(sdpl.g.GetOriRoleUsers(role)) == 0 {
-		time.Sleep(15 * time.Second)
+	if sdpl.g.isOriDisRole(&Doppelganger{}) {
+		delaySec := sdpl.g.config.DisRoleDelaySec
+		time.Sleep(time.Duration(delaySec) * time.Second)
 	}
 	sdpl.g.CurState = NewActionInGameGroup(sdpl.g)
 	sdpl.g.CurState.InitState()

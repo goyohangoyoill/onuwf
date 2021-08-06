@@ -1,6 +1,8 @@
 package game
 
 import (
+	"time"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -38,6 +40,7 @@ func (sActionSentinel *ActionSentinel) PressDisBtn(s *discordgo.Session, r *disc
 	if sActionSentinel.filterReaction(s, r) {
 		return
 	}
+	s.ChannelMessageDelete(r.ChannelID, sActionSentinel.sentinelMsgsID[r.UserID])
 	s.ChannelMessageSend(r.ChannelID, "아무도 방패로 보호하지 않았습니다.")
 	sActionSentinel.UserChoice <- Choice{-1, sActionSentinel.g.FindUserByUID(r.UserID)}
 }
@@ -92,7 +95,6 @@ func (sActionSentinel *ActionSentinel) InitState() {
 				if input.num == -1 {
 					tar := &TargetObject{2, "", "", -1}
 					role.GenLog(tar, input.user, g)
-					g.Session.ChannelMessageSend(g.ChanID, "수호자가 아무도 수호하지 않았습니다.")
 				} else {
 					tar := &TargetObject{2, g.UserList[input.num-1].UserID, "", -1}
 					role.Action(tar, input.user, g)
@@ -113,6 +115,12 @@ func (sActionSentinel *ActionSentinel) InitState() {
 // ActionSentinel에서 state가 종료되는 시점에서 호출 됩니다.
 // 다음 state인 ActionDoppelganger의 InitState() 함수를 호출합니다.
 func (sActionSentinel *ActionSentinel) stateFinish() {
+	// 수호자카드가 처음에 버려졌을 경우 다음 스테이트 넘어가기전 딜레이를 걸어줌
+	// DM 날라오는 타이밍을 통해 수호자인 유저가 있는지 유추하지 못하도록 하기 위함
+	if sActionSentinel.g.isOriDisRole(&Sentinel{}) {
+		delaySec := sActionSentinel.g.config.DisRoleDelaySec
+		time.Sleep(time.Duration(delaySec) * time.Second)
+	}
 	// ActionDoppelganger의 Msg 변수 초기화
 	sActionSentinel.g.CurState = NewActionDoppelganger(sActionSentinel.g)
 	sActionSentinel.g.CurState.InitState()
