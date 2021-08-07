@@ -184,7 +184,7 @@ func (sActionInGameGroup *ActionInGameGroup) InitState() {
 		case (&Werewolf{}).String():
 			wfUserList := uList
 			onlyWF := wfUserList[0]
-			if curInfo[onlyWF.UserID].Code == 1 {
+			if curInfo[onlyWF.UserID].Code >= 1 {
 				input := <-curInfo[onlyWF.UserID].Choice
 				tar := &TargetObject{3, "", "", input - 1}
 				role.Action(tar, onlyWF, g)
