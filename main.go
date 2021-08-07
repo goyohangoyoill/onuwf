@@ -29,6 +29,7 @@ var (
 	config              json.Config
 	isNickChange        map[string]bool
 	chNick              map[string]chan string
+	globalStatus        string
 )
 
 /*
@@ -57,6 +58,7 @@ func init() {
 	fqChanMap = make(map[string]chan bool)
 	isNickChange = make(map[string]bool)
 	chNick = make(map[string]chan string)
+	globalStatus = "!도움말 !명령어"
 }
 
 func main() {
@@ -223,6 +225,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
+	s.UpdateListeningStatus(globalStatus)
 	// 명령어모음
 	if json.PrintHelpList(s, m, rg, config.Prefix) {
 		return
