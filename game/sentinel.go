@@ -14,7 +14,7 @@ type Sentinel struct {
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
 func (r *Sentinel) SendUserSelectGuide(player *User, g *Game, pageNum int) (msgID string) {
 	curEmbed := embed.NewEmbed()
-	curEmbed.SetTitle("🛡 수호할 플레이어를 고르세요")
+	curEmbed.SetTitle(g.Emj["SHIELD"] + " 수호할 플레이어를 고르세요")
 	for uIdx, user := range g.UserList {
 		curEmbed.AddField(strconv.Itoa(uIdx+1)+"번", user.nick)
 	}

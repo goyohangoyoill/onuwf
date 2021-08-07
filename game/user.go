@@ -14,6 +14,8 @@ type User struct {
 	dmChanID string
 	// 각 유저가 투표한 유저의 ID
 	voteUserId string
+	// 수호자의 수호를 받은 유저인지 확인하는 변수
+	protected bool
 }
 
 func (u User) Nick() string {
