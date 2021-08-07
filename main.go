@@ -225,7 +225,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	s.UpdateListeningStatus(globalStatus)
 	// 명령어모음
 	if json.PrintHelpList(s, m, rg, config.Prefix) {
 		return
@@ -413,4 +412,5 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	case emj["BOOKMARK"]:
 		g.CurState.PressBmkBtn(s, r.MessageReaction)
 	}
+	s.UpdateListeningStatus(globalStatus)
 }
