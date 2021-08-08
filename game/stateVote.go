@@ -13,12 +13,14 @@ type StateVote struct {
 	g         *Game
 	votedList []int
 	mostVotes int
+	mutex     chan bool
 }
 
 func NewStateVote(g *Game) *StateVote {
 	ac := &StateVote{}
 	ac.g = g
 	ac.votedList = make([]int, len(g.UserList))
+	ac.mutex = make(chan bool, 1)
 	return ac
 }
 
@@ -38,6 +40,7 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	}
 	v.votedList[num-1]++
 	s.ChannelMessageDelete(r.ChannelID, r.MessageID)
+	v.mutex <- true
 	// User.voteUserId에 누구에게 투표했는지 유저ID 저장
 	v.setVoteUserId(r.UserID, v.g.UserList[num-1].UserID)
 	// 각 유저별 투표내용 로그 작성
@@ -45,8 +48,10 @@ func (v *StateVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReacti
 	// 투표완료시 어떤 유저에게 투표했는지 DM으로 메시지를 보내는 함수
 	v.sendVoteCompleteMsgToDm(v.g.FindUserByUID(r.UserID), v.g.UserList[num-1].nick)
 	if !v.votedAllUsers() {
+		<-v.mutex
 		return
 	}
+	<-v.mutex
 	v.mostVotes = 0
 	for i := 0; i < len(v.g.UserList); i++ {
 		if v.mostVotes < v.votedList[i] {
