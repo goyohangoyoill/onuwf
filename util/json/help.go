@@ -18,6 +18,8 @@ func ReadJSON(rg []RoleGuide, prefix string) {
 	readBackgroundJSON(prefix)
 	// 승리조건
 	readVictoryConditionJSON()
+	// 나무위키
+	readWikiJSON()
 }
 
 // PrintHelpList 게임진행에 관련된 명령어가 입력될시 각 명령어에 해당하는 메시지를 출력하는 함수
@@ -48,6 +50,8 @@ func PrintHelpList(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 		printRoleList(s, m, rg, prefix)
 	case prefix + "직업순서", prefix + "순서", prefix + "능력순서":
 		printSkillOrder(s, m, rg, prefix)
+	case prefix + "나무위키":
+		s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed(wikiTitle, wikiMsg))
 	default:
 		return false
 	}

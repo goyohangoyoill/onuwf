@@ -50,7 +50,6 @@ func init() {
 	json.RoleGuideInit(&rg)
 	config = json.ReadConfigJson()
 	json.ReadJSON(rg, config.Prefix)
-	//util.MongoConn(env)
 
 	isUserIn = make(map[string]bool)
 	guildChanToGameData = make(map[string]*wfGame.Game)
@@ -339,8 +338,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		myInfoEmbed.AddField("게임횟수", strconv.Itoa(user.CntPlay)+"회")
 		myInfoEmbed.AddField("승리횟수", strconv.Itoa(user.CntWin)+"회(승률:"+strconv.Itoa(user.CntWin*100/user.CntPlay)+"%)")
 		myInfoEmbed.AddField("최근게임시간", user.RecentGameTime.String())
-		dmChan, _ := s.UserChannelCreate(m.Author.ID)
-		s.ChannelMessageSendEmbed(dmChan.ID, myInfoEmbed.MessageEmbed)
+		s.ChannelMessageSendEmbed(m.ChannelID, myInfoEmbed.MessageEmbed)
 	case config.Prefix + "닉네임":
 		isNickChange[m.Author.ID] = true
 		chNick[m.Author.ID] = make(chan string)
