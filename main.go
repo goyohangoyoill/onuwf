@@ -288,6 +288,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		dmChan, _ := s.UserChannelCreate(m.Author.ID)
 		g.SendLogMsg(dmChan.ID)
+		s.ChannelMessageSend(dmChan.ID, "진행상황을 더 알고싶으면 게임중인 채널에서 `!관전` 을 다시 입력하세요")
 	case config.Prefix + "테스트":
 		if !(m.Author.ID == "318743234601811969" || m.Author.ID == "837620336937533451" || m.Author.ID == "750596255255625759" || m.Author.ID == "383847223504666626") {
 			return
