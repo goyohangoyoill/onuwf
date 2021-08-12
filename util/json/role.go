@@ -118,11 +118,11 @@ func printRoleList(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 }
 
 // 능력순서 임베드를 출력하는 함수
-func printSkillOrder(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGuide, prefix string, reverse bool) {
+func printSkillOrder(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGuide, prefix string, isReversed bool) {
 	printTitle := ""
 	printMsg := ""
 	roleList := roleList(rg)
-	if reverse {
+	if isReversed {
 		printTitle = "특수능력 사용 서순"
 		printMsg += "투표시작"
 		for i := len(roleList) - 1; i >= 0; i-- {
