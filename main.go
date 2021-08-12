@@ -11,9 +11,9 @@ import (
 	"time"
 
 	embed "github.com/clinet/discordgo-embed"
-	wfGame "github.com/goyohangoyoill/ONUWF/game"
-	util "github.com/goyohangoyoill/ONUWF/util"
-	json "github.com/goyohangoyoill/ONUWF/util/json"
+	wfGame "github.com/goyohangoyoill/onuwf/game"
+	util "github.com/goyohangoyoill/onuwf/util"
+	json "github.com/goyohangoyoill/onuwf/util/json"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -152,21 +152,26 @@ func SaveUserInit(g *wfGame.Game) []util.User {
 	users := make([]util.User, 0, uLen)
 	win := false
 	for i := 0; i < uLen; i++ {
-		user := util.User{}
-		user.UID = g.UserList[i].UserID
-		user.Nick = g.UserList[i].Nick()
-		user.OriRole = g.GetOriRole(g.UserList[i].UserID).String()
-		user.LastRole = g.GetRole(g.UserList[i].UserID).String()
-		if (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Werewolf{}).String()) || (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Minion{}).String()) {
-			win = g.WerewolfTeamWin
-		} else if (g.GetRole(g.UserList[i].UserID).String()) == (&wfGame.Tanner{}).String() {
-			win = g.TannerTeamWin
-		} else {
-			win = g.VillagerTeamWin
-		}
-		user.IsWin = win
-		users = append(users, user)
+		users = saveUser(g, i, win, users)
 	}
+	return users
+}
+
+func saveUser(g *wfGame.Game, i int, win bool, users []util.User) []util.User {
+	user := util.User{}
+	user.UID = g.UserList[i].UserID
+	user.Nick = g.UserList[i].Nick()
+	user.OriRole = g.GetOriRole(g.UserList[i].UserID).String()
+	user.LastRole = g.GetRole(g.UserList[i].UserID).String()
+	if (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Werewolf{}).String()) || (g.GetRole(g.UserList[i].UserID).String() == (&wfGame.Minion{}).String()) {
+		win = g.WerewolfTeamWin
+	} else if (g.GetRole(g.UserList[i].UserID).String()) == (&wfGame.Tanner{}).String() {
+		win = g.TannerTeamWin
+	} else {
+		win = g.VillagerTeamWin
+	}
+	user.IsWin = win
+	users = append(users, user)
 	return users
 }
 

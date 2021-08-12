@@ -7,8 +7,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
-	util "github.com/goyohangoyoill/ONUWF/util"
-	json "github.com/goyohangoyoill/ONUWF/util/json"
+	util "github.com/goyohangoyoill/onuwf/util"
+	json "github.com/goyohangoyoill/onuwf/util/json"
 )
 
 // Game 구조체는 게임 진행을 위한 정보를 담고 있는 스트럭처

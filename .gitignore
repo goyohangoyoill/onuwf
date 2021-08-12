@@ -1,5 +1,6 @@
 .DS_Store
-ONUWF
+onuwf
 asset/env.json
 .vscode
-ONUWF.exe
+onuwf.exe
+.idea
