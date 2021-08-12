@@ -136,6 +136,7 @@ func (sdpl *ActionDoppelganger) PressDisBtn(s *discordgo.Session, r *discordgo.M
 		if sdpl.info.MsgID != r.MessageID {
 			return
 		}
+		s.ChannelMessageDelete(r.ChannelID, sdpl.info.MsgID)
 		s.ChannelMessageSend(r.ChannelID, "아무도 방패로 보호하지 않았습니다.")
 		sdpl.info.Choice <- -1
 	}

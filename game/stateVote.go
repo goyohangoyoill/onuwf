@@ -161,7 +161,7 @@ func VoteProcess(s *discordgo.Session, g *Game) {
 func SendVoteDM(s *discordgo.Session, g *Game, UserNum int) {
 	voteEmbed := embed.NewEmbed()
 	voteEmbed.SetTitle("투표")
-	voteEmbed.SetDescription("늑대인간으로 의심되는 대상에게 투표해주세요")
+	voteEmbed.SetDescription("처형하실 대상에게 투표해주세요")
 	num := len(g.UserList)
 	for i := 0; i < num-1; i++ {
 		j := i
@@ -170,7 +170,7 @@ func SendVoteDM(s *discordgo.Session, g *Game, UserNum int) {
 		}
 		voteEmbed.AddField(strconv.Itoa(i+1)+"번 ", g.UserList[j].nick)
 	}
-	voteEmbed.SetAuthor(g.UserList[UserNum].title + " " + g.UserList[UserNum].nick)
+	voteEmbed.SetAuthor(g.UserList[UserNum].title + " " + "`" + g.UserList[UserNum].nick + "`")
 	voteEmbed.InlineAllFields()
 	UserDM, _ := s.UserChannelCreate(g.UserList[UserNum].UserID) //g.UserList[0] -> g.UsrList[UserNum] change need(test용)
 	voteEmbed.InlineAllFields()

@@ -49,7 +49,9 @@ func PrintHelpList(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 	case prefix + "직업목록":
 		printRoleList(s, m, rg, prefix)
 	case prefix + "직업순서", prefix + "순서", prefix + "능력순서":
-		printSkillOrder(s, m, rg, prefix)
+		printSkillOrder(s, m, rg, prefix, false)
+	case prefix + "직업서순", prefix + "서순", prefix + "능력서순":
+		printSkillOrder(s, m, rg, prefix, true)
 	case prefix + "나무위키":
 		s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed(wikiTitle, wikiMsg))
 	default:

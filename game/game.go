@@ -3,6 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/bwmarrin/discordgo"
 	embed "github.com/clinet/discordgo-embed"
@@ -208,15 +209,6 @@ func (g *Game) RoleCount(roleToFind Role, roleList []Role) int {
 	return cnt
 }
 
-// sortRole 함수는 AddRole 함수에서 SeqRole을 소팅할 목적으로 만듬
-func (g *Game) sortRole(list []Role) {
-	for i := 0; i < len(list)-1; i++ {
-		if list[i].ID() > list[i+1].ID() {
-			list[i], list[i+1] = list[i+1], list[i]
-		}
-	}
-}
-
 // AddRole 함수는 RG에 사용할 roleindex 위치 값을 받아 RoleView와 RoleSeq에 role을 추가
 func (g *Game) AddRole(roleIndex int) {
 	// roleFactory에서 현재 roleindex 위치 값을 받아 role 생성
@@ -226,16 +218,15 @@ func (g *Game) AddRole(roleIndex int) {
 		for i := 0; i < g.RG[roleIndex].Max; i++ {
 			g.DelRole(roleIndex)
 		}
-		// RoleView에 추가된 role 개수가 max보다 작을 때만 추가
-	} else {
-		// RoleView는 ununique unsorted니까 append
-		g.RoleView = append(g.RoleView, roleToAdd)
-		// RoleSeq는 unique sorted니까 RoleSeq에 없으면 추가
-		if FindRoleIdx(roleToAdd, g.RoleSeq) == -1 {
-			// append 후 sort
-			g.RoleSeq = append(g.RoleSeq, roleToAdd)
-			g.sortRole(g.RoleSeq)
-		}
+		return
+	}
+	// RoleView에 추가된 role 개수가 max보다 작을 때만 추가
+	g.RoleView = append(g.RoleView, roleToAdd)
+	if FindRoleIdx(roleToAdd, g.RoleSeq) == -1 {
+		g.RoleSeq = append(g.RoleSeq, roleToAdd)
+		sort.Slice(g.RoleSeq, func(i, j int) bool {
+			return g.RoleSeq[i].ID() < g.RoleSeq[j].ID()
+		})
 	}
 }
 

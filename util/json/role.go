@@ -117,18 +117,33 @@ func printRoleList(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 	s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed("**구현된 직업 목록**", printMsg))
 }
 
-// "ㅁ능력순서" 명령어 입력시 실행되는 함수
-func printSkillOrder(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGuide, prefix string) {
+// 능력순서 임베드를 출력하는 함수
+func printSkillOrder(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGuide, prefix string, isReversed bool) {
+	printTitle := ""
 	printMsg := ""
 	roleList := roleList(rg)
-	for i, item := range roleList {
-		if rg[i].Priority != 4242 {
-			printMsg += item + " -> "
-			if i%3 == 2 {
-				printMsg += "\n"
+	if isReversed {
+		printTitle = "특수능력 사용 서순"
+		printMsg += "투표시작"
+		for i := len(roleList) - 1; i >= 0; i-- {
+			if rg[i].Priority != 4242 {
+				printMsg += " <- " + roleList[i]
+				if i%3 == 2 {
+					printMsg += "\n"
+				}
 			}
 		}
+	} else {
+		printTitle = "특수능력 사용 순서"
+		for i, item := range roleList {
+			if rg[i].Priority != 4242 {
+				printMsg += item + " -> "
+				if i%3 == 2 {
+					printMsg += "\n"
+				}
+			}
+		}
+		printMsg += "투표시작"
 	}
-	printMsg += "투표시작"
-	s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed("**특수능력 사용 순서**", printMsg))
+	s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed("**"+printTitle+"**", printMsg))
 }

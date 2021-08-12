@@ -44,7 +44,6 @@ func MongoConn(env map[string]string) (client *mongo.Client, ctx context.Context
 			Password:   env["dbPassword"],
 		},
 	)
-
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Fatal(err)
