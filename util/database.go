@@ -36,7 +36,14 @@ func MongoConn(env map[string]string) (client *mongo.Client, ctx context.Context
 	ctx, _ = context.WithTimeout(context.Background(), time.Second*4)
 
 	// Authetication 을 위한 Client Option 구성
-	clientOptions := options.Client().ApplyURI(env["dbURI"])
+	clientOptions := options.Client().ApplyURI(
+		env["dbURI"]).SetAuth(
+		options.Credential{
+			AuthSource: "",
+			Username:   env["dbUserName"],
+			Password:   env["dbPassword"],
+		},
+	)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Fatal(err)
