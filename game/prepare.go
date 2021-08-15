@@ -54,7 +54,7 @@ func (sPrepare *Prepare) PressNumBtn(s *discordgo.Session, r *discordgo.MessageR
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 Prepare에서 하는 동작
-func (sPrepare *Prepare) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+func (sPrepare *Prepare) PressDisBtn(_ *discordgo.Session, _ *discordgo.MessageReaction) {
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 Prepare에서 하는 동작
@@ -214,7 +214,7 @@ func (sPrepare *Prepare) stateFinish() {
 }
 
 // filterReaction 함수는 입장 메세지랑 직업추가 메세지에 리액션한게 아니면 걸러준다.
-func (sPrepare *Prepare) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
+func (sPrepare *Prepare) filterReaction(_ *discordgo.Session, r *discordgo.MessageReaction) bool {
 	// 현재 스테이트에서 보낸 메세지에 리액션한 게 아니면 거름
 	if !(r.MessageID == sPrepare.EnterGameMsg.ID || r.MessageID == sPrepare.RoleAddMsg.ID) {
 		return true
@@ -261,7 +261,7 @@ func (sPrepare *Prepare) NewRoleAddEmbed() *embed.Embed {
 	return roleEmbed
 }
 
-// newEnterEmbed 함수는 게임 참여자 목록 임베드를 만든다
+// NewEnterEmbed 함수는 게임 참여자 목록 임베드를 만든다
 func (sPrepare *Prepare) NewEnterEmbed() *embed.Embed {
 	enterEmbed := embed.NewEmbed()
 	enterEmbed.SetTitle("게임 참가")

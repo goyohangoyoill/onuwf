@@ -4,20 +4,20 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-// RoleTemp 는 한밤의 늑대인간 중 <직업명> 에 대한 객체이다.
+// Temp 는 한밤의 늑대인간 중 <직업명> 에 대한 객체이다.
 type Temp struct {
 	id int
 }
 
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-func (tmp *Temp) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (tmp *Temp) SendUserSelectGuide(player *User, g *Game, _ int) string {
 	tmpEmbed := embed.NewEmbed()
 	msg, _ := g.Session.ChannelMessageSendEmbed(player.dmChanID, tmpEmbed.MessageEmbed)
 	return msg.ID
 }
 
 // Action 함수는 <직업명> 의 특수능력 사용에 대한 함수이다.
-func (tmp *Temp) Action(tar *TargetObject, player *User, g *Game) {
+func (tmp *Temp) Action(tar *TargetObject, _ *User, g *Game) {
 	//			<action Type>
 	//
 	//      uid1  uid2  disRoleIdx
@@ -37,7 +37,7 @@ func (tmp *Temp) Action(tar *TargetObject, player *User, g *Game) {
 }
 
 // GenLog 함수는 <직업명> 의 특수능력 사용에 대한 함수이다.
-func (tmp Temp) GenLog(tar *TargetObject, player *User, g *Game) {
+func (tmp Temp) GenLog(_ *TargetObject, _ *User, g *Game) {
 	g.AppendLog("여기에 로그 메시지를 입력하세요")
 }
 

@@ -18,9 +18,9 @@ func NewStateBeforeVote(g *Game) *StateBeforeVote {
 	return ac
 }
 
+// PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 state에서 하는 동작
 // 사용자 인원수 3 ~ 26
 // num: 0 ~ 23
-// PressNumBtn 사용자가 숫자 이모티콘을 눌렀을 때 state에서 하는 동작
 func (sb *StateBeforeVote) PressNumBtn(s *discordgo.Session, r *discordgo.MessageReaction, num int) {
 	player := sb.G.FindUserByUID(r.UserID)
 	curInfo := sb.Info[player.UserID]
@@ -29,23 +29,23 @@ func (sb *StateBeforeVote) PressNumBtn(s *discordgo.Session, r *discordgo.Messag
 }
 
 // PressDisBtn 사용자가 버려진 카드 이모티콘을 눌렀을 때 state에서 하는 동작
-func (sb *StateBeforeVote) PressDisBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+func (sb *StateBeforeVote) PressDisBtn(_ *discordgo.Session, _ *discordgo.MessageReaction) {
 }
 
 // PressYesBtn 사용자가 yes 이모티콘을 눌렀을 때 state에서 하는 동작
-func (sb *StateBeforeVote) PressYesBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+func (sb *StateBeforeVote) PressYesBtn(_ *discordgo.Session, _ *discordgo.MessageReaction) {
 }
 
 // PressNoBtn 사용자가 No 이모티콘을 눌렀을 때 state에서 하는 동작
-func (sb *StateBeforeVote) PressNoBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+func (sb *StateBeforeVote) PressNoBtn(_ *discordgo.Session, _ *discordgo.MessageReaction) {
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 state에서 하는 동작
-func (sb *StateBeforeVote) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
+func (sb *StateBeforeVote) PressDirBtn(_ *discordgo.Session, _ *discordgo.MessageReaction, _ int) {
 }
 
 // PressBmkBtn DB에 저장된 정보를 load 하는 동작
-func (sb *StateBeforeVote) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+func (sb *StateBeforeVote) PressBmkBtn(_ *discordgo.Session, _ *discordgo.MessageReaction) {
 	//do nothing
 }
 
@@ -103,6 +103,6 @@ func (sb *StateBeforeVote) stateFinish() {
 // filterReaction 함수는 각 스테이트에서 보낸 메세지에 리액션 했는지 거르는 함수이다.
 // 각 스테이트에서 보낸 메세지의 아이디와 리액션이 온 아이디가 동일한지 확인 및
 // 메세지에 리액션 한 것을 지워주어야 한다.
-func (sb *StateBeforeVote) filterReaction(s *discordgo.Session, r *discordgo.MessageReaction) bool {
+func (sb *StateBeforeVote) filterReaction(_ *discordgo.Session, _ *discordgo.MessageReaction) bool {
 	return false
 }

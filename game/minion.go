@@ -12,7 +12,7 @@ type Minion struct {
 }
 
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-func (min *Minion) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (min *Minion) SendUserSelectGuide(_ *User, _ *Game, _ int) string {
 	return "Minion have no Msg"
 }
 

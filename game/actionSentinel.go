@@ -62,7 +62,7 @@ func (sActionSentinel *ActionSentinel) PressNoBtn(s *discordgo.Session, r *disco
 }
 
 // PressDirBtn 좌 -1, 우 1 사용자가 좌우 방향 이모티콘을 눌렀을 때 ActionSentinel에서 하는 동작
-func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, dir int) {
+func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *discordgo.MessageReaction, _ int) {
 	// 게임 진행과 관련된 메세지에 달린 리액션 지운다
 	if sActionSentinel.filterReaction(s, r) {
 		return
@@ -70,7 +70,7 @@ func (sActionSentinel *ActionSentinel) PressDirBtn(s *discordgo.Session, r *disc
 }
 
 // PressBmkBtn DB에 저장된 정보를 load 하는 동작
-func (sActionSentinel *ActionSentinel) PressBmkBtn(s *discordgo.Session, r *discordgo.MessageReaction) {
+func (sActionSentinel *ActionSentinel) PressBmkBtn(_ *discordgo.Session, _ *discordgo.MessageReaction) {
 	//do nothing
 }
 

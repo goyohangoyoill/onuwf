@@ -6,16 +6,16 @@ type Hunter struct {
 }
 
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-func (h *Hunter) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (h *Hunter) SendUserSelectGuide(_ *User, _ *Game, _ int) string {
 	return "Hunter have no Msg"
 }
 
 // Action 함수는 <사냥꾼> 의 특수능력 사용에 대한 함수이다.
-func (h *Hunter) Action(tar *TargetObject, player *User, g *Game) {
+func (h *Hunter) Action(_ *TargetObject, _ *User, _ *Game) {
 }
 
 // GenLog 함수는 <사냥꾼> 의 특수능력 사용에 대한 함수이다.
-func (h *Hunter) GenLog(tar *TargetObject, player *User, g *Game) {
+func (h *Hunter) GenLog(_ *TargetObject, _ *User, _ *Game) {
 }
 
 // String 함수는 <사냥꾼> 문자열을 반환하는 함수이다.

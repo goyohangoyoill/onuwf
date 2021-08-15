@@ -304,7 +304,7 @@ func (g *Game) GetOriRole(uid string) Role {
 	for i := 0; i < len(g.RoleSeq); i++ {
 		if g.OriRoleIdxTable[idx][i] > 0 {
 			if g.OriRoleIdxTable[idx][i] == 2 {
-				return (&Doppelganger{})
+				return &Doppelganger{}
 			}
 			return g.RoleSeq[i]
 		}
@@ -357,7 +357,7 @@ func (g *Game) SwapRoleFromUser(uid1, uid2 string) {
 	g.setRole(uid2, role1)
 }
 
-// 버려진 직업 중 하나 확인.
+// GetDisRole : 버려진 직업 중 하나 확인.
 func (g *Game) GetDisRole(disRoleIdx int) Role {
 	return g.DisRole[disRoleIdx]
 }

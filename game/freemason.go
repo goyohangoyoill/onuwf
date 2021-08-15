@@ -6,13 +6,13 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-// RoleFreemason 는 한밤의 늑대인간 중 <프리메이슨> 에 대한 객체이다.
+// Freemason 는 한밤의 늑대인간 중 <프리메이슨> 에 대한 객체이다.
 type Freemason struct {
 	id int
 }
 
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-func (frm *Freemason) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (frm *Freemason) SendUserSelectGuide(_ *User, _ *Game, _ int) string {
 	return "freemason has no guide msg"
 }
 
@@ -44,7 +44,7 @@ func (frm *Freemason) Action(tar *TargetObject, player *User, g *Game) {
 }
 
 // GenLog 함수는 <프리메이슨> 의 특수능력 사용에 대한 함수이다.
-func (frm *Freemason) GenLog(tar *TargetObject, player *User, g *Game) {
+func (frm *Freemason) GenLog(tar *TargetObject, _ *User, g *Game) {
 	var frmMsg string
 	switch tar.actionType {
 	case -1:

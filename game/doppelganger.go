@@ -12,7 +12,7 @@ type Doppelganger struct {
 }
 
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-func (dpl *Doppelganger) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (dpl *Doppelganger) SendUserSelectGuide(player *User, g *Game, _ int) string {
 	title := "직업을 복사할 플레이어를 고르세요"
 	curEmbed := embed.NewEmbed()
 	curEmbed.SetTitle(title)

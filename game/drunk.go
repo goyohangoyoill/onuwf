@@ -6,13 +6,13 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-// RoleTemp 는 한밤의 늑대인간 중 <직업명> 에 대한 객체이다.
+// Drunk 는 한밤의 늑대인간 중 <직업명> 에 대한 객체이다.
 type Drunk struct {
 	id int
 }
 
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-func (dr *Drunk) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (dr *Drunk) SendUserSelectGuide(player *User, g *Game, _ int) string {
 	curEmbed := embed.NewEmbed()
 	curEmbed.SetTitle("버려진 직업 셋 중 하나를 선택하세요. 선택한 직업과 변경됩니다")
 	msgObj, _ := g.Session.ChannelMessageSendEmbed(player.dmChanID, curEmbed.MessageEmbed)

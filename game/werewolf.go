@@ -12,7 +12,7 @@ type Werewolf struct {
 }
 
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-func (wf *Werewolf) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (wf *Werewolf) SendUserSelectGuide(player *User, g *Game, _ int) string {
 	curEmbed := embed.NewEmbed()
 	curEmbed.SetTitle("당신은 유일한 늑대인간입니다.")
 	curEmbed.AddField("버려진 직업 셋 중 하나를 선택해 볼 수 있습니다.", "1번 🃏 2번 🃏 3번 🃏")

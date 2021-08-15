@@ -13,12 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-/*
-type LoadDBInfo struct {
-	MatchedUserList []*LoadedUser
-	LastRoleSeq     []int //User로
-}
-*/
 type SaveDBInfo struct {
 	CurUserList []*UserData
 	CurRoleSeq  []int
@@ -35,7 +29,7 @@ func MongoConn(env map[string]string) (client *mongo.Client, ctx context.Context
 	// timeout 기반의 Context 생성
 	ctx, _ = context.WithTimeout(context.Background(), time.Second*4)
 
-	// Authetication 을 위한 Client Option 구성
+	// Authentication 을 위한 Client Option 구성
 	clientOptions := options.Client().ApplyURI(
 		env["dbURI"]).SetAuth(
 		options.Credential{
@@ -57,23 +51,6 @@ func MongoConn(env map[string]string) (client *mongo.Client, ctx context.Context
 	return client, ctx
 }
 
-/*
-type LoadedUser struct {
-	UserID   string
-	Nick     string
-	Title    string
-	LastRole []int
-}
-
-type InputUser struct {
-	UserID         string `bson: "UserID"`
-	Nick           string `bson: "Nick"`
-	Title          string `bson: "Title"`
-	LastPlayedDate string `bson: "LastPlayedDate"`
-	Played         int    `bson: "Played"`
-	LastRole       []int  `bson: "LastRole"`
-}
-*/
 func LoadEachUser(uid string, m bool, collection string, mongoDB *mongo.Database, ctx context.Context) (UserData, bool) {
 	result := UserData{}
 	filter := bson.D{{"uid", uid}}
@@ -140,18 +117,18 @@ func SaveGame(sGame GameData, t time.Time, collection string, mongoDB *mongo.Dat
 	return OID.String()
 }
 
-func SaveEachUser(user *UserData, curGameOID string, win bool, most_v bool, t time.Time, collection string, mongoDB *mongo.Database, ctx context.Context) {
+func SaveEachUser(user *UserData, curGameOID string, win bool, mostVoted bool, t time.Time, collection string, mongoDB *mongo.Database, ctx context.Context) {
 	filter := bson.D{{"uid", user.UID}}
 	update := bson.D{}
 	if win == true {
 		//t := time.Now()
-		if most_v == true {
+		if mostVoted == true {
 			update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"mostvoted", user.MostVoted + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
 		} else {
 			update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"cntwin", user.CntWin + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
 		}
 	} else {
-		if most_v == true {
+		if mostVoted == true {
 			update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"mostvoted", user.MostVoted + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}
 		} else {
 			update = bson.D{{"$set", bson.D{{"recentgametime", t}, {"cntplay", user.CntPlay + 1}, {"playedgameoid", append(user.PlayedGameOID, curGameOID)}}}}

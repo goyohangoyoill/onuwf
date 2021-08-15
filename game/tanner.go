@@ -6,12 +6,12 @@ type Tanner struct {
 }
 
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-func (tmp *Tanner) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (tmp *Tanner) SendUserSelectGuide(_ *User, _ *Game, _ int) string {
 	return "Tanner has no special msg"
 }
 
 // Action 함수는 <무두장이> 의 특수능력 사용에 대한 함수이다.
-func (tmp *Tanner) Action(tar *TargetObject, player *User, g *Game) {
+func (tmp *Tanner) Action(_ *TargetObject, _ *User, _ *Game) {
 	//			<action Type>
 	//
 	//      uid1  uid2  disRoleIdx
@@ -23,7 +23,7 @@ func (tmp *Tanner) Action(tar *TargetObject, player *User, g *Game) {
 }
 
 // GenLog 함수는 <무두장이> 의 특수능력 사용에 대한 함수이다.
-func (tmp Tanner) GenLog(tar *TargetObject, player *User, g *Game) {
+func (tmp Tanner) GenLog(_ *TargetObject, _ *User, _ *Game) {
 }
 
 // String 함수는 <무두장이> 문자열을 반환하는 함수이다.

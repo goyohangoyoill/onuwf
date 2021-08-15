@@ -4,12 +4,12 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-// RoleTemp 는 한밤의 늑대인간 중 <직업명> 에 대한 객체이다.
+// Insomniac 는 한밤의 늑대인간 중 <직업명> 에 대한 객체이다.
 type Insomniac struct {
 	id int
 }
 
-func (is *Insomniac) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (is *Insomniac) SendUserSelectGuide(_ *User, _ *Game, _ int) string {
 	return "Insomniac have no Msg"
 }
 

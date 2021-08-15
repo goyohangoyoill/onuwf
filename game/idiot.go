@@ -4,7 +4,7 @@ import (
 	embed "github.com/clinet/discordgo-embed"
 )
 
-// RoleIdiot 는 한밤의 늑대인간 중 <동네바보> 에 대한 객체이다.
+// Idiot 는 한밤의 늑대인간 중 <동네바보> 에 대한 객체이다.
 type Idiot struct {
 	id int
 }
@@ -49,7 +49,7 @@ func (idt *Idiot) Action(tar *TargetObject, player *User, g *Game) {
 }
 
 // GenLog 함수는 <동네바보> 의 특수능력 사용에 대한 함수이다.
-func (idt Idiot) GenLog(tar *TargetObject, player *User, g *Game) {
+func (idt Idiot) GenLog(_ *TargetObject, player *User, g *Game) {
 	g.AppendLog("동네 바보`" + player.nick + "`(이)가 일을 저질렀습니다. 헤헤")
 	// RotateAllUserRole 에서 로그도 쌓는다.
 }

@@ -6,16 +6,16 @@ type Villager struct {
 }
 
 // SendUserSelectGuide 직업 능력을 발휘하기 위한 선택지를 보내는 함수
-func (v *Villager) SendUserSelectGuide(player *User, g *Game, pageNum int) string {
+func (v *Villager) SendUserSelectGuide(_ *User, _ *Game, _ int) string {
 	return "Villager have no Msg"
 }
 
 // Action 함수는 <마을주민> 의 특수능력 사용에 대한 함수이다.
-func (v *Villager) Action(tar *TargetObject, player *User, g *Game) {
+func (v *Villager) Action(_ *TargetObject, _ *User, _ *Game) {
 }
 
 // GenLog 함수는 <마을주민> 의 특수능력 사용에 대한 함수이다.
-func (v *Villager) GenLog(tar *TargetObject, player *User, g *Game) {
+func (v *Villager) GenLog(_ *TargetObject, _ *User, _ *Game) {
 }
 
 // String 함수는 <마을주민> 문자열을 반환하는 함수이다.

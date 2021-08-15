@@ -8,7 +8,7 @@ type Role interface {
 	Action(tar *TargetObject, player *User, g *Game)
 	// GenLog 함수는 각 직업의 행동 로그를 쌓는 함수이다.
 	GenLog(tar *TargetObject, player *User, g *Game)
-	// Stirng 함수는 각 직업명을 리턴하는 함수이다.
+	// String 함수는 각 직업명을 리턴하는 함수이다.
 	String() string
 	// ID 함수는 각 직업의 고유값을 리턴하는 함수이다.
 	ID() int
@@ -28,10 +28,9 @@ const (
 	hunter
 	villager
 	tanner
-	roleMax
 )
 
-// 해당 함수 수정시에 role_guide.json도 수정이 필요
+// GenerateRole 해당 함수 수정시에 role_guide.json도 수정이 필요
 func GenerateRole(num int) (r Role) {
 	switch num {
 	case sentinel:
