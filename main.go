@@ -32,18 +32,6 @@ var (
 	globalStatus        string
 )
 
-/*
-type LoadDBInfo struct {
-	MatchedUserList []*wfGame.User
-	LastRoleSeq     []wfGame.Role //User로
-
-}/
-type SaveDBInfo struct {
-	CurUserList []*wfGame.User
-	CurRoleSeq  []int
-	mUserID     string
-}
-*/
 func init() {
 	env = json.EnvInit()
 	emj = json.EmojiInit()
