@@ -45,7 +45,7 @@
 서버 운영자에게 관리자 권한을 받거나 새로운 서버를 개설한 후<br>
 다음 링크에 접속하여 원하는 서버에 한밤의 늑대인간 봇을 추가하세요.<br>
 
-https://discord.com/api/oauth2/authorize?client_id=762653973680881685&permissions=67648&scope=bot
+https://discord.com/api/oauth2/authorize?client_id=762653973680881685&permissions=1073817664&scope=bot
 
 ### **봇 사용 방법**
 
