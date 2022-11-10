@@ -75,7 +75,7 @@ func printRoleInfo(s *discordgo.Session, m *discordgo.InteractionCreate, rg []Ro
 	classList := roleList(rg)
 	// ㅁ직업소개 모두
 	if classStr[1] == "모두" {
-		uChan, _ := s.UserChannelCreate(m.User.ID)
+		uChan, _ := s.UserChannelCreate(m.Member.User.ID)
 		for _, item := range classList {
 			s.ChannelMessageSendEmbed(uChan.ID, embed.NewGenericEmbed("**"+item+"**", roleGuide(item, rg)))
 		}

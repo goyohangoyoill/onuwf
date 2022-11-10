@@ -195,10 +195,10 @@ func startgame(s *discordgo.Session, m *discordgo.InteractionCreate, isTest bool
 	quitUserIDChan := make(chan string)
 	gameStartedChan := make(chan bool)
 	fqChanMap[m.GuildID+m.ChannelID] = make(chan bool, 1)
-	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.User.ID, s, rg, emj, config, enterUserIDChan, quitUserIDChan, gameStartedChan, env, isTest)
+	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Member.User.ID, s, rg, emj, config, enterUserIDChan, quitUserIDChan, gameStartedChan, env, isTest)
 	// Mutex 필요할 것으로 예상됨.
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
-	uidToGameData[m.User.ID] = curGame
+	uidToGameData[m.Member.User.ID] = curGame
 	flag := false
 	// juhur comment out
 	for {
@@ -393,7 +393,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 func myInfoHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
 	conn, mgctx := util.MongoConn(env)
-	user, _ := util.LoadEachUser(m.User.ID, false, "User", conn.Database("ONUWF"), mgctx)
+	user, _ := util.LoadEachUser(m.Member.User.ID, false, "User", conn.Database("ONUWF"), mgctx)
 	if user.CntPlay == 0 {
 		return
 	}
@@ -417,17 +417,17 @@ func showGameStateHandler(s *discordgo.Session, m *discordgo.InteractionCreate) 
 	if len(g.OriRoleIdxTable) == 0 {
 		return
 	}
-	if isUserIn[m.User.ID] {
+	if isUserIn[m.Member.User.ID] {
 		s.ChannelMessageSend(m.ChannelID, "게임에 참가중인 사람은 관전할 수 없습니다.")
 		return
 	}
-	dmChan, _ := s.UserChannelCreate(m.User.ID)
+	dmChan, _ := s.UserChannelCreate(m.Member.User.ID)
 	g.SendLogMsg(dmChan.ID)
 	s.ChannelMessageSend(dmChan.ID, "진행상황을 더 알고싶으면 게임중인 채널에서 `!관전` 을 다시 입력하세요")
 }
 
 func forceStopGameHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
-	if isUserIn[m.User.ID] {
+	if isUserIn[m.Member.User.ID] {
 		curChan := fqChanMap[m.GuildID+m.ChannelID]
 		// Mutex Lock
 		curChan <- true
@@ -436,7 +436,7 @@ func forceStopGameHandler(s *discordgo.Session, m *discordgo.InteractionCreate) 
 			<-curChan
 			return
 		}
-		if m.User.ID != g.MasterID {
+		if m.Member.User.ID != g.MasterID {
 			<-curChan
 			return
 		}
@@ -463,11 +463,11 @@ func startGameHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
 		s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
 		return
 	}
-	if isUserIn[m.User.ID] {
+	if isUserIn[m.Member.User.ID] {
 		s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 사용자입니다.")
 		return
 	}
-	isUserIn[m.User.ID] = true
+	isUserIn[m.Member.User.ID] = true
 	go startgame(s, m, false)
 }
 
