@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"strconv"
@@ -32,6 +33,95 @@ var (
 	globalStatus        string
 )
 
+var (
+	commands = []*discordgo.ApplicationCommand{
+		{
+			Name:        "시작",
+			Description: "한밤의 늑대인간 게임 시작",
+		},
+		{
+			Name:        "강제종료",
+			Description: "현재 채널에서 실행중인 게임 강제종료",
+		},
+		{
+			Name:        "관전",
+			Description: "현재 진행되고 있는 게임 정보를 DM으로 불러옵니다.",
+		},
+		{
+			Name:        "내정보",
+			Description: "내 프로필 정보를 불러옵니다.",
+		},
+		{
+			Name:        "도움말",
+			Description: "도움말 불러오기",
+		},
+		{
+			Name:        "명령어",
+			Description: "명령어 불러오기",
+		},
+		{
+			Name:        "help",
+			Description: "명령어 불러오기",
+		},
+		{
+			Name:        "게임배경",
+			Description: "게임배경 불러오기",
+		},
+		{
+			Name:        "게임방법",
+			Description: "게임방법 불러오기",
+		},
+		{
+			Name:        "참고",
+			Description: "참고 불러오기",
+		},
+		{
+			Name:        "승리조건",
+			Description: "승리조건 불러오기",
+		},
+		{
+			Name:        "직업목록",
+			Description: "직업목록 불러오기",
+		},
+		{
+			Name:        "직업순서",
+			Description: "직업순서 불러오기",
+		},
+		{
+			Name:        "직업서순",
+			Description: "직업순서 역순으로 불러오기",
+		},
+		{
+			Name:        "나무위키",
+			Description: "나무위키 링크 불러오기",
+		},
+	}
+
+	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"시작":   startGameHandler,
+		"강제종료": forceStopGameHandler,
+		"관전":   showGameStateHandler,
+		"내정보":  myInfoHandler,
+		"도움말":  helpHandler,
+		"명령어":  helpHandler,
+		"help": helpHandler,
+		"게임배경": helpHandler,
+		"게임방법": helpHandler,
+		"참고":   helpHandler,
+		"승리조건": helpHandler,
+		"직업순서": helpHandler,
+		"직업서순": helpHandler,
+		"나무위키": helpHandler,
+	}
+)
+
+func helpHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+
+	if json.PrintHelpList(s, i, rg, "") {
+		return
+	}
+}
+
 func init() {
 	env = json.EnvInit()
 	emj = json.EmojiInit()
@@ -54,6 +144,11 @@ func main() {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
+	dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+			h(s, i)
+		}
+	})
 	dg.AddHandler(messageCreate)
 	dg.AddHandler(messageReactionAdd)
 	err = dg.Open()
@@ -61,22 +156,49 @@ func main() {
 		fmt.Println("error opening connection,", err)
 		return
 	}
+	log.Println("Adding commands...")
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
+	for i, v := range commands {
+		cmd, err := dg.ApplicationCommandCreate(dg.State.User.ID, "", v)
+		if err != nil {
+			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+		}
+		registeredCommands[i] = cmd
+	}
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
+	log.Println("Removing commands...")
+	// // We need to fetch the commands, since deleting requires the command ID.
+	// // We are doing this from the returned commands on line 375, because using
+	// // this will delete all the commands, which might not be desirable, so we
+	// // are deleting only the commands that we added.
+	// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
+	// if err != nil {
+	// 	log.Fatalf("Could not fetch registered commands: %v", err)
+	// }
+
+	for _, v := range registeredCommands {
+		err := dg.ApplicationCommandDelete(dg.State.User.ID, "", v.ID)
+		if err != nil {
+			log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
+		}
+	}
+
+	log.Println("Gracefully shutting down.")
 	_ = dg.Close()
 }
 
-func startgame(s *discordgo.Session, m *discordgo.MessageCreate, isTest bool) {
+func startgame(s *discordgo.Session, m *discordgo.InteractionCreate, isTest bool) {
 	enterUserIDChan := make(chan string, 1)
 	quitUserIDChan := make(chan string)
 	gameStartedChan := make(chan bool)
 	fqChanMap[m.GuildID+m.ChannelID] = make(chan bool, 1)
-	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.Author.ID, s, rg, emj, config, enterUserIDChan, quitUserIDChan, gameStartedChan, env, isTest)
+	curGame := wfGame.NewGame(m.GuildID, m.ChannelID, m.User.ID, s, rg, emj, config, enterUserIDChan, quitUserIDChan, gameStartedChan, env, isTest)
 	// Mutex 필요할 것으로 예상됨.
 	guildChanToGameData[m.GuildID+m.ChannelID] = curGame
-	uidToGameData[m.Author.ID] = curGame
+	uidToGameData[m.User.ID] = curGame
 	flag := false
 	// juhur comment out
 	for {
@@ -217,85 +339,11 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// 명령어모음
-	if json.PrintHelpList(s, m, rg, config.Prefix) {
-		return
-	}
 	if isNickChange[m.Author.ID] {
 		chNick[m.Author.ID] <- m.Content
 		return
 	}
 	switch m.Content {
-	case config.Prefix + "시작":
-		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
-			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
-			return
-		}
-		if isUserIn[m.Author.ID] {
-			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 사용자입니다.")
-			return
-		}
-		isUserIn[m.Author.ID] = true
-		go startgame(s, m, false)
-	case config.Prefix + "강제종료":
-		if isUserIn[m.Author.ID] {
-			curChan := fqChanMap[m.GuildID+m.ChannelID]
-			// Mutex Lock
-			curChan <- true
-			g := guildChanToGameData[m.GuildID+m.ChannelID]
-			if g == nil {
-				<-curChan
-				return
-			}
-			if m.Author.ID != g.MasterID {
-				<-curChan
-				return
-			}
-			s.ChannelMessageSend(m.ChannelID, "3초 후 게임을 강제종료합니다.")
-			time.Sleep(3 * time.Second)
-			g = guildChanToGameData[m.GuildID+m.ChannelID]
-			if g == nil {
-				<-curChan
-			}
-			for _, user := range g.UserList {
-				delete(isUserIn, user.UserID)
-				delete(uidToGameData, user.UserID)
-			}
-			delete(guildChanToGameData, m.GuildID+m.ChannelID)
-			g.CanFunc()
-			s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
-			// Mutex Release
-			<-curChan
-		}
-	case config.Prefix + "관전":
-		g := guildChanToGameData[m.GuildID+m.ChannelID]
-		if g == nil {
-			return
-		}
-		if len(g.OriRoleIdxTable) == 0 {
-			return
-		}
-		if isUserIn[m.Author.ID] {
-			s.ChannelMessageSend(m.ChannelID, "게임에 참가중인 사람은 관전할 수 없습니다.")
-			return
-		}
-		dmChan, _ := s.UserChannelCreate(m.Author.ID)
-		g.SendLogMsg(dmChan.ID)
-		s.ChannelMessageSend(dmChan.ID, "진행상황을 더 알고싶으면 게임중인 채널에서 `!관전` 을 다시 입력하세요")
-	case config.Prefix + "테스트":
-		if !(m.Author.ID == "318743234601811969" || m.Author.ID == "837620336937533451" || m.Author.ID == "750596255255625759" || m.Author.ID == "383847223504666626") {
-			return
-		}
-		if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
-			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
-			return
-		}
-		if isUserIn[m.Author.ID] {
-			s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 사용자입니다.")
-			return
-		}
-		isUserIn[m.Author.ID] = true
-		s.ChannelMessageSend(m.ChannelID, "테스트 모드로 시작합니다.")
-		go startgame(s, m, true)
 	case config.Prefix + "확인":
 		g := guildChanToGameData[m.GuildID+m.ChannelID]
 		if g == nil {
@@ -316,22 +364,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		msg += "----------------------------------------------------\n"
 		s.ChannelMessageSend(m.ChannelID, msg)
 		g.SendLogMsg(m.ChannelID)
-	case config.Prefix + "내정보":
-		conn, mgctx := util.MongoConn(env)
-		user, _ := util.LoadEachUser(m.Author.ID, false, "User", conn.Database("ONUWF"), mgctx)
-		if user.CntPlay == 0 {
-			return
-		}
-		myInfoEmbed := embed.NewEmbed()
-		myInfoEmbed.SetTitle("한밤의 늑대인간 유저정보")
-		myInfoEmbed.AddField("닉네임", user.Nick)
-		if len(user.Title) > 0 {
-			myInfoEmbed.AddField("칭호", user.Title)
-		}
-		myInfoEmbed.AddField("게임횟수", strconv.Itoa(user.CntPlay)+"회")
-		myInfoEmbed.AddField("승리횟수", strconv.Itoa(user.CntWin)+"회(승률:"+strconv.Itoa(user.CntWin*100/user.CntPlay)+"%)")
-		myInfoEmbed.AddField("최근게임시간", user.RecentGameTime.String())
-		s.ChannelMessageSendEmbed(m.ChannelID, myInfoEmbed.MessageEmbed)
 	case config.Prefix + "닉네임":
 		isNickChange[m.Author.ID] = true
 		chNick[m.Author.ID] = make(chan string)
@@ -357,6 +389,86 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			isNickChange[m.Author.ID] = false
 		}
 	}
+}
+
+func myInfoHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
+	conn, mgctx := util.MongoConn(env)
+	user, _ := util.LoadEachUser(m.User.ID, false, "User", conn.Database("ONUWF"), mgctx)
+	if user.CntPlay == 0 {
+		return
+	}
+	myInfoEmbed := embed.NewEmbed()
+	myInfoEmbed.SetTitle("한밤의 늑대인간 유저정보")
+	myInfoEmbed.AddField("닉네임", user.Nick)
+	if len(user.Title) > 0 {
+		myInfoEmbed.AddField("칭호", user.Title)
+	}
+	myInfoEmbed.AddField("게임횟수", strconv.Itoa(user.CntPlay)+"회")
+	myInfoEmbed.AddField("승리횟수", strconv.Itoa(user.CntWin)+"회(승률:"+strconv.Itoa(user.CntWin*100/user.CntPlay)+"%)")
+	myInfoEmbed.AddField("최근게임시간", user.RecentGameTime.String())
+	s.ChannelMessageSendEmbed(m.ChannelID, myInfoEmbed.MessageEmbed)
+}
+
+func showGameStateHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
+	g := guildChanToGameData[m.GuildID+m.ChannelID]
+	if g == nil {
+		return
+	}
+	if len(g.OriRoleIdxTable) == 0 {
+		return
+	}
+	if isUserIn[m.User.ID] {
+		s.ChannelMessageSend(m.ChannelID, "게임에 참가중인 사람은 관전할 수 없습니다.")
+		return
+	}
+	dmChan, _ := s.UserChannelCreate(m.User.ID)
+	g.SendLogMsg(dmChan.ID)
+	s.ChannelMessageSend(dmChan.ID, "진행상황을 더 알고싶으면 게임중인 채널에서 `!관전` 을 다시 입력하세요")
+}
+
+func forceStopGameHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
+	if isUserIn[m.User.ID] {
+		curChan := fqChanMap[m.GuildID+m.ChannelID]
+		// Mutex Lock
+		curChan <- true
+		g := guildChanToGameData[m.GuildID+m.ChannelID]
+		if g == nil {
+			<-curChan
+			return
+		}
+		if m.User.ID != g.MasterID {
+			<-curChan
+			return
+		}
+		s.ChannelMessageSend(m.ChannelID, "3초 후 게임을 강제종료합니다.")
+		time.Sleep(3 * time.Second)
+		g = guildChanToGameData[m.GuildID+m.ChannelID]
+		if g == nil {
+			<-curChan
+		}
+		for _, user := range g.UserList {
+			delete(isUserIn, user.UserID)
+			delete(uidToGameData, user.UserID)
+		}
+		delete(guildChanToGameData, m.GuildID+m.ChannelID)
+		g.CanFunc()
+		s.ChannelMessageSend(m.ChannelID, "게임을 강제종료 했습니다.")
+		// Mutex Release
+		<-curChan
+	}
+}
+
+func startGameHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
+	if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
+		s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
+		return
+	}
+	if isUserIn[m.User.ID] {
+		s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 사용자입니다.")
+		return
+	}
+	isUserIn[m.User.ID] = true
+	go startgame(s, m, false)
 }
 
 // messageReactionAdd 함수는 인게임 버튼 이모지 상호작용 처리를 위한 이벤트 핸들러 함수입니다.

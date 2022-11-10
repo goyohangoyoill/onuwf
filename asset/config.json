@@ -1,5 +1,5 @@
 {
-	"prefix": "!",
+	"prefix": "",
 	"voteDelaySec": 10,
 	"nickChangeSec": 15,
 	"disRoleDelaySec": 15

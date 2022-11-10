@@ -65,13 +65,9 @@ func roleList(rg []RoleGuide) []string {
 
 // "ㅁ직업소개 <직업명>", "ㅁ직업소개" 입력시 실행되는 함수
 // 메세지 출력시: true, 미출력시: false
-func printRoleInfo(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGuide, prefix string) bool {
-	// "ㅁ직업소개"로 시작하지 않는 명령어
-	if !strings.HasPrefix(m.Content, prefix+"직업소개") {
-		return false
-	}
+func printRoleInfo(s *discordgo.Session, m *discordgo.InteractionCreate, rg []RoleGuide, prefix string) bool {
 	// "ㅁ직업소개"만 입력시
-	classStr := strings.Split(m.Content, " ")
+	classStr := strings.Split(m.ApplicationCommandData().Name, " ")
 	if len(classStr) == 1 {
 		s.ChannelMessageSendEmbed(m.ChannelID, embed.NewGenericEmbed("직업소개", prefix+"직업소개 <직업명> 으로 요청하세요."))
 		return true
@@ -79,7 +75,7 @@ func printRoleInfo(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 	classList := roleList(rg)
 	// ㅁ직업소개 모두
 	if classStr[1] == "모두" {
-		uChan, _ := s.UserChannelCreate(m.Author.ID)
+		uChan, _ := s.UserChannelCreate(m.User.ID)
 		for _, item := range classList {
 			s.ChannelMessageSendEmbed(uChan.ID, embed.NewGenericEmbed("**"+item+"**", roleGuide(item, rg)))
 		}
@@ -99,10 +95,7 @@ func printRoleInfo(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 }
 
 // "ㅁ직업목록" 명령어 입력시 실행되는 함수
-func printRoleList(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGuide, prefix string) {
-	if m.Content != prefix+"직업목록" {
-		return
-	}
+func printRoleList(s *discordgo.Session, m *discordgo.InteractionCreate, rg []RoleGuide, prefix string) {
 	roleList := roleList(rg)
 	printMsg := ""
 	for i, item := range roleList {
@@ -118,7 +111,7 @@ func printRoleList(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGu
 }
 
 // 능력순서 임베드를 출력하는 함수
-func printSkillOrder(s *discordgo.Session, m *discordgo.MessageCreate, rg []RoleGuide, prefix string, isReversed bool) {
+func printSkillOrder(s *discordgo.Session, m *discordgo.InteractionCreate, rg []RoleGuide, prefix string, isReversed bool) {
 	printTitle := ""
 	printMsg := ""
 	roleList := roleList(rg)
