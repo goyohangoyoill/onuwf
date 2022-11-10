@@ -116,7 +116,12 @@ var (
 )
 
 func helpHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-
+	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "명령 처리중...",
+		},
+	})
 	if json.PrintHelpList(s, i, rg, "") {
 		return
 	}
@@ -407,6 +412,12 @@ func myInfoHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
 	myInfoEmbed.AddField("승리횟수", strconv.Itoa(user.CntWin)+"회(승률:"+strconv.Itoa(user.CntWin*100/user.CntPlay)+"%)")
 	myInfoEmbed.AddField("최근게임시간", user.RecentGameTime.String())
 	s.ChannelMessageSendEmbed(m.ChannelID, myInfoEmbed.MessageEmbed)
+	s.InteractionRespond(m.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "내 정보 불러오기 완료",
+		},
+	})
 }
 
 func showGameStateHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
@@ -424,9 +435,21 @@ func showGameStateHandler(s *discordgo.Session, m *discordgo.InteractionCreate) 
 	dmChan, _ := s.UserChannelCreate(m.Member.User.ID)
 	g.SendLogMsg(dmChan.ID)
 	s.ChannelMessageSend(dmChan.ID, "진행상황을 더 알고싶으면 게임중인 채널에서 `!관전` 을 다시 입력하세요")
+	s.InteractionRespond(m.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "게임 상태 불러오기 완료",
+		},
+	})
 }
 
 func forceStopGameHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
+	s.InteractionRespond(m.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "강제종료 요청 처리중...",
+		},
+	})
 	if isUserIn[m.Member.User.ID] {
 		curChan := fqChanMap[m.GuildID+m.ChannelID]
 		// Mutex Lock
@@ -459,6 +482,12 @@ func forceStopGameHandler(s *discordgo.Session, m *discordgo.InteractionCreate) 
 }
 
 func startGameHandler(s *discordgo.Session, m *discordgo.InteractionCreate) {
+	s.InteractionRespond(m.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "게임 시작 처리중...",
+		},
+	})
 	if guildChanToGameData[m.GuildID+m.ChannelID] != nil {
 		s.ChannelMessageSend(m.ChannelID, "게임을 진행중인 채널입니다.")
 		return
